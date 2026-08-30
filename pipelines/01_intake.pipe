@@ -1,0 +1,125 @@
+{
+  "components": [
+    {
+      "id": "webhook_intake",
+      "provider": "webhook",
+      "name": "Webhook Ingestion Node",
+      "description": "Receives HTTP POST requests containing raw PDF invoices and EML email attachments.",
+      "config": {
+        "path": "/intake",
+        "methods": [
+          "POST"
+        ],
+        "hideForm": true,
+        "mode": "Source",
+        "parameters": {},
+        "type": "webhook"
+      },
+      "ui": {
+        "position": {
+          "x": 20,
+          "y": 50
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "dropper",
+      "provider": "dropper",
+      "name": "File Dropper",
+      "description": "Saves raw ingested payload to case temporary storage directory.",
+      "config": {
+        "output_dir": "/tmp/cases",
+        "naming": "case_id"
+      },
+      "ui": {
+        "position": {
+          "x": 290,
+          "y": 50
+        },
+        "nodeType": "default",
+        "formDataValid": false
+      },
+      "input": [
+        {
+          "lane": "output",
+          "from": "webhook_intake"
+        }
+      ]
+    },
+    {
+      "id": "classify_kind",
+      "provider": "python_tool",
+      "name": "Document Classifier",
+      "description": "Inspects MIME type and file extension to classify payload as invoice or email.",
+      "config": {
+        "function": "worker.utils.email_parser.classify_kind",
+        "inputs": {
+          "mime_type": "{{ dropper.mime_type }}",
+          "file_extension": "{{ dropper.extension }}"
+        },
+        "outputs": {
+          "kind": "string"
+        }
+      },
+      "ui": {
+        "position": {
+          "x": -130,
+          "y": -30
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      },
+      "input": [
+        {
+          "lane": "output",
+          "from": "dropper"
+        }
+      ]
+    },
+    {
+      "id": "persist_case",
+      "provider": "http_request",
+      "name": "Case Storage Initializer",
+      "description": "Creates initial case entry with 'queued' status in SQLite runtime database.",
+      "config": {
+        "method": "POST",
+        "url": "{{ env.WORKER_URL }}/internal/cases",
+        "body": {
+          "case_id": "{{ dropper.case_id }}",
+          "source_path": "{{ dropper.path }}",
+          "kind": "{{ classify_kind.kind }}",
+          "status": "queued",
+          "run_id": "{{ dropper.run_id }}"
+        }
+      },
+      "ui": {
+        "position": {
+          "x": 110,
+          "y": -50
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      },
+      "input": [
+        {
+          "lane": "output",
+          "from": "classify_kind"
+        }
+      ]
+    }
+  ],
+  "name": "Stage 01 — Case Intake Pipeline",
+  "description": "Ingests incoming PDF invoices and EML emails via webhook, cleans payload, parses document text, classifies document type via LLM, and returns intake status.",
+  "version": 1,
+  "source": "webhook_1",
+  "project_id": "71bd3b36-422a-4cb7-9340-247ec7d837e1",
+  "isLocked": false,
+  "snapToGrid": true,
+  "snapGridSize": [
+    10,
+    10
+  ],
+  "docRevision": 7
+}

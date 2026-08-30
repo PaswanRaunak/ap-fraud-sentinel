@@ -1,0 +1,32 @@
+# OS & Temp Files
+.DS_Store
+Thumbs.db
+*.log
+
+# Python & Node Build Artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+node_modules/
+.next/
+dist/
+build/
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+.env.local
+
+# Database & Uploads
+*.db
+db/*.db
+db/*.db-journal
+data/uploads/
+
+# Keep RocketRide extension docs & pipe files
+!.rocketride/
+*.tsbuildinfo
+.vercel
