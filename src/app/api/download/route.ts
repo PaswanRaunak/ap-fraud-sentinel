@@ -1,10 +1,10 @@
-// GET /api/download — bundles the whole project as a ready-to-run ZIP for the
+// GET /api/download - bundles the whole project as a ready-to-run ZIP for the
 // user's own PC. Differences vs. this hosted sandbox tree:
 //   * .env is injected with a portable relative DATABASE_URL (no /home/z paths)
 //   * package.json scripts are rewritten (no `tee dev.log`, standard next
 //     build/start, plus `npm run ws` / `npm run worker` conveniences)
 //   * runtime junk is excluded (node_modules, .next, logs, runtime audio,
-//     uploads, the SQLite db itself — setup scripts recreate it)
+//     uploads, the SQLite db itself - setup scripts recreate it)
 // The archive is built in memory with src/lib/zip.ts (no deps).
 
 import { promises as fs } from 'node:fs';
@@ -68,7 +68,7 @@ async function walkDir(zip: ZipWriter, absDir: string, relDir: string): Promise<
   entries.sort((a, b) => a.name.localeCompare(b.name));
   for (const entry of entries) {
     if (SKIP_NAMES.has(entry.name)) continue;
-    // Runtime filesystem path — not a module import for turbopack to trace.
+    // Runtime filesystem path - not a module import for turbopack to trace.
     const abs = path.join(/* turbopackIgnore: true */ absDir, entry.name);
     const rel = `${relDir}/${entry.name}`;
     if (entry.isDirectory()) {
@@ -98,7 +98,7 @@ function buildPcPackageJson(original: unknown): string {
   return JSON.stringify({ ...pkg, scripts }, null, 2);
 }
 
-/** Portable .env — relative SQLite path resolves from prisma/schema.prisma. */
+/** Portable .env - relative SQLite path resolves from prisma/schema.prisma. */
 const PC_ENV = `DATABASE_URL=file:../db/custom.db
 
 # AP Payment Fraud Sentinel
@@ -136,7 +136,7 @@ export async function GET() {
         zip.add(`${PREFIX}/${file}`, data, { mtime: st.mtime, mode });
         count += 1;
       } catch {
-        // Optional file missing — skip.
+        // Optional file missing - skip.
       }
     }
 

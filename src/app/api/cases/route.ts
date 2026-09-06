@@ -1,4 +1,4 @@
-// GET /api/cases — paginated, filterable case list.
+// GET /api/cases - paginated, filterable case list.
 // Query: ?status=&vendor_id=&runId=&page=&limit=&search=&fraud_type=
 // Returns { items: CaseRecordExt[], total, page, limit } where each item is a
 // CaseRecord plus parsed `evidencePack` and `facts` fields (per Task 3-a spec).
@@ -40,7 +40,7 @@ export async function GET(req: Request) {
   );
   const offset = (page - 1) * limitRaw;
 
-  // Compose a parameterized WHERE clause — case-insensitive & flexible matching
+  // Compose a parameterized WHERE clause - case-insensitive & flexible matching
   const where: string[] = [];
   const params: (string | number)[] = [];
 
@@ -88,7 +88,7 @@ export async function GET(req: Request) {
   }
   const whereClause = where.length ? `WHERE ${where.join(' AND ')}` : '';
 
-  // ORDER BY createdAt DESC, caseId — newest first, deterministic tiebreak.
+  // ORDER BY createdAt DESC, caseId - newest first, deterministic tiebreak.
   const rows = (await db.$queryRawUnsafe<CaseRow[]>(`
     SELECT * FROM "Case" ${whereClause}
     ORDER BY "createdAt" DESC, "caseId" ASC

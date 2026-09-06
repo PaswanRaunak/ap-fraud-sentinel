@@ -1,4 +1,4 @@
-"""worker.agents — the 3 Stage 05 subagents.
+"""worker.agents - the 3 Stage 05 subagents.
 
 Each subagent:
   - Builds a system+user prompt pair from the prompt markdown + the case data.
@@ -6,7 +6,7 @@ Each subagent:
     server-side). If the route is unavailable (connection refused), the agent
     produces a deterministic fallback so the demo golden path still works.
 
-The agents module is the ONLY place the worker reaches out to /api/ai/* — the
+The agents module is the ONLY place the worker reaches out to /api/ai/* - the
 build prompt forbids importing z-ai-web-dev-sdk into Python.
 
 Tiebreak is always `hold`.
@@ -39,7 +39,7 @@ def _load_prompt(name: str) -> str:
         with open(path, "r", encoding="utf-8") as f:
             return f.read()
     except OSError as exc:
-        log.warning("could not load prompt %s: %s — using inline fallback", path, exc)
+        log.warning("could not load prompt %s: %s - using inline fallback", path, exc)
         return f"You are the {name} agent in the AP Payment Fraud Sentinel pipeline."
 
 
@@ -91,7 +91,7 @@ async def _call_llm(system: str, user: str, max_tokens: int = 250, temperature: 
                 else:
                     log.debug("LLM route returned %s", resp.status)
     except Exception as exc:
-        log.warning("LLM route unavailable at %s: %s — trying direct Ollama", LLM_URL, exc)
+        log.warning("LLM route unavailable at %s: %s - trying direct Ollama", LLM_URL, exc)
     
     return await _call_ollama_direct(system, user, max_tokens, temperature)
 
@@ -187,7 +187,7 @@ def _fallback_bec_analyst(signals: list[dict], facts: dict, vendor: dict | None,
         )
     else:
         narrative = (
-            f"Invoice {invoice_no} for {vendor_name} (${amount:,.2f}) — no deterministic signals fired. "
+            f"Invoice {invoice_no} for {vendor_name} (${amount:,.2f}) - no deterministic signals fired. "
             f"Amount within historical range; no bank-change request detected. Stage 05 review complete."
         )
     return {
@@ -199,7 +199,7 @@ def _fallback_bec_analyst(signals: list[dict], facts: dict, vendor: dict | None,
 
 def _fallback_vendor_verifier(narrative: str, vendor: dict | None, risk_score: float, signals: list[dict]) -> dict:
     # The verifier asks: does the risk warrant an out-of-band call?
-    # Build prompt ties this to the frozen risk threshold (0.40) — NOT to
+    # Build prompt ties this to the frozen risk threshold (0.40) - NOT to
     # any single signal firing. Keying off individual signals caused
     # mass over-holding of legit invoices. The risk_score already weights
     # every fired signal; if it doesn't cross threshold, there is no case
@@ -208,12 +208,12 @@ def _fallback_vendor_verifier(narrative: str, vendor: dict | None, risk_score: f
     reason = (
         "Verify the bank-account change request before payment release."
         if verification_required
-        else "No verification required — deterministic signals silent and risk_score below threshold."
+        else "No verification required - deterministic signals silent and risk_score below threshold."
     )
     channel = "known_phone"
     if not vendor or not vendor.get("knownPhone"):
         channel = "manual_outreach"
-        reason = "Vendor not in master file — escalate to manual outreach."
+        reason = "Vendor not in master file - escalate to manual outreach."
     return {
         "verification_required": verification_required,
         "reason": reason,
@@ -231,7 +231,7 @@ def _fallback_case_builder(
     )
     pack = {
         "headline": (
-            f"{facts.get('case_id') or facts.get('caseId')} — {vendor_name} ${facts.get('amount_usd') or facts.get('amountUsd'):,.2f} "
+            f"{facts.get('case_id') or facts.get('caseId')} - {vendor_name} ${facts.get('amount_usd') or facts.get('amountUsd'):,.2f} "
             f"(top signal: {top_signals[0] if top_signals else 'none'})"
         ),
         "amount": float(facts.get("amount_usd") or facts.get("amountUsd") or 0),
@@ -250,9 +250,9 @@ def _fallback_case_builder(
     }
     # Build prompt: hold iff risk_score >= frozen threshold (0.40). The
     # verifier already gated on the same threshold; the case builder
-    # concurs. The manager's tiebreak is `hold` — applied below in
+    # concurs. The manager's tiebreak is `hold` - applied below in
     # run_agents when agents disagree. We do NOT hold on any single
-    # signal firing alone — that produced 87 holds on a 141-invoice
+    # signal firing alone - that produced 87 holds on a 141-invoice
     # batch where the demo target is ~3.
     recommend_hold = risk_score >= RISK_HOLD_THRESHOLD
     return {
@@ -276,7 +276,7 @@ async def run_agents(case: Mapping[str, Any]) -> dict:
         }
 
     When LLM is unavailable, every agent falls back to its deterministic
-    template — the recommendation is still well-defined and the demo runs.
+    template - the recommendation is still well-defined and the demo runs.
     """
     signals = list(case.get("signals") or [])
     facts = case.get("facts") or {}
@@ -334,7 +334,7 @@ async def run_agents(case: Mapping[str, Any]) -> dict:
         used_llm_3 = False
 
     # --- Manager arbitration ---
-    # In the deterministic local path, the manager's tiebreak is `hold` —
+    # In the deterministic local path, the manager's tiebreak is `hold` -
     # any agent recommending hold wins; pass only if all three say pass.
     # When the LLM is live, the manager verdict from CrewAI would be the
     # same arbitration. We don't call the LLM a 4th time here.

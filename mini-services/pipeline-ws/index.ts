@@ -1,11 +1,11 @@
-// pipeline-ws — WebSocket trace mini-service for the AP Payment Fraud Sentinel.
+// pipeline-ws - WebSocket trace mini-service for the AP Payment Fraud Sentinel.
 //
 // Standalone Bun project. Receives pipeline trace events from the Python worker
 // (Task 2-b) via plain HTTP POST /trace, and broadcasts them to Next.js
 // dashboard clients over socket.io on the 'trace' event.
 //
-// Port: 3003 (hardcoded — do NOT use PORT env).
-// socket.io path: '/' (Caddy relies on this — do NOT change).
+// Port: 3003 (hardcoded - do NOT use PORT env).
+// socket.io path: '/' (Caddy relies on this - do NOT change).
 // Dashboard connects with: io('/?XTransformPort=3003')  (never io('http://localhost:3003'))
 //
 // TraceEvent shape mirrors src/lib/types.ts (re-declared locally; this is a
@@ -64,7 +64,7 @@ export interface TraceEvent {
 }
 
 // ---- Config ----
-// Dedicated WS_PORT env override (default 3003). Never PORT — that's the
+// Dedicated WS_PORT env override (default 3003). Never PORT - that's the
 // generic env the sandbox may set for other services.
 const PORT = Number(process.env.WS_PORT ?? 3003);
 
@@ -73,14 +73,14 @@ function router(req: IncomingMessage, res: ServerResponse): void {
   const url = req.url || '/';
   const pathname = url.split('?')[0];
 
-  // GET /healthz — liveness probe
+  // GET /healthz - liveness probe
   if (req.method === 'GET' && pathname === '/healthz') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ ok: true, service: 'pipeline-ws', port: PORT }));
     return;
   }
 
-  // POST /trace — worker pushes a TraceEvent JSON body, broadcast on 'trace'
+  // POST /trace - worker pushes a TraceEvent JSON body, broadcast on 'trace'
   if (req.method === 'POST' && pathname === '/trace') {
     let body = '';
     req.on('data', (chunk: Buffer | string) => {
@@ -95,7 +95,7 @@ function router(req: IncomingMessage, res: ServerResponse): void {
             ok: false,
             error: 'missing required fields (type, runId)',
           }));
-          console.warn('[trace] 400 — malformed body:', body.slice(0, 200));
+          console.warn('[trace] 400 - malformed body:', body.slice(0, 200));
           return;
         }
 
@@ -116,7 +116,7 @@ function router(req: IncomingMessage, res: ServerResponse): void {
       } catch (err) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: false, error: 'invalid JSON' }));
-        console.warn('[trace] 400 — JSON parse error:', err);
+        console.warn('[trace] 400 - JSON parse error:', err);
       }
     });
     req.on('error', (err) => {
@@ -128,10 +128,10 @@ function router(req: IncomingMessage, res: ServerResponse): void {
     return;
   }
 
-  // GET / — human-friendly index
+  // GET / - human-friendly index
   if (req.method === 'GET' && (pathname === '/' || pathname === '/index.html')) {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('pipeline-ws — socket.io on path=/, POST /trace, GET /healthz\n');
+    res.end('pipeline-ws - socket.io on path=/, POST /trace, GET /healthz\n');
     return;
   }
 
@@ -144,7 +144,7 @@ const httpServer = createServer(router);
 
 // ---- socket.io server ----
 const io = new Server(httpServer, {
-  // DO NOT change the path — Caddy forwards /?XTransformPort=3003 here.
+  // DO NOT change the path - Caddy forwards /?XTransformPort=3003 here.
   path: '/',
   cors: {
     origin: '*',
@@ -166,7 +166,7 @@ function isEngineIoReq(req: IncomingMessage): boolean {
   const url = req.url || '';
   // engine.io polling & websocket requests always carry EIO (and transport).
   if (/[?&]EIO=/.test(url) || /[?&]transport=/.test(url)) return true;
-  // socket.io client library path (only if serveClient — false here).
+  // socket.io client library path (only if serveClient - false here).
   if (/^\/socket\.io(\.|\/|$)/.test(url)) return true;
   return false;
 }
@@ -184,7 +184,7 @@ httpServer.on('upgrade', (req: IncomingMessage, socket, head) => {
     io.engine.handleUpgrade(req, socket, head);
     return;
   }
-  // No other WebSocket upgrades expected — close politely.
+  // No other WebSocket upgrades expected - close politely.
   socket.destroy();
 });
 
@@ -193,7 +193,7 @@ io.on('connection', (socket: Socket) => {
   const count = io.engine?.clientsCount ?? 0;
   console.log(`[io] client connected id=${socket.id} total=${count}`);
 
-  // Greet the new client — dashboard can use this to confirm the channel is live.
+  // Greet the new client - dashboard can use this to confirm the channel is live.
   socket.emit('hello', {
     service: 'pipeline-ws',
     port: PORT,

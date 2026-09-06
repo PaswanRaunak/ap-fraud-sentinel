@@ -1,4 +1,4 @@
-"""worker.utils.email_parser — parse the structured email JSON.
+"""worker.utils.email_parser - parse the structured email JSON.
 
 The dataset (Task 2-a) ships email JSONs already structured as:
     {
@@ -9,7 +9,7 @@ The dataset (Task 2-a) ships email JSONs already structured as:
 So this module is light: it normalizes the fields onto the case_facts shape
 the rest of the pipeline expects (camelCase keys, ISO dates). If a future
 build pulls raw .eml files instead, the ``parse_eml`` function below shows
-where the stdlib ``email`` parsing would slot in — but it isn't called in
+where the stdlib ``email`` parsing would slot in - but it isn't called in
 the demo path because the dataset is already structured.
 
 Also exposes ``classify_kind`` referenced from ``pipelines/01_intake.pipe``.
@@ -42,12 +42,12 @@ def parse_email_json(raw: Mapping[str, Any] | str) -> dict:
     """Normalize an email JSON object into the case_facts envelope.
 
     Accepts either a dict or a JSON string (raises json.JSONDecodeError on bad
-    input — the caller in local_executor wraps that in try/except to route
+    input - the caller in local_executor wraps that in try/except to route
     CORRUPT files to quarantine).
     """
     data: Mapping[str, Any]
     if isinstance(raw, str):
-        data = json.loads(raw)  # may raise — caller handles
+        data = json.loads(raw)  # may raise - caller handles
     elif isinstance(raw, Mapping):
         data = raw
     else:

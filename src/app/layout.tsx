@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "AP Payment Fraud Sentinel · RocketRide",
   description:
-    "Out-of-band verification as software. The only AP control that catches Business Email Compromise — humans skip it because it's boring, so we ship it as software. 7-stage RocketRide pipeline.",
+    "Out-of-band verification as software. The only AP control that catches Business Email Compromise - humans skip it because it's boring, so we ship it as software. 7-stage RocketRide pipeline.",
   keywords: [
     "AP fraud",
     "Business Email Compromise",

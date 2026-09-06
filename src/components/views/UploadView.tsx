@@ -90,7 +90,7 @@ export function UploadView() {
       const r = await startRun.mutateAsync({});
       toast({
         title: 'Batch run started',
-        description: `run_id ${r.run_id} — processing pipeline in real time.`,
+        description: `run_id ${r.run_id} - processing pipeline in real time.`,
       });
       setView('dashboard');
     } catch (e) {

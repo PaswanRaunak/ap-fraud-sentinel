@@ -1,4 +1,4 @@
-"""worker.pipeline_defs — PipelineConfig dicts mirroring the .pipe files conforming to RocketRide JSON reference schema.
+"""worker.pipeline_defs - PipelineConfig dicts mirroring the .pipe files conforming to RocketRide JSON reference schema.
 
 Each dict here is the in-process equivalent of the corresponding file in
 ``pipelines/``. They're built using the same node ids / providers / configs
@@ -16,7 +16,7 @@ from typing import Any
 
 # ---- Stage 01: Intake ----
 PIPE_01_INTAKE: dict[str, Any] = {
-    "name": "Stage 01 — Case Intake Pipeline",
+    "name": "Stage 01 - Case Intake Pipeline",
     "description": "Ingests incoming PDF invoices and EML emails via webhook, parses tags, classifies document type, and persists initial case entry.",
     "version": 1,
     "source": "webhook_intake",
@@ -76,7 +76,7 @@ PIPE_01_INTAKE: dict[str, Any] = {
 
 # ---- Stage 02: Extraction ----
 PIPE_02_EXTRACTION: dict[str, Any] = {
-    "name": "Stage 02 — Data Extraction & Fact Normalization Pipeline",
+    "name": "Stage 02 - Data Extraction & Fact Normalization Pipeline",
     "description": "Extracts raw text via OCR/pdfplumber, cleans whitespace, extracts key facts, converts currency, and validates schema.",
     "version": 1,
     "source": "webhook_extraction",
@@ -139,7 +139,7 @@ PIPE_02_EXTRACTION: dict[str, Any] = {
 
 # ---- Stage 03: Grounding ----
 PIPE_03_GROUNDING: dict[str, Any] = {
-    "name": "Stage 03 — Vendor Master Grounding & History Pipeline",
+    "name": "Stage 03 - Vendor Master Grounding & History Pipeline",
     "description": "Performs exact and vector lookup against Vendor Master DB, queries payment history, and computes historical payment statistics.",
     "version": 1,
     "source": "find_vendor",
@@ -212,7 +212,7 @@ PIPE_03_GROUNDING: dict[str, Any] = {
 
 # ---- Stage 04: Signals ----
 PIPE_04_SIGNALS: dict[str, Any] = {
-    "name": "Stage 04 — Risk Signals & Composite Scoring Pipeline",
+    "name": "Stage 04 - Risk Signals & Composite Scoring Pipeline",
     "description": "Runs 6 pure risk signal detection rules, validates schema via guardrails, and calculates composite risk score.",
     "version": 1,
     "source": "webhook_signals",
@@ -335,7 +335,7 @@ PIPE_04_SIGNALS: dict[str, Any] = {
 
 # ---- Stage 05: Agents ----
 PIPE_05_AGENTS: dict[str, Any] = {
-    "name": "Stage 05 — Multi-Agent Intelligence Swarm Pipeline",
+    "name": "Stage 05 - Multi-Agent Intelligence Swarm Pipeline",
     "description": "Orchestrates a 3-agent swarm (BEC Analyst, Vendor Verifier, Case Builder) supervised by a Manager Agent.",
     "version": 1,
     "source": "chat_agents",
@@ -408,7 +408,7 @@ PIPE_05_AGENTS: dict[str, Any] = {
 
 # ---- Stage 06: Verification ----
 PIPE_06_VERIFICATION: dict[str, Any] = {
-    "name": "Stage 06 — Automated Verification Call Pipeline",
+    "name": "Stage 06 - Automated Verification Call Pipeline",
     "description": "Places automated phone call via Bland AI to known vendor contact, transcribes audio response using Whisper, and analyzes transcript.",
     "version": 1,
     "source": "place_call",
@@ -459,7 +459,7 @@ PIPE_06_VERIFICATION: dict[str, Any] = {
 
 # ---- Stage 07: Gate ----
 PIPE_07_GATE: dict[str, Any] = {
-    "name": "Stage 07 — Controller Decision Gate Pipeline",
+    "name": "Stage 07 - Controller Decision Gate Pipeline",
     "description": "Stages high-risk cases for AP controller review, waits for manual release/hold decision, writes decision record to DB.",
     "version": 1,
     "source": "stage_for_controller",
@@ -530,7 +530,7 @@ PIPE_07_GATE: dict[str, Any] = {
 
 
 PIPE_MASTER: dict[str, Any] = {
-    "name": "AP Payment Fraud Sentinel — Master Orchestration Pipeline",
+    "name": "AP Payment Fraud Sentinel - Master Orchestration Pipeline",
     "description": "Master end-to-end pipeline that chains all 7 AP fraud screening stages sequentially.",
     "version": 1,
     "source": "stage_01_intake",
@@ -540,14 +540,14 @@ PIPE_MASTER: dict[str, Any] = {
         {
             "id": "stage_01_intake",
             "provider": "pipeline_ref",
-            "name": "Stage 01 — Case Intake Node",
+            "name": "Stage 01 - Case Intake Node",
             "description": "Runs 01_intake.pipe component chain.",
             "config": {"pipeline": "01_intake"},
         },
         {
             "id": "stage_02_extraction",
             "provider": "pipeline_ref",
-            "name": "Stage 02 — Data Extraction Node",
+            "name": "Stage 02 - Data Extraction Node",
             "description": "Runs 02_extraction.pipe component chain.",
             "input": [{"from": "stage_01_intake", "lane": "tags"}],
             "config": {"pipeline": "02_extraction"},
@@ -555,7 +555,7 @@ PIPE_MASTER: dict[str, Any] = {
         {
             "id": "stage_03_grounding",
             "provider": "pipeline_ref",
-            "name": "Stage 03 — Vendor Master Grounding Node",
+            "name": "Stage 03 - Vendor Master Grounding Node",
             "description": "Runs 03_grounding.pipe component chain.",
             "input": [{"from": "stage_02_extraction", "lane": "text"}],
             "config": {"pipeline": "03_grounding"},
@@ -563,7 +563,7 @@ PIPE_MASTER: dict[str, Any] = {
         {
             "id": "stage_04_signals",
             "provider": "pipeline_ref",
-            "name": "Stage 04 — Risk Signals & Scoring Node",
+            "name": "Stage 04 - Risk Signals & Scoring Node",
             "description": "Runs 04_signals.pipe component chain.",
             "input": [{"from": "stage_03_grounding", "lane": "documents"}],
             "config": {"pipeline": "04_signals"},
@@ -571,7 +571,7 @@ PIPE_MASTER: dict[str, Any] = {
         {
             "id": "stage_05_agents",
             "provider": "pipeline_ref",
-            "name": "Stage 05 — Multi-Agent Intelligence Swarm Node",
+            "name": "Stage 05 - Multi-Agent Intelligence Swarm Node",
             "description": "Runs 05_agents.pipe component chain.",
             "input": [{"from": "stage_04_signals", "lane": "documents"}],
             "config": {"pipeline": "05_agents"},
@@ -579,7 +579,7 @@ PIPE_MASTER: dict[str, Any] = {
         {
             "id": "stage_06_verification",
             "provider": "pipeline_ref",
-            "name": "Stage 06 — Verification Call Node",
+            "name": "Stage 06 - Verification Call Node",
             "description": "Runs 06_verification.pipe component chain.",
             "input": [{"from": "stage_05_agents", "lane": "answers"}],
             "config": {"pipeline": "06_verification"},
@@ -587,7 +587,7 @@ PIPE_MASTER: dict[str, Any] = {
         {
             "id": "stage_07_gate",
             "provider": "pipeline_ref",
-            "name": "Stage 07 — Controller Decision Gate Node",
+            "name": "Stage 07 - Controller Decision Gate Node",
             "description": "Runs 07_gate.pipe component chain.",
             "input": [{"from": "stage_06_verification", "lane": "answers"}],
             "config": {"pipeline": "07_gate"},

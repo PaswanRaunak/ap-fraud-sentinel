@@ -1,4 +1,4 @@
-"""worker.app — aiohttp web app: routes for the worker mini-service.
+"""worker.app - aiohttp web app: routes for the worker mini-service.
 
 Routes:
     GET  /healthz        → {ok, mode, has_key, db_counts}
@@ -75,7 +75,7 @@ async def post_runs(request: web.Request) -> web.Response:
     batch_path = body.get("batch_path") or body.get("batchPath") or None
     limit = int(body.get("limit") or 0) or None
 
-    # Kick off the batch in the background — return immediately.
+    # Kick off the batch in the background - return immediately.
     task = asyncio.create_task(_run_batch_with_rocketride_fallback(run_id, batch_path, limit))
     _BACKGROUND_TASKS.add(task)
     task.add_done_callback(_BACKGROUND_TASKS.discard)
@@ -93,7 +93,7 @@ async def _run_batch_with_rocketride_fallback(run_id: str, batch_path: str | Non
     if rr.has_key:
         try:
             async with rr:
-                log.info("run %s: RocketRide mode — delegating batch to local executor for parity", run_id)
+                log.info("run %s: RocketRide mode - delegating batch to local executor for parity", run_id)
                 # Even with a key, we run the local executor in-process so the
                 # dashboard demo is identical to production. The RocketRide
                 # call path is exercised via runner.run_stage in a separate
@@ -101,7 +101,7 @@ async def _run_batch_with_rocketride_fallback(run_id: str, batch_path: str | Non
                 await run_batch(run_id, batch_path, limit)
                 return
         except RocketRideUnavailable as exc:
-            log.warning("run %s: RocketRide unavailable (%s) — falling back to local executor", run_id, exc)
+            log.warning("run %s: RocketRide unavailable (%s) - falling back to local executor", run_id, exc)
 
     # Local fallback path (the default in the sandbox).
     log.info("run %s: local mode", run_id)
@@ -161,7 +161,7 @@ async def post_reload_reference(request: web.Request) -> web.Response:
     from their PC, so the vendor master + payment history the pipeline
     grounds against reflects the user's actual dataset.
 
-    Optional JSON body: {"data_dir": "/path/to/data"} — defaults to
+    Optional JSON body: {"data_dir": "/path/to/data"} - defaults to
     APFRAUD_DATA_DIR or <project>/data.
     """
     try:

@@ -112,7 +112,7 @@
       }
     }
   ],
-  "name": "Stage 06 — Automated Verification Call Pipeline",
+  "name": "Stage 06 - Automated Verification Call Pipeline",
   "description": "Ingests vendor call audio, transcribes speech, classifies verification intent via LLM, and returns verification result.",
   "version": 1,
   "source": "webhook_1",

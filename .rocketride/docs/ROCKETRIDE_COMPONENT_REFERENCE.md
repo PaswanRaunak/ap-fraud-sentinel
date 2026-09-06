@@ -256,7 +256,7 @@ Some components require control-plane connections: typically an LLM, tools, or m
 **CRITICAL: The `control` array goes on the CONTROLLED node, NOT on the invoking component.** The LLM/tool/memory node declares which component invokes it via `control`, with `from` pointing to the invoker. The agent (or other invoking component) itself has NO `control` array.
 
 ```json
-// The AGENT has no control array — only input lanes:
+// The AGENT has no control array - only input lanes:
 {
   "id": "agent_rocketride_1",
   "provider": "agent_rocketride",

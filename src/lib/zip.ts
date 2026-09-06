@@ -1,8 +1,8 @@
-// Minimal ZIP writer — no external dependencies.
+// Minimal ZIP writer - no external dependencies.
 // Implements the PKZIP APPNOTE subset needed to bundle the project for
 // download: STORE + DEFLATE (via node:zlib deflateRaw), CRC-32, UTF-8 names,
 // Unix mode bits in external attributes. Everything is built in memory
-// (the project bundle is ~25 MB — fine).
+// (the project bundle is ~25 MB - fine).
 
 import { deflateRawSync } from 'node:zlib';
 
@@ -34,7 +34,7 @@ function dosDateTime(d: Date): { time: number; date: number } {
 
 interface AddOptions {
   mtime?: Date;
-  /** Force STORE (no compression) — for already-compressed payloads. */
+  /** Force STORE (no compression) - for already-compressed payloads. */
   store?: boolean;
   /** Unix permission bits surfaced in external attributes (default 0o644). */
   mode?: number;

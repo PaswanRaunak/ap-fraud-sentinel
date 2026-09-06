@@ -1,4 +1,4 @@
-// GET /api/stats — aggregate stats for the dashboard home view.
+// GET /api/stats - aggregate stats for the dashboard home view.
 // Per spec:
 //   casesScreened = COUNT(*) FROM "Case"
 //   casesHeld     = COUNT(*) WHERE recommendation='hold'

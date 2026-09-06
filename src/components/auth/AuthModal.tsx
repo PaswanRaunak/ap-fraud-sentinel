@@ -1,6 +1,6 @@
 'use client';
 
-// Portal auth dialog — dark "Ethereal Glass" skin matching the public landing.
+// Portal auth dialog - dark "Ethereal Glass" skin matching the public landing.
 // All auth flows unchanged: login, demo sign-in, registration, OTP reset.
 
 import React, { useState } from 'react';

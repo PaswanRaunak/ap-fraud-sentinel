@@ -48,14 +48,14 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
   const row = rows.at(0);
   if (!row) return NextResponse.json({ error: 'not found' }, { status: 404 });
 
-  // Decision history (audit trail) — ordered oldest first.
+  // Decision history (audit trail) - ordered oldest first.
   const decisions = (await db.$queryRaw<DecisionRow[]>`
     SELECT "id", "caseId", "approver", "decision", "reason", "timestamp"
     FROM "Decision" WHERE "caseId" = ${id}
     ORDER BY "timestamp" ASC
   `) as DecisionRow[];
 
-  // Vendor enrichment + payment history (sparkline) — only if the case grounded.
+  // Vendor enrichment + payment history (sparkline) - only if the case grounded.
   let vendor: Record<string, unknown> | null = null;
   let paymentHistory: PaymentRecord[] = [];
   if (row.vendorId) {
@@ -81,7 +81,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
 
   const caseRec = mapCase(row);
 
-  // Resolve call audio url — the TTS route persists /public/calls/{caseId}.wav.
+  // Resolve call audio url - the TTS route persists /public/calls/{caseId}.wav.
   const audioUrl = caseRec.callAudioUrl
     ? caseRec.callAudioUrl
     : `/calls/${encodeURIComponent(row.caseId)}.wav`;
@@ -128,7 +128,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     return NextResponse.json({ error: 'approver and reason required' }, { status: 400 });
   }
 
-  // Server-to-server call to the worker — no browser-gateway rule.
+  // Server-to-server call to the worker - no browser-gateway rule.
   let workerOk = false;
   try {
     const r = await workerFetch('/decisions', {
@@ -140,14 +140,14 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
       const json = (await r.json().catch(() => ({}))) as { status?: string; decision?: string };
       return NextResponse.json({ ok: true, caseId: id, ...json });
     }
-    // Worker rejected (4xx) — surface the error to the caller; do NOT silently fallback.
+    // Worker rejected (4xx) - surface the error to the caller; do NOT silently fallback.
     const txt = await r.text().catch(() => '');
     return NextResponse.json(
       { error: `worker rejected decision: ${r.status} ${txt}` },
       { status: 502 },
     );
   } catch (e) {
-    // Worker is unreachable — fall back to writing the Decision directly to the DB
+    // Worker is unreachable - fall back to writing the Decision directly to the DB
     // so the controller's action still lands even with the worker offline.
     console.warn(
       '[/api/cases PATCH] worker unreachable, writing decision to DB directly:',
@@ -156,7 +156,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   }
 
   if (workerOk) {
-    // unreachable — kept for TS exhaustiveness
+    // unreachable - kept for TS exhaustiveness
     return NextResponse.json({ ok: true, caseId: id, fallback: false });
   }
 

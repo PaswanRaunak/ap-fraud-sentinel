@@ -1,6 +1,6 @@
 'use client';
 
-// TanStack Query hooks — single source of truth for server-state fetching
+// TanStack Query hooks - single source of truth for server-state fetching
 // across all dashboard views. The query keys are invalidated from useTrace
 // when a case status changes.
 
@@ -310,7 +310,7 @@ export function useUploadFiles() {
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ['runs'] });
       // If the user uploaded reference CSVs, the worker re-imported them into
-      // the DB — invalidate vendors/healthz/stats so the dashboard reflects
+      // the DB - invalidate vendors/healthz/stats so the dashboard reflects
       // the new vendor count + payment history immediately.
       if (data.csv_reloaded) {
         qc.invalidateQueries({ queryKey: ['vendors'] });

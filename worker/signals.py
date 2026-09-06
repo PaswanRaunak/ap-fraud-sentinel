@@ -1,4 +1,4 @@
-"""worker.signals — the six deterministic fraud signals + assemble + risk_score.
+"""worker.signals - the six deterministic fraud signals + assemble + risk_score.
 
 Pure functions. Same input → same output, every run. The signal weights are
 frozen on Day 4 per build prompt §4 and mirrored in ``src/lib/types.ts``
@@ -25,7 +25,7 @@ from worker.utils.domain_check import compare_domains
 from worker.utils.timing import bank_change_vs_due_date
 from worker.utils.stats import is_first_time
 
-# Mirror src/lib/types.ts SIGNAL_WEIGHTS — do not diverge.
+# Mirror src/lib/types.ts SIGNAL_WEIGHTS - do not diverge.
 SIGNAL_WEIGHTS: dict[str, float] = {
     "domain_lookalike": 0.30,
     "timing_suspicious": 0.20,
@@ -174,7 +174,7 @@ def assemble_signals(case: Mapping[str, Any]) -> dict:
         duplicates: {count, matched_by}     # computed by db.payment_history_lookup
 
     Returns: {"signals": [...], "risk_score": float, "recommendation": "hold"|"pass"}
-    Only fired signals contribute to the risk score — a non-firing signal
+    Only fired signals contribute to the risk score - a non-firing signal
     contributes zero. This matches the build prompt §4 formula:
         risk_score = sum(s.weight * s.score for s in signals if s.fired)
     """

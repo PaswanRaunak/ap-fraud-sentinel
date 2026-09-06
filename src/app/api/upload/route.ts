@@ -1,10 +1,10 @@
-// POST /api/upload — multipart file upload for the user's own dataset.
+// POST /api/upload - multipart file upload for the user's own dataset.
 //
 // Accepts .csv, .pdf, .eml, .json, .txt files (the user's PC dataset is in
 // CSV/PDF/EML format, so those are first-class). Routing by extension:
 //
 //   .csv  → saved to /data/<filename>            (overwrites the reference
-//                                                   master — vendor_master,
+//                                                   master - vendor_master,
 //                                                   payment_history,
 //                                                   fraud_ground_truth)
 //                                                   then triggers a worker
@@ -16,12 +16,12 @@
 //                                                   /api/runs is called with
 //                                                   batch_path=data/uploads/<run_id>)
 //   .eml  → saved to /data/uploads/<run_id>/     (scanned by _list_email_files
-//                                                   — same batch_path)
+//                                                   - same batch_path)
 //   .json | .txt → saved to /data/uploads/<run_id>/  (legacy pre-extracted
 //                                                   case JSON)
 //
 // Returns {run_id, files_received, names, files, csv_reloaded?}.
-// Does NOT auto-trigger a worker run — the dashboard's UploadView calls
+// Does NOT auto-trigger a worker run - the dashboard's UploadView calls
 // /api/runs separately after upload (keeps the user in control).
 
 import { NextResponse } from 'next/server';
@@ -107,7 +107,7 @@ export async function POST(req: Request) {
     });
   }
 
-  // Multipart path — the main drag-and-drop flow.
+  // Multipart path - the main drag-and-drop flow.
   const form = await req.formData();
   runId = (form.get('run_id') as string | null)?.toString().trim() || `upload-${Date.now()}`;
   const uploadDir = path.join(UPLOAD_ROOT, runId);

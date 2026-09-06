@@ -1,4 +1,4 @@
-# Verification Call Script — template
+# Verification Call Script - template
 
 This is the script the Bland-AI / TTS lane reads when calling a vendor's
 `known_phone` to verify a bank-account-change request. The template fields

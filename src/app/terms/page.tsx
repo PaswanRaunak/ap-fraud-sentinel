@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const sections = [
   {
     title: 'The service',
-    body: 'Sentinel Payments provides automated accounts-payable fraud screening: document intake, fact extraction, vendor grounding, risk scoring, agent review, out-of-band verification calls, and a controller decision gate. The platform assists your payment decisions — it does not replace them.',
+    body: 'Sentinel Payments provides automated accounts-payable fraud screening: document intake, fact extraction, vendor grounding, risk scoring, agent review, out-of-band verification calls, and a controller decision gate. The platform assists your payment decisions - it does not replace them.',
   },
   {
     title: 'No guarantee of fraud prevention',

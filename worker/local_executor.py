@@ -1,4 +1,4 @@
-"""worker.local_executor — the fallback 7-stage pipeline executor.
+"""worker.local_executor - the fallback 7-stage pipeline executor.
 
 This is what runs in the sandbox (no ROCKETRIDE_API_KEY). It mirrors the same
 7-stage semantics the RocketRide `.pipe` files express so the dashboard demo
@@ -20,7 +20,7 @@ works identically regardless of mode:
     07_gate         → Held cases stay 'verified' awaiting controller decision.
                       Pass cases auto-close with decision='release'.
 
-Each stage transition emits a trace event to the WS service (port 3003) —
+Each stage transition emits a trace event to the WS service (port 3003) -
 the dashboard's pipeline-ws subscriber picks these up for live updates.
 """
 
@@ -51,7 +51,7 @@ PRERECORDED_DIR = os.environ.get(
     "APFRAUD_PRERECORDED_DIR", os.path.join(DATA_DIR, "prerecorded")
 )
 
-# Cost model — mirrors src/lib/types.ts COST.
+# Cost model - mirrors src/lib/types.ts COST.
 COST_SIGNALS_PER_INVOICE = 0.0005
 COST_LLM_PER_REVIEWED_CASE = 0.015
 COST_CALL_PER_HELD_CASE = 0.09
@@ -67,7 +67,7 @@ def _list_invoice_files(batch_path: str | None = None, limit: int | None = None)
     """Return sorted list of invoice PDF files in the invoices dir."""
     inv_dir = batch_path or INVOICES_DIR
     if not os.path.isdir(inv_dir):
-        log.warning("invoices dir %s does not exist yet — Task 2-a may still be running", inv_dir)
+        log.warning("invoices dir %s does not exist yet - Task 2-a may still be running", inv_dir)
         return []
     out = sorted(
         os.path.join(inv_dir, f)
@@ -133,7 +133,7 @@ async def stage_01_intake(case: dict, invoice_path: str, email_path: str | None,
 
     caseId is derived from the invoice .pdf filename stem (e.g.
     `INV-2026-4410.pdf` → caseId=`INV-2026-4410`). This is the natural AP
-    identifier — controllers refer to cases by invoice number.
+    identifier - controllers refer to cases by invoice number.
     """
     case_id = case.get("caseId") or os.path.splitext(os.path.basename(invoice_path))[0]
     case["caseId"] = case_id
@@ -165,8 +165,8 @@ async def stage_02_extraction(case: dict) -> dict:
     # --- Parse invoice PDF ---
     invoice = parse_invoice_pdf(invoice_path) if invoice_path else None
     if not invoice:
-        # Quarantine lane — feature, not a bug. CORRUPT-9901 hits here.
-        log.warning("case %s: quarantined — invoice PDF parse failed", case_id)
+        # Quarantine lane - feature, not a bug. CORRUPT-9901 hits here.
+        log.warning("case %s: quarantined - invoice PDF parse failed", case_id)
         case["status"] = "quarantined"
         case["factsJson"] = json.dumps(
             {"error": "schema_validation_fail", "reason": "pdfplumber extraction returned empty / failed",
@@ -203,7 +203,7 @@ async def stage_02_extraction(case: dict) -> dict:
     case["facts"] = facts
     case["invoiceNumber"] = facts["invoice_number"]
     case["vendorName"] = facts["vendor_name"]
-    # Don't set case["vendorId"] from facts.vendor_id yet — the FK constraint
+    # Don't set case["vendorId"] from facts.vendor_id yet - the FK constraint
     # on Case.vendorId → Vendor.vendorId would fail if the master doesn't
     # have this vendor (first-time / fake). stage_03_grounding resolves the
     # real master row and updates the Case with the matched vendorId (or
@@ -236,7 +236,7 @@ async def stage_02_extraction(case: dict) -> dict:
             case["requestedBankAccount"] = case["email"]["requestedBankAccount"]
             case["emailBody"] = (em.get("body") or "")[:4000] or None
         else:
-            log.warning("case %s: email parse failed — proceeding without email", case_id)
+            log.warning("case %s: email parse failed - proceeding without email", case_id)
             case["email"] = {}
     else:
         case["email"] = {}
@@ -389,7 +389,7 @@ async def stage_06_verification(case: dict) -> dict:
         db.update_case(case_id, status="verified", verificationResult=None)
         await emit_case(run_id, case_id, "verified", "verification", message="hold (no call required)")
     else:
-        # Pass case — skip the call, auto-close at Stage 07.
+        # Pass case - skip the call, auto-close at Stage 07.
         case["verification_result"] = None
         db.update_case(case_id, status="verified", verificationResult=None)
         await emit_case(run_id, case_id, "verified", "verification", message="pass (no call)")
@@ -416,7 +416,7 @@ async def stage_07_gate(case: dict) -> dict:
         case["decision"] = "release"
         await emit_case(run_id, case_id, "closed", "gate", message="auto-release")
     else:
-        # Held case — stays 'verified' until the dashboard POSTs /decisions.
+        # Held case - stays 'verified' until the dashboard POSTs /decisions.
         case["status"] = "verified"
         await emit_case(run_id, case_id, "verified", "gate", message="awaiting controller decision")
 
@@ -433,7 +433,7 @@ async def run_case_pipeline(case_id_hint: str, invoice_path: str, email_path: st
         await stage_01_intake(case, invoice_path, email_path, run_id)
         await stage_02_extraction(case)
         if case.get("status") == "quarantined":
-            # Skip the rest — quarantined cases just sit in the queue.
+            # Skip the rest - quarantined cases just sit in the queue.
             return case
         await stage_03_grounding(case)
         await stage_04_signals(case)
@@ -471,7 +471,7 @@ async def run_batch(run_id: str, batch_path: str | None = None, limit: int | Non
              run_id, len(invoice_files), len(email_files), batch_path or INVOICES_DIR)
 
     if not invoice_files:
-        log.warning("run %s: no invoices found at %s — Task 2-a may still be building", run_id, batch_path or INVOICES_DIR)
+        log.warning("run %s: no invoices found at %s - Task 2-a may still be building", run_id, batch_path or INVOICES_DIR)
 
     cases_processed = 0
     cases_held = 0
@@ -492,7 +492,7 @@ async def run_batch(run_id: str, batch_path: str | None = None, limit: int | Non
             call_cost += COST_CALL_PER_HELD_CASE  # cost accrues whether or not AI was used
         if case.get("used_llm"):
             llm_cost += COST_LLM_PER_REVIEWED_CASE
-        # Score the run against ground truth — only cases we held AND were
+        # Score the run against ground truth - only cases we held AND were
         # actually fraud count toward "fraud caught".
         gt = db.get_ground_truth_for_case(case.get("caseId", ""), case.get("invoiceNumber"))
         is_fraud = False

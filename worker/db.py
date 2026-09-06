@@ -1,4 +1,4 @@
-"""worker.db — sqlite3 helpers for the AP Payment Fraud Sentinel worker.
+"""worker.db - sqlite3 helpers for the AP Payment Fraud Sentinel worker.
 
 Single connection, thread-safe via a global lock. All writes commit. Reads
 return dicts with camelCase column names (matching the Prisma schema).
@@ -47,7 +47,7 @@ _conn: sqlite3.Connection | None = None
 def _get_conn() -> sqlite3.Connection:
     global _conn
     if _conn is None:
-        # check_same_thread=False — we manage our own lock.
+        # check_same_thread=False - we manage our own lock.
         _conn = sqlite3.connect(DB_PATH, check_same_thread=False)
         _conn.row_factory = sqlite3.Row
         _conn.execute("PRAGMA foreign_keys = ON;")
@@ -175,7 +175,7 @@ def get_run(run_id: str) -> dict | None:
 
 
 def db_counts() -> dict:
-    """Return counts of each major table — used for the /healthz startup log."""
+    """Return counts of each major table - used for the /healthz startup log."""
     with _lock:
         conn = _get_conn()
         out = {}
@@ -198,7 +198,7 @@ def insert_case(case: Mapping[str, Any]) -> None:
       - The existing row is UPDATEd in place (no DELETE), so child Decision
         rows (FK Decision.caseId → Case.caseId) are NOT cascade-removed and
         there's no FOREIGN KEY constraint failure.
-    Overlapping runs simply overwrite each other's rows for the same caseId —
+    Overlapping runs simply overwrite each other's rows for the same caseId -
     the last writer wins, which is fine since the pipeline is deterministic.
     """
     with _lock:
@@ -291,7 +291,7 @@ def update_case(case_id: str, **fields: Any) -> None:
     """Update one or more columns on a Case row. Always bumps updatedAt.
 
     JSON-able fields (factsJson, signalsJson, evidencePackJson) should be
-    passed already as JSON strings — use json.dumps(...) before calling.
+    passed already as JSON strings - use json.dumps(...) before calling.
     """
     if not fields:
         return
@@ -362,7 +362,7 @@ def clear_runtime_tables() -> None:
     """Wipe the Case + Decision rows so a fresh batch run can INSERT without
     hitting the caseId UNIQUE constraint. Run rows are preserved (the Runs page
     shows history). Decision must be deleted before Case (FK Decision→Case).
-    Vendor/PaymentHistory/FraudGroundTruth are the static seed — never touched.
+    Vendor/PaymentHistory/FraudGroundTruth are the static seed - never touched.
     """
     with _lock:
         conn = _get_conn()
@@ -397,7 +397,7 @@ def reload_reference_csvs(data_dir: str | None = None) -> dict:
 
     Wipes Vendor / PaymentHistory / FraudGroundTruth tables and re-inserts
     from `vendor_master.csv`, `payment_history.csv`, `fraud_ground_truth.csv`.
-    Does NOT touch Case / Decision / Run (the runtime tables) — those are
+    Does NOT touch Case / Decision / Run (the runtime tables) - those are
     wiped separately by `clear_runtime_tables()` at the start of each batch.
 
     Called by the upload API when the user uploads their own reference CSVs
@@ -405,7 +405,7 @@ def reload_reference_csvs(data_dir: str | None = None) -> dict:
     grounds against reflects the user's actual dataset, not the synthetic
     seed.
 
-    Returns {"vendors": N, "payments": N, "ground_truth": N} — the row counts
+    Returns {"vendors": N, "payments": N, "ground_truth": N} - the row counts
     inserted. Missing CSVs are skipped silently (so the user can upload just
     a vendor_master.csv without touching payment_history).
     """
@@ -426,7 +426,7 @@ def reload_reference_csvs(data_dir: str | None = None) -> dict:
     with _lock:
         conn = _get_conn()
         # Disable FK enforcement during the wipe+insert so order doesn't matter
-        # (mirrors scripts/seed_db.py — PaymentHistory references Vendor).
+        # (mirrors scripts/seed_db.py - PaymentHistory references Vendor).
         conn.execute("PRAGMA foreign_keys = OFF;")
         conn.execute("DELETE FROM PaymentHistory;")
         conn.execute("DELETE FROM Vendor;")

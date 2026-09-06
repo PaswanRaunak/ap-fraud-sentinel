@@ -1,6 +1,6 @@
 'use client';
 
-// Client-side providers — QueryClientProvider (TanStack Query) for the whole app.
+// Client-side providers - QueryClientProvider (TanStack Query) for the whole app.
 
 import { useState, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

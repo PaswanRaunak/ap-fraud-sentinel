@@ -110,7 +110,7 @@
       ]
     }
   ],
-  "name": "Stage 01 — Case Intake Pipeline",
+  "name": "Stage 01 - Case Intake Pipeline",
   "description": "Ingests incoming PDF invoices and EML emails via webhook, cleans payload, parses document text, classifies document type via LLM, and returns intake status.",
   "version": 1,
   "source": "webhook_1",

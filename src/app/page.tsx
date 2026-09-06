@@ -1,6 +1,6 @@
 'use client';
 
-// AP Payment Fraud Sentinel — Sentinel Payments Corporate Portal & Operations Console.
+// AP Payment Fraud Sentinel - Sentinel Payments Corporate Portal & Operations Console.
 // Supports full Authentication (Login, Register, Forgot Password, Logout) & seamless transition.
 
 import { useEffect } from 'react';
@@ -70,7 +70,7 @@ export default function Home() {
   // Otherwise, render Internal Operations Console
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      {/* Console header — dark glass */}
+      {/* Console header - dark glass */}
       <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-white/[0.08] bg-[#0B0B0E]/80 px-4 backdrop-blur-xl sm:px-6">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
@@ -95,7 +95,7 @@ export default function Home() {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Worker mode chip — reflects real /api/healthz state, not a hardcoded label. */}
+          {/* Worker mode chip - reflects real /api/healthz state, not a hardcoded label. */}
           <span
             className="hidden items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-semibold text-white/60 md:inline-flex"
             title={health ? `Worker mode: ${health.worker?.mode ?? 'unknown'}` : 'Worker unreachable'}
@@ -111,7 +111,7 @@ export default function Home() {
             </span>
           </span>
 
-          {/* Batch status chip — mirrors the live pipeline state from the trace store. */}
+          {/* Batch status chip - mirrors the live pipeline state from the trace store. */}
           <span
             className={cn(
               'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold',
@@ -183,7 +183,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Body — sidebar (desktop) + main view container */}
+      {/* Body - sidebar (desktop) + main view container */}
       <div className="flex flex-1">
         <SidebarNav />
         <main className="min-w-0 flex-1 pb-10">

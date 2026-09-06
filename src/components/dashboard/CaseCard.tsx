@@ -12,7 +12,7 @@ const ICON_STROKE = 1.5;
 export function CaseCard({ c, onClick }: { c: CaseRecord; onClick?: () => void }) {
   const currency = useAppStore((s) => s.currency);
   const getRiskTrackLabel = (score: number) => {
-    // Risk-band labels only — never claim a specific fraud type, which only
+    // Risk-band labels only - never claim a specific fraud type, which only
     // the fired signals / ground truth can tell.
     if (score >= 0.7) return { label: 'HIGH RISK', bg: 'bg-amber-400/10 text-amber-300 border-amber-400/25' };
     if (score >= 0.4) return { label: 'ELEVATED RISK', bg: 'bg-red-400/10 text-red-300 border-red-400/25' };

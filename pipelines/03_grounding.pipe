@@ -143,7 +143,7 @@
       }
     }
   ],
-  "name": "Stage 03 — Vendor Master Grounding Pipeline",
+  "name": "Stage 03 - Vendor Master Grounding Pipeline",
   "description": "Performs RAG vector search against Vendor Master DB, merges historical context, and outputs grounded vendor risk analysis.",
   "version": 1,
   "source": "chat_1",

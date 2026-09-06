@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AP Payment Fraud Sentinel — start all 3 services (macOS / Linux).
+# AP Payment Fraud Sentinel - start all 3 services (macOS / Linux).
 #   trace WS :3003  →  worker :3030  →  dashboard :3000
 # Ctrl+C stops all three.
 set -e
@@ -13,7 +13,7 @@ command -v "$PY" >/dev/null 2>&1 || PY=python
 export DATABASE_URL=file:../db/custom.db
 
 if [ ! -d node_modules ] || [ ! -f db/custom.db ]; then
-  echo "Looks un-setup — run ./setup.sh first."
+  echo "Looks un-setup - run ./setup.sh first."
   exit 1
 fi
 

@@ -14,7 +14,7 @@ A comprehensive guide to avoiding common pitfalls when building RocketRide pipel
 - [Language-Specific SDK Mistakes](#language-specific-sdk-mistakes)
 - [Component Configuration Mistakes](#component-configuration-mistakes)
 - [Data Flow Mistakes](#data-flow-mistakes)
-- [Engine Extension (Python–C++ Interop)](#engine-extension-python-c-interop)
+- [Engine Extension (Python-C++ Interop)](#engine-extension-python-c-interop)
 - [Quick Reference](#quick-reference)
 
 ---
@@ -1325,7 +1325,7 @@ Component exists but isn't connected to the data flow.
 
 ---
 
-## Engine Extension (Python–C++ Interop)
+## Engine Extension (Python-C++ Interop)
 
 ### Mistake 19: Passing Raw Pydantic Models to C++ JSON Utilities
 

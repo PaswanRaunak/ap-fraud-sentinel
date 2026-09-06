@@ -1,4 +1,4 @@
-"""worker.parsers — raw-file intake for .pdf invoices and .eml emails.
+"""worker.parsers - raw-file intake for .pdf invoices and .eml emails.
 
 The user's actual dataset is a folder of .pdf and .eml files (not pre-extracted
 JSON). This module does the heavy lifting:
@@ -12,7 +12,7 @@ JSON). This module does the heavy lifting:
 The hidden marker line is `FRAUD_SENTINEL_FACTS:v1:{...json...}`. It's written
 by `scripts/gen_raw_dataset.py` so the worker doesn't have to OCR invoices to
 get the structured fields. When the user drops in their *real* PDFs (no marker),
-the worker falls back to regex extraction of the visible text — best-effort,
+the worker falls back to regex extraction of the visible text - best-effort,
 and quarantines on failure (which is the correct behaviour for unreadable
 files).
 
@@ -118,7 +118,7 @@ def parse_invoice_pdf(path: str) -> dict | None:
     Strategy:
       1. Try pdfplumber → extract page text.
       2. Look for the hidden JSON marker (the generator writes one for every
-         synthetic invoice — gives the worker the exact facts every time).
+         synthetic invoice - gives the worker the exact facts every time).
       3. Fall back to regex extraction of visible text (for the user's real
          PDFs that don't have the marker).
     """
@@ -140,14 +140,14 @@ def parse_invoice_pdf(path: str) -> dict | None:
         return None
 
     if not text.strip():
-        # Empty extraction — likely a corrupt binary PDF.
+        # Empty extraction - likely a corrupt binary PDF.
         return None
 
     facts = _try_load_marker(text) or {}
     if not facts:
-        # User's real PDF — no marker. Best-effort visible extraction.
+        # User's real PDF - no marker. Best-effort visible extraction.
         facts = _extract_invoice_fields_from_visible_text(text)
-        log.info("no marker in %s — extracted %d fields from visible text",
+        log.info("no marker in %s - extracted %d fields from visible text",
                  os.path.basename(path), len(facts))
 
     # Normalize to the schema the rest of the pipeline expects.
@@ -183,11 +183,11 @@ def parse_email_eml(path: str) -> dict | None:
         log.warning("email parse failed on %s: %s", path, exc)
         return None
 
-    # An "empty" message (defect-only) means the .eml was malformed — quarantine.
+    # An "empty" message (defect-only) means the .eml was malformed - quarantine.
     if msg.is_multipart() or not msg.get("From") and not msg.get("Subject"):
         # CORRUPT-9902 hits here: garbage headers + binary body.
         if not msg.get("From") and not msg.get("Subject") and not msg.get("To"):
-            log.warning("malformed eml (no From/To/Subject): %s — quarantining", path)
+            log.warning("malformed eml (no From/To/Subject): %s - quarantining", path)
             return None
 
     from_hdr = msg.get("From", "") or ""
@@ -199,12 +199,12 @@ def parse_email_eml(path: str) -> dict | None:
 
     # Quarantine check: the From header must look like an email address
     # (something@something.tld). CORRUPT-9902.eml has From: "corrupted"
-    # (no @, no domain) — that's the malformed-RFC822 signal.
+    # (no @, no domain) - that's the malformed-RFC822 signal.
     if not m:
-        log.warning("malformed eml (From header isn't an email address): %s — quarantining", path)
+        log.warning("malformed eml (From header isn't an email address): %s - quarantining", path)
         return None
 
-    # Body — text/plain preferred; fall back to first text part.
+    # Body - text/plain preferred; fall back to first text part.
     body = ""
     if msg.is_multipart():
         for part in msg.walk():

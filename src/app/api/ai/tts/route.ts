@@ -3,7 +3,7 @@
 // Body: { text, voice?, case_id? }
 // Saves WAV bytes to /public/calls/{case_id}.wav when case_id is provided,
 // otherwise to /public/calls/tts-<short-hash>.wav.
-// Returns { audio_base64, format: 'wav', path } — or { audio_base64: '', format: 'wav' } on failure
+// Returns { audio_base64, format: 'wav', path } - or { audio_base64: '', format: 'wav' } on failure
 // (worker treats empty as "use deterministic fallback").
 
 import { NextResponse } from 'next/server';

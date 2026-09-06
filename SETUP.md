@@ -1,4 +1,4 @@
-# AP Payment Fraud Sentinel — Run it on your own PC
+# AP Payment Fraud Sentinel - Run it on your own PC
 
 Bring the full 7-stage fraud screening pipeline (Ingest → Extract → Ground →
 Signal → Agent → Verify → Gate) to your machine and screen **your own**
@@ -14,7 +14,7 @@ CSV + PDF + EML dataset.
 | **Python** | 3.10+ | `python --version` | https://python.org |
 | **Bun** *(optional, faster)* | 1.x | `bun -v` | https://bun.sh |
 
-> That's it. No API keys required — with no `ROCKETRIDE_API_KEY` set, the
+> That's it. No API keys required - with no `ROCKETRIDE_API_KEY` set, the
 > pipeline runs in **local mode**: deterministic signals + agents, and the
 > verification-call flow uses the prerecorded audio path.
 
@@ -68,13 +68,13 @@ python scripts/seed_db.py
 Starting the three services (each in its own terminal):
 
 ```bash
-# Terminal 1 — WebSocket trace service (port 3003)
+# Terminal 1 - WebSocket trace service (port 3003)
 npm run ws                      # node mini-services/pipeline-ws/index.js
 
-# Terminal 2 — Python pipeline worker (port 3030)
+# Terminal 2 - Python pipeline worker (port 3030)
 python worker/main.py
 
-# Terminal 3 — Next.js dashboard (port 3000)
+# Terminal 3 - Next.js dashboard (port 3000)
 npm run dev
 ```
 
@@ -93,16 +93,16 @@ npm run dev
 The shipped dataset (60 vendors, 480 payments, 141 invoices, 31 emails) is
 synthetic. Replace it with your real data in three steps.
 
-### Step A — Replace the reference CSVs in `data/`
+### Step A - Replace the reference CSVs in `data/`
 
-**`data/vendor_master.csv`** — your known-good vendor baseline:
+**`data/vendor_master.csv`** - your known-good vendor baseline:
 
 ```csv
 vendorId,legalName,registeredDomain,knownPhone,knownBankAccount,bankAccountAddedDate,firstInvoiceDate,address,contactEmail,taxId
 V-001,Acme Industrial Supply,acmeindustrial.com,+1-555-854-2824,GB29 NWBK 6016 0001 0001 01,2024-03-24,2024-05-06,"107 Manufacturing Way, Columbus, OH 43215",ap@acmeindustrial.com,US-02-0419610
 ```
 
-**`data/payment_history.csv`** — payment history (drives the z-score amount
+**`data/payment_history.csv`** - payment history (drives the z-score amount
 anomaly signal; needs ~8+ payments per vendor for meaningful statistics):
 
 ```csv
@@ -110,7 +110,7 @@ paymentId,vendorId,invoiceNumber,paidDate,amountUsd,currencyOriginal
 P-0001,V-001,INV-2025-0001,2025-08-06,8791.51,EUR
 ```
 
-**`data/fraud_ground_truth.csv`** *(optional — labels for evaluation only)*:
+**`data/fraud_ground_truth.csv`** *(optional - labels for evaluation only)*:
 
 ```csv
 caseId,invoiceNumber,fraudType,isFraud,expectedSignal
@@ -120,15 +120,15 @@ C-001,INV-2026-4410,BEC,True,domain_lookalike+timing+amount_anomaly
 Keep the exact column headers shown above. `vendorId` values in
 payment_history must exist in vendor_master.
 
-### Step B — Drop in your raw files
+### Step B - Drop in your raw files
 
 | Folder | Format | Notes |
 |---|---|---|
-| `data/invoices/` | `*.pdf` | One invoice per file. Fields (invoice #, vendor, amount, dates, bank) are extracted from the visible text via regex — clean, text-based PDFs work best. Scanned/image-only PDFs get quarantined (by design). |
+| `data/invoices/` | `*.pdf` | One invoice per file. Fields (invoice #, vendor, amount, dates, bank) are extracted from the visible text via regex - clean, text-based PDFs work best. Scanned/image-only PDFs get quarantined (by design). |
 | `data/emails/` | `*.eml` | Standard RFC-822 `.eml` files (drag out of Outlook / export from Gmail). From/To/Subject/body + any bank-change language drives the BEC signal. |
 | `data/prerecorded/` | `{CASE_ID}.wav` *(optional)* | Vendor-side audio for the verification-call stage. If absent, the worker generates the call script + transcript deterministically. |
 
-### Step C — Reload and run
+### Step C - Reload and run
 
 ```bash
 python scripts/seed_db.py     # re-loads the CSVs into SQLite
@@ -145,11 +145,11 @@ master + payment history.
 
 ## 5. Verification calls & AI features
 
-- **With no keys at all** — everything runs deterministically (local mode):
+- **With no keys at all** - everything runs deterministically (local mode):
   TTS/ASR/LLM steps use scripted fallbacks, the full case journey (signals →
   agent → call → gate) still works end-to-end, and prerecorded WAVs replay
   in the case detail sheet.
-- **With a RocketRide API key** (optional) — set `ROCKETRIDE_API_KEY` in
+- **With a RocketRide API key** (optional) - set `ROCKETRIDE_API_KEY` in
   `.env` to run the pipeline through the RocketRide cloud runtime.
 
 ---
@@ -159,7 +159,7 @@ master + payment history.
 1. Install VS Code from https://code.visualstudio.com
 2. File ▸ **Open Folder…** → select the `ap-fraud-sentinel` folder
 3. VS Code prompts to install the recommended extensions (Python, ESLint,
-   Tailwind, Prisma) — click **Install**
+   Tailwind, Prisma) - click **Install**
 4. Open the integrated terminal with `` Ctrl+` `` (View ▸ Terminal) and run the
    same commands (`./setup.sh`, `./start.sh`)
 5. Or use the built-in tasks: **Terminal ▸ Run Task…** →
@@ -173,10 +173,10 @@ master + payment history.
 | Symptom | Fix |
 |---|---|
 | `npm run dev` says port 3000 in use | Stop the other process, or `npm run dev -- -p 3001` |
-| Dashboard shows **WS offline** badge | The trace service (port 3003) isn't running — start it with `npm run ws` |
+| Dashboard shows **WS offline** badge | The trace service (port 3003) isn't running - start it with `npm run ws` |
 | All PDFs land in *quarantined* | `pip install pdfplumber`, and check the PDFs contain selectable text (not scanned images) |
 | `python` not found (Windows) | Install from python.org and tick *Add to PATH*, or use `py -3` and run the worker with `py -3 worker/main.py` |
-| Fresh dashboard after restart | Normal — cases live in `db/custom.db`; run a batch to populate, old runs stay in **Runs** |
+| Fresh dashboard after restart | Normal - cases live in `db/custom.db`; run a batch to populate, old runs stay in **Runs** |
 | Reset everything | Delete `db/custom.db`, then `npm run db:push && python scripts/seed_db.py` |
 
 ---
@@ -185,7 +185,7 @@ master + payment history.
 
 ```
 data/                  your dataset (CSVs + invoices/ + emails/ + prerecorded/)
-db/custom.db           SQLite — all cases, runs, decisions
+db/custom.db           SQLite - all cases, runs, decisions
 prisma/schema.prisma   database schema
 worker/                Python pipeline worker (7 stages, signals, agents)
 pipelines/*.pipe       canonical RocketRide pipeline definitions

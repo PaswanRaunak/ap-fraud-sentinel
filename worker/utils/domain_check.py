@@ -1,10 +1,10 @@
-"""worker.utils.domain_check — lookalike-domain detection via Levenshtein.
+"""worker.utils.domain_check - lookalike-domain detection via Levenshtein.
 
 Pure function. Referenced from ``pipelines/04_signals.pipe`` as
 ``worker.utils.domain_check.compare_domains``.
 
 Implements Levenshtein edit distance in-process (no python-Levenshtein dep,
-no WHOIS round-trip in the demo path — the dataset already gives us the
+no WHOIS round-trip in the demo path - the dataset already gives us the
 registered domain and the sender domain; we just compare them).
 """
 
@@ -52,7 +52,7 @@ def compare_domains(
         - distance <= 5 → lookalike=True, score=0.6.
         - distance > 5 → lookalike=True (different domain), score=0.3.
         - missing either domain → distance=-1, lookalike=False, score=0.0
-          (signal does not fire — we can't compare against nothing).
+          (signal does not fire - we can't compare against nothing).
     """
     s = (sender_domain or "").strip().lower()
     r = (registered_domain or "").strip().lower()
@@ -74,7 +74,7 @@ def compare_domains(
         return distance, True, 1.0
     if distance <= 5:
         return distance, True, 0.6
-    # Different domain entirely — NOT a lookalike. A genuinely different
+    # Different domain entirely - NOT a lookalike. A genuinely different
     # sender domain is its own concern, but it is not the BEC typosquat
     # pattern this signal exists to catch, so we do not fire it (firing here
     # caused mass over-holding of legit invoices whose email came from a

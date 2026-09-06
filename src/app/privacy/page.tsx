@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const sections = [
   {
     title: 'What we process',
-    body: 'Invoice documents and vendor emails you submit for screening, extracted facts (vendor name, amounts, dates, bank accounts), vendor master and payment history records you load, and transcripts of automated verification calls. All dataset shipped with the product is synthetic — no real PII or banking details.',
+    body: 'Invoice documents and vendor emails you submit for screening, extracted facts (vendor name, amounts, dates, bank accounts), vendor master and payment history records you load, and transcripts of automated verification calls. All dataset shipped with the product is synthetic - no real PII or banking details.',
   },
   {
     title: 'How it is used',
@@ -18,7 +18,7 @@ const sections = [
   },
   {
     title: 'Where it lives',
-    body: 'Cases, decisions and run history are stored in the SQLite database on your own infrastructure. Documents stay on your network. When a cloud LLM provider is configured, only the minimal case facts required for a review are sent — never raw attachments.',
+    body: 'Cases, decisions and run history are stored in the SQLite database on your own infrastructure. Documents stay on your network. When a cloud LLM provider is configured, only the minimal case facts required for a review are sent - never raw attachments.',
   },
   {
     title: 'Retention & deletion',

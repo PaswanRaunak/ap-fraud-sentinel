@@ -1,9 +1,9 @@
 'use client';
 
-// Sentinel Payments — public corporate portal.
+// Sentinel Payments - public corporate portal.
 // Dark "Ethereal Glass" identity: OLED base, red/emerald mesh orbs, film grain,
 // glass double-bezel cards, Geist typography. The ops console (light) is a
-// separate internal surface — this page is the marketing/public face.
+// separate internal surface - this page is the marketing/public face.
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -37,7 +37,7 @@ import { useStats } from '@/hooks/useDashboardData';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
-// Standardized icon stroke for this surface — light, precise lines.
+// Standardized icon stroke for this surface - light, precise lines.
 const ICON_STROKE = 1.5;
 
 const EASE = [0.32, 0.72, 0, 1] as const;
@@ -49,7 +49,7 @@ const fadeUp = {
   transition: { duration: 0.7, ease: EASE },
 };
 
-/** Section heading block — eyebrow tag + display heading + lede, left-aligned. */
+/** Section heading block - eyebrow tag + display heading + lede, left-aligned. */
 function SectionHead({
   eyebrow,
   title,
@@ -76,7 +76,7 @@ function SectionHead({
   );
 }
 
-/** Double-bezel glass card — outer shell + inner core with concentric radii. */
+/** Double-bezel glass card - outer shell + inner core with concentric radii. */
 function GlassCard({
   children,
   className,
@@ -186,7 +186,7 @@ export function LandingPage() {
       no: '04',
       title: '6-Rule Risk Signal Engine',
       icon: Radar,
-      desc: 'Six deterministic detectors run in parallel — Levenshtein domain lookalikes, 3-sigma z-scores, bank-change timing windows, duplicate SQL matching, first-time vendor gating and SAR threshold skirting.',
+      desc: 'Six deterministic detectors run in parallel - Levenshtein domain lookalikes, 3-sigma z-scores, bank-change timing windows, duplicate SQL matching, first-time vendor gating and SAR threshold skirting.',
     },
     {
       no: '05',
@@ -198,7 +198,7 @@ export function LandingPage() {
       no: '06',
       title: 'Out-of-Band Voice Verification',
       icon: PhoneCall,
-      desc: 'For held bank-change cases, an automated call is placed to the vendor phone number registered on file — never a number from the suspicious email — with speech-to-text and intent classification.',
+      desc: 'For held bank-change cases, an automated call is placed to the vendor phone number registered on file - never a number from the suspicious email - with speech-to-text and intent classification.',
     },
     {
       no: '07',
@@ -212,7 +212,7 @@ export function LandingPage() {
     {
       weight: '30%',
       name: 'Domain Lookalike',
-      desc: 'Levenshtein distance catches character spoofing — acme-industria1.com against the registered acmeindustrial.com.',
+      desc: 'Levenshtein distance catches character spoofing - acme-industria1.com against the registered acmeindustrial.com.',
       accent: 'text-red-300',
       badge: 'bg-red-950/60 text-red-300',
     },
@@ -247,7 +247,7 @@ export function LandingPage() {
     {
       weight: '5%',
       name: 'SAR Threshold Skirting',
-      desc: 'Structuring detection for amounts priced between $9,500 and $9,999 — just under the report line.',
+      desc: 'Structuring detection for amounts priced between $9,500 and $9,999 - just under the report line.',
       accent: 'text-emerald-300',
       badge: 'bg-emerald-950/60 text-emerald-300',
     },
@@ -256,11 +256,11 @@ export function LandingPage() {
   const faqs = [
     {
       q: 'How does Sentinel detect Business Email Compromise attacks?',
-      a: 'Sentinel combines Levenshtein domain-lookalike detection (catching character spoofing like acme-industria1.com) with header provenance checks, bank-change timing analysis and the tri-agent LLM swarm — intercepting wire redirection before disbursement.',
+      a: 'Sentinel combines Levenshtein domain-lookalike detection (catching character spoofing like acme-industria1.com) with header provenance checks, bank-change timing analysis and the tri-agent LLM swarm - intercepting wire redirection before disbursement.',
     },
     {
       q: 'Does it slow down legitimate invoice workflows?',
-      a: 'No. Clean invoices matching verified master records and historical baselines evaluate in under a millisecond and auto-release. Only high-risk anomalies — typically under 5% of volume — route to hold and out-of-band verification.',
+      a: 'No. Clean invoices matching verified master records and historical baselines evaluate in under a millisecond and auto-release. Only high-risk anomalies - typically under 5% of volume - route to hold and out-of-band verification.',
     },
     {
       q: 'How does out-of-band phone verification work?',
@@ -268,7 +268,7 @@ export function LandingPage() {
     },
     {
       q: 'Which ERP systems does it integrate with?',
-      a: 'SAP S/4HANA, NetSuite, Oracle Cloud ERP, Workday Financials, Microsoft Dynamics 365 and QuickBooks Enterprise — via secure REST webhooks and certified connectors.',
+      a: 'SAP S/4HANA, NetSuite, Oracle Cloud ERP, Workday Financials, Microsoft Dynamics 365 and QuickBooks Enterprise - via secure REST webhooks and certified connectors.',
     },
   ];
 
@@ -352,7 +352,7 @@ export function LandingPage() {
               </Button>
             )}
 
-            {/* Mobile hamburger — morphs to X */}
+            {/* Mobile hamburger - morphs to X */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen((v) => !v)}
@@ -406,7 +406,7 @@ export function LandingPage() {
       </AnimatePresence>
 
       <main className="relative z-10 w-full max-w-full">
-        {/* ============ HERO — asymmetric split ============ */}
+        {/* ============ HERO - asymmetric split ============ */}
         <section id="home" className="relative flex min-h-[100dvh] items-center px-4 pb-20 pt-36 sm:px-6 lg:px-8">
           <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-14 lg:grid-cols-12">
             {/* Left: massive typography */}
@@ -421,7 +421,7 @@ export function LandingPage() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-60" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
                 </span>
-                Live interception — INV-2026-4410 · spoofed domain blocked
+                Live interception - INV-2026-4410 · spoofed domain blocked
               </motion.div>
 
               <motion.h1
@@ -442,8 +442,8 @@ export function LandingPage() {
                 className="mt-7 max-w-[60ch] text-base leading-relaxed text-white/50 sm:text-lg"
               >
                 Sentinel Payments screens every inbound invoice and vendor email through a
-                7-stage pipeline — six deterministic risk signals, a tri-agent AI swarm, and an
-                automated verification call to the number on file — before a single dollar moves.
+                7-stage pipeline - six deterministic risk signals, a tri-agent AI swarm, and an
+                automated verification call to the number on file - before a single dollar moves.
               </motion.p>
 
               <motion.div
@@ -452,7 +452,7 @@ export function LandingPage() {
                 transition={{ duration: 0.8, delay: 0.24, ease: EASE }}
                 className="mt-10 flex flex-wrap items-center gap-4"
               >
-                {/* Primary CTA — button-in-button trailing icon */}
+                {/* Primary CTA - button-in-button trailing icon */}
                 <button
                   type="button"
                   onClick={enterConsole}
@@ -514,7 +514,7 @@ export function LandingPage() {
                     &ldquo;Vendor confirmed by phone: no bank change was requested. Disbursement
                     frozen, case routed to controller queue.&rdquo;
                     <span className="mt-2 block font-mono text-[10px] text-white/30">
-                      — Manager Agent, arbitration verdict
+                      - Manager Agent, arbitration verdict
                     </span>
                   </div>
 
@@ -568,13 +568,13 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ============ PLATFORM — asymmetric bento ============ */}
+        {/* ============ PLATFORM - asymmetric bento ============ */}
         <section id="what-we-do" className="px-4 py-28 sm:px-6 sm:py-36 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <SectionHead
               eyebrow="Platform"
               title={<>Four layers of defense between the invoice and the wire.</>}
-              lede="Every payment passes statistical grounding, six deterministic signals, agent reasoning and a human gate — clean invoices in under a millisecond, suspicious ones never leave the building."
+              lede="Every payment passes statistical grounding, six deterministic signals, agent reasoning and a human gate - clean invoices in under a millisecond, suspicious ones never leave the building."
             />
 
             <motion.div
@@ -588,7 +588,7 @@ export function LandingPage() {
                 <h3 className="mt-5 text-lg font-semibold tracking-tight">BEC &amp; phishing defense</h3>
                 <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-white/45">
                   Supplier invoices and emails are screened autonomously. Lookalike domains and
-                  urgency coercion are flagged before disbursement — not after the wire clears.
+                  urgency coercion are flagged before disbursement - not after the wire clears.
                 </p>
                 <div className="mt-6 flex items-center gap-2 font-mono text-[11px]">
                   <span className="rounded-lg bg-white/[0.04] px-2.5 py-1 text-red-300 line-through decoration-red-400/60">
@@ -607,7 +607,7 @@ export function LandingPage() {
                 </div>
                 <h3 className="mt-5 text-lg font-semibold tracking-tight">Out-of-band telephony</h3>
                 <p className="mt-2 text-sm leading-relaxed text-white/45">
-                  Automated calls to the supplier number on file — never the attacker&apos;s —
+                  Automated calls to the supplier number on file - never the attacker&apos;s -
                   with speech-to-text verification of every bank change.
                 </p>
               </GlassCard>
@@ -647,7 +647,7 @@ export function LandingPage() {
             <SectionHead
               eyebrow="Live sandbox"
               title="Run a real attack scenario."
-              lede="Pick a case and watch the six-rule engine and tri-agent swarm analyze, verify and resolve it — the same pipeline that screens production invoices."
+              lede="Pick a case and watch the six-rule engine and tri-agent swarm analyze, verify and resolve it - the same pipeline that screens production invoices."
             />
 
             <motion.div {...fadeUp} className="mt-12 flex flex-wrap gap-2.5">
@@ -691,11 +691,11 @@ export function LandingPage() {
                         ['Invoice no', 'INV-2026-4410', 'text-white'],
                         ['Sender', 'billing@acme-industria1.com', 'text-red-300'],
                         ['Amount', formatCurrency(48394.27, 'USD'), 'text-red-300'],
-                        ['Bank account', 'MODIFIED — rogue IBAN', 'text-amber-300'],
+                        ['Bank account', 'MODIFIED - rogue IBAN', 'text-amber-300'],
                       ]}
                       signals={[
                         { name: 'domain_lookalike', score: '1.00', note: 'Levenshtein distance 2 from registered acmeindustrial.com', fired: true },
-                        { name: 'amount_anomaly', score: '1.00', note: 'Z-score 42.1 — amount is far outside the vendor baseline', fired: true },
+                        { name: 'amount_anomaly', score: '1.00', note: 'Z-score 42.1 - amount is far outside the vendor baseline', fired: true },
                       ]}
                       verdictTone="HOLD"
                       verdictLabel="RECOMMENDATION: HOLD"
@@ -715,7 +715,7 @@ export function LandingPage() {
                         ['Historical avg', formatCurrency(4200.0, 'USD'), 'text-white/60'],
                       ]}
                       signals={[
-                        { name: 'amount_anomaly', score: '0.95', note: '3-sigma violation — amount is 23x the historical baseline', fired: true },
+                        { name: 'amount_anomaly', score: '0.95', note: '3-sigma violation - amount is 23x the historical baseline', fired: true },
                         { name: 'domain_lookalike', score: '0.00', note: 'Sender domain matches the master record', fired: false },
                       ]}
                       verdictTone="AUDIT HOLD"
@@ -871,7 +871,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ============ HOW IT WORKS — 7-stage pipeline ============ */}
+        {/* ============ HOW IT WORKS - 7-stage pipeline ============ */}
         <section id="how-it-works" className="border-t border-white/[0.06] px-4 py-28 sm:px-6 sm:py-36 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <SectionHead
@@ -987,13 +987,13 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ============ SIGNAL MATRIX — weighted asymmetric grid ============ */}
+        {/* ============ SIGNAL MATRIX - weighted asymmetric grid ============ */}
         <section id="security" className="border-t border-white/[0.06] px-4 py-28 sm:px-6 sm:py-36 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <SectionHead
               eyebrow="Risk intelligence"
               title="Six signals. One frozen score."
-              lede="Deterministic, weighted scoring across six independent threat vectors produces a composite risk from 0.00 to 1.00. Holds trigger at 0.40 — the threshold is frozen, never tuned after the fact."
+              lede="Deterministic, weighted scoring across six independent threat vectors produces a composite risk from 0.00 to 1.00. Holds trigger at 0.40 - the threshold is frozen, never tuned after the fact."
             />
 
             <motion.div
@@ -1260,7 +1260,7 @@ export function LandingPage() {
   );
 }
 
-/** Sandbox scenario panel — facts rail + fired signals + verdict terminal. */
+/** Sandbox scenario panel - facts rail + fired signals + verdict terminal. */
 function SandboxPanel({
   vendor,
   facts,

@@ -58,7 +58,7 @@ export async function POST(req: Request) {
   try {
     body = (await req.json().catch(() => ({}))) as PostBody;
   } catch {
-    /* empty body is allowed — generate run_id */
+    /* empty body is allowed - generate run_id */
   }
   const runId =
     (body.run_id ?? '').toString().trim() ||

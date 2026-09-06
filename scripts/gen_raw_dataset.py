@@ -3,13 +3,13 @@
 
   data/invoices/<invoice_number>.pdf   (was C-NNNN.json)
   data/emails/email_NNN.eml            (was E-NNNN.json)
-  data/emails/email_10X.eml            (was C-00X.json  — the 8 fraud emails)
-  data/invoices/CORRUPT-9901.pdf       (was CORRUPT-9901.json — garbage binary)
-  data/emails/CORRUPT-9902.eml         (was CORRUPT-9902.json — malformed RFC822)
+  data/emails/email_10X.eml            (was C-00X.json  - the 8 fraud emails)
+  data/invoices/CORRUPT-9901.pdf       (was CORRUPT-9901.json - garbage binary)
+  data/emails/CORRUPT-9902.eml         (was CORRUPT-9902.json - malformed RFC822)
 
 Each PDF contains a realistic invoice layout (header, line items, totals,
 remit-to block) AND a hidden JSON marker line that the worker's pdfplumber
-extractor reads first — so the 7-stage pipeline gets reliable structured
+extractor reads first - so the 7-stage pipeline gets reliable structured
 fields without depending on perfect OCR.
 
 Each EML is a proper RFC822 message parsed by Python's built-in `email` module,
@@ -33,7 +33,7 @@ from email.message import EmailMessage
 from email.utils import formatdate, make_msgid
 from pathlib import Path
 
-# fpdf2 — pure-python PDF text-only generator. Fast and 141 files complete in <2s.
+# fpdf2 - pure-python PDF text-only generator. Fast and 141 files complete in <2s.
 from fpdf import FPDF
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -167,7 +167,7 @@ def _build_invoice_pdf(inv: dict, out_path: Path) -> None:
 def _build_corrupt_pdf(out_path: Path) -> None:
     """Write a garbage PDF that pdfplumber cannot parse (extraction returns "")."""
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    # Minimal invalid PDF — header then garbage bytes. Triggers quarantine.
+    # Minimal invalid PDF - header then garbage bytes. Triggers quarantine.
     with open(out_path, "wb") as f:
         f.write(b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n")
         f.write(b"CORRUPT-9901-BINARY-GARBAGE-NOT-A-REAL-PDF-OBJECT-STREAM\n")
@@ -186,7 +186,7 @@ def _build_email_eml(em: dict, out_path: Path) -> None:
     msg["Subject"] = em.get("subject", "(no subject)")
     if em.get("date"):
         # The synthetic dates are ISO 8601 with Z; email.utils.formatdate wants
-        # an epoch. Just pass through as a literal string — RFC822 parser is
+        # an epoch. Just pass through as a literal string - RFC822 parser is
         # liberal.
         msg["Date"] = em["date"]
     else:
@@ -195,7 +195,7 @@ def _build_email_eml(em: dict, out_path: Path) -> None:
     body = em.get("body", "")
     msg.set_content(body)
 
-    # Hidden facts marker appended as a trailing line in the body — same idea
+    # Hidden facts marker appended as a trailing line in the body - same idea
     # as the PDF marker. The worker's EML parser strips it before display.
     facts = {
         "case_id": em.get("case_id"),
@@ -220,7 +220,7 @@ def _extract_invoice_number_from_body(body: str) -> str | None:
 
 
 def _build_corrupt_eml(out_path: Path) -> None:
-    """Malformed .eml — Python's email parser will return an empty message."""
+    """Malformed .eml - Python's email parser will return an empty message."""
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "wb") as f:
         f.write(b"FROM: corrupted\n")  # missing colon-space after header name
@@ -231,7 +231,7 @@ def _build_corrupt_eml(out_path: Path) -> None:
 
 # ---------- mapping ----------
 
-# Fraud emails (C-001..C-008) → email_101..email_108 (the "odd batch" — the
+# Fraud emails (C-001..C-008) → email_101..email_108 (the "odd batch" - the
 # user's screenshot shows email_101.eml as the visible BEC attack).
 FRAUD_EMAIL_NUM = {f"C-00{i}": 100 + i for i in range(1, 9)}
 
@@ -256,14 +256,14 @@ def main() -> int:
     inv_fail = 0
     for jf in sorted(INVOICES_DIR.glob("*.json")):
         # Special-case the corrupt file BEFORE trying json.load (it's
-        # intentionally invalid JSON — that's the whole point of CORRUPT-9901).
+        # intentionally invalid JSON - that's the whole point of CORRUPT-9901).
         if jf.name == "CORRUPT-9901.json":
             out = INVOICES_DIR / "CORRUPT-9901.pdf"
             try:
                 _build_corrupt_pdf(out)
                 inv_count += 1
             except Exception as e:
-                print(f"  FAIL (corrupt pdf): {jf.name} — {e}", file=sys.stderr)
+                print(f"  FAIL (corrupt pdf): {jf.name} - {e}", file=sys.stderr)
                 inv_fail += 1
                 continue
             try:
@@ -276,7 +276,7 @@ def main() -> int:
             with open(jf, "r", encoding="utf-8") as f:
                 inv = json.load(f)
         except Exception as e:
-            print(f"  SKIP (parse fail): {jf.name} — {e}", file=sys.stderr)
+            print(f"  SKIP (parse fail): {jf.name} - {e}", file=sys.stderr)
             inv_fail += 1
             continue
 
@@ -293,7 +293,7 @@ def main() -> int:
                 _build_invoice_pdf(inv, out)
                 inv_count += 1
             except Exception as e:
-                print(f"  FAIL (pdf gen): {jf.name} — {e}", file=sys.stderr)
+                print(f"  FAIL (pdf gen): {jf.name} - {e}", file=sys.stderr)
                 inv_fail += 1
                 continue
 
@@ -314,7 +314,7 @@ def main() -> int:
                 _build_corrupt_eml(out)
                 em_count += 1
             except Exception as e:
-                print(f"  FAIL (corrupt eml): {jf.name} — {e}", file=sys.stderr)
+                print(f"  FAIL (corrupt eml): {jf.name} - {e}", file=sys.stderr)
                 em_fail += 1
                 continue
             try:
@@ -327,7 +327,7 @@ def main() -> int:
             with open(jf, "r", encoding="utf-8") as f:
                 em = json.load(f)
         except Exception as e:
-            print(f"  SKIP (parse fail): {jf.name} — {e}", file=sys.stderr)
+            print(f"  SKIP (parse fail): {jf.name} - {e}", file=sys.stderr)
             em_fail += 1
             continue
 
@@ -340,7 +340,7 @@ def main() -> int:
                 _build_email_eml(em, out)
                 em_count += 1
             except Exception as e:
-                print(f"  FAIL (eml gen): {jf.name} — {e}", file=sys.stderr)
+                print(f"  FAIL (eml gen): {jf.name} - {e}", file=sys.stderr)
                 em_fail += 1
                 continue
         elif case_id.startswith("E-"):
@@ -350,7 +350,7 @@ def main() -> int:
                 _build_email_eml(em, out)
                 em_count += 1
             except Exception as e:
-                print(f"  FAIL (eml gen): {jf.name} — {e}", file=sys.stderr)
+                print(f"  FAIL (eml gen): {jf.name} - {e}", file=sys.stderr)
                 em_fail += 1
                 continue
         else:

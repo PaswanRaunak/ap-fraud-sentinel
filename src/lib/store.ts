@@ -1,6 +1,6 @@
 'use client';
 
-// Zustand store — single source of truth for client-side navigation + live pipeline trace.
+// Zustand store - single source of truth for client-side navigation + live pipeline trace.
 // Persisted view state survives reloads so refresh drops you back on the same section.
 
 import { create } from 'zustand';
@@ -41,7 +41,7 @@ export interface AppState {
   setStageStatus: (name: TraceStage['name'], status: TraceStage['status']) => void;
   applyTraceEvent: (e: TraceEvent) => void;
 
-  // Recent trace events (last 50) — used by the WS hook + trace UI.
+  // Recent trace events (last 50) - used by the WS hook + trace UI.
   recentEvents: TraceEvent[];
   addTraceEvent: (e: TraceEvent) => void;
 

@@ -2,7 +2,7 @@
 """Load the synthetic AP fraud dataset CSVs into the SQLite database.
 
 Wipes Vendor / PaymentHistory / FraudGroundTruth tables first (these are the
-dataset tables only — runtime tables Case / Decision / Run are left untouched).
+dataset tables only - runtime tables Case / Decision / Run are left untouched).
 Then inserts all rows from data/*.csv. Uses raw sqlite3 (not Prisma) to avoid
 schema/client drift.
 
@@ -22,7 +22,7 @@ DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 def wipe_dataset_tables(cur):
     """Delete all rows from the three dataset tables (idempotent reset)."""
     # Order matters for FK cleanliness, though SQLite FK enforcement is off
-    # by default — wipe PaymentHistory first (it references Vendor), then
+    # by default - wipe PaymentHistory first (it references Vendor), then
     # the rest. Do NOT touch Case / Decision / Run.
     cur.execute("DELETE FROM PaymentHistory;")
     cur.execute("DELETE FROM Vendor;")

@@ -66,7 +66,7 @@
       }
     }
   ],
-  "name": "Stage 07 — Controller Decision Gate Pipeline",
+  "name": "Stage 07 - Controller Decision Gate Pipeline",
   "description": "Evaluates controller review decisions via LLM gate policy and returns release or hold decision action.",
   "version": 1,
   "source": "chat_1",

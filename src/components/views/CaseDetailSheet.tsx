@@ -1,6 +1,6 @@
 'use client';
 
-// Case evidence sheet — fully data-driven from the /api/cases/[id] payload:
+// Case evidence sheet - fully data-driven from the /api/cases/[id] payload:
 // real extracted facts, fired signals, agent narrative, verification transcript
 // and the decision audit trail. No hardcoded demo content.
 
@@ -55,13 +55,13 @@ interface CaseDetailExtra {
 }
 
 function last4(account: string | null | undefined): string {
-  if (!account) return '—';
+  if (!account) return '-';
   const digits = account.replace(/\D/g, '');
   return digits ? `•••• ${digits.slice(-4)}` : account;
 }
 
 function fmtDate(iso: string | null | undefined): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString('en-US', { dateStyle: 'medium' });
 }
@@ -118,7 +118,7 @@ export function CaseDetailSheet() {
     const signalRows = firedSignals
       .map(
         (s) =>
-          `<div class="box"><div style="font-weight:700;font-size:12px;color:#991b1b;">${s.name} — score ${s.score.toFixed(2)} (weight ${(s.weight * 100).toFixed(0)}%)</div><div style="font-size:11px;color:#475569;margin-top:4px;">${s.evidence}</div></div>`,
+          `<div class="box"><div style="font-weight:700;font-size:12px;color:#991b1b;">${s.name} - score ${s.score.toFixed(2)} (weight ${(s.weight * 100).toFixed(0)}%)</div><div style="font-size:11px;color:#475569;margin-top:4px;">${s.evidence}</div></div>`,
       )
       .join('');
     const transcriptBlock = detail.callTranscript
@@ -148,7 +148,7 @@ export function CaseDetailSheet() {
         <div class="card">
           <div class="header">
             <div>
-              <div class="brand">Sentinel Payments — Evidence Pack</div>
+              <div class="brand">Sentinel Payments - Evidence Pack</div>
               <div class="sub">Case ${detail.caseId} · generated ${new Date().toLocaleString()}</div>
             </div>
             <div style="text-align:right;">
@@ -159,14 +159,14 @@ export function CaseDetailSheet() {
 
           <div class="facts">
             <span class="amount">${formatCurrency(detail.amountUsd, detail.currency)}</span><br/>
-            Sender domain: <strong>${detail.senderDomain ?? '—'}</strong><br/>
+            Sender domain: <strong>${detail.senderDomain ?? '-'}</strong><br/>
             Invoice date: ${fmtDate(facts.invoice_date ?? detail.invoiceDate)} · Due: ${fmtDate(facts.due_date ?? detail.dueDate)}<br/>
             Requested account: <strong>${last4(email.requestedBankAccount ?? facts.bank_account)}</strong>
             ${vendor?.knownBankAccount ? ` · Account on master: <strong>${last4(vendor.knownBankAccount)}</strong>` : ''}
           </div>
 
           <div style="margin-top:14px;font-size:11px;font-weight:700;color:#991b1b;">
-            Composite risk score: ${(detail.riskScore ?? 0).toFixed(2)} / 1.00 — recommendation: ${(detail.recommendation ?? 'n/a').toUpperCase()}
+            Composite risk score: ${(detail.riskScore ?? 0).toFixed(2)} / 1.00 - recommendation: ${(detail.recommendation ?? 'n/a').toUpperCase()}
           </div>
 
           <div style="font-size:14px;font-weight:800;margin:18px 0 4px;">Fired risk signals</div>
@@ -180,7 +180,7 @@ export function CaseDetailSheet() {
           ${
             detail.decisions.length
               ? `<div style="font-size:14px;font-weight:800;margin:18px 0 6px;">Decision history</div><div class="facts">${detail.decisions
-                  .map((d) => `<div>${d.timestamp} — <strong>${d.decision.toUpperCase()}</strong> by ${d.approver}${d.reason ? ` · ${d.reason}` : ''}</div>`)
+                  .map((d) => `<div>${d.timestamp} - <strong>${d.decision.toUpperCase()}</strong> by ${d.approver}${d.reason ? ` · ${d.reason}` : ''}</div>`)
                   .join('')}</div>`
               : ''
           }
@@ -304,7 +304,7 @@ export function CaseDetailSheet() {
                   <div className="flex justify-between gap-3">
                     <span className="text-white/30">Sender domain</span>
                     <strong className={cn('text-right', detail.senderDomain ? 'text-white/85' : 'text-white/30')}>
-                      {detail.senderDomain ?? '—'}
+                      {detail.senderDomain ?? '-'}
                     </strong>
                   </div>
                   {(email.requestedBankAccount || facts.bank_account) && (
@@ -357,7 +357,7 @@ export function CaseDetailSheet() {
                   </span>
                   {firedSignals.length === 0 ? (
                     <p className="text-xs leading-relaxed text-white/35">
-                      No deterministic signals fired — every check passed cleanly.
+                      No deterministic signals fired - every check passed cleanly.
                     </p>
                   ) : (
                     firedSignals.map((s) => (
@@ -392,7 +392,7 @@ export function CaseDetailSheet() {
                   </div>
                 ) : (
                   <p className="text-xs leading-relaxed text-white/35">
-                    No agent narrative was recorded for this case — it cleared on deterministic signals alone.
+                    No agent narrative was recorded for this case - it cleared on deterministic signals alone.
                   </p>
                 )}
 
@@ -510,7 +510,7 @@ export function CaseDetailSheet() {
                       <PhoneCall className="h-5 w-5" strokeWidth={ICON_STROKE} />
                     </span>
                     <p className="text-xs leading-relaxed text-white/35">
-                      No verification call was placed — this case never crossed the hold threshold, so
+                      No verification call was placed - this case never crossed the hold threshold, so
                       payment verification wasn&apos;t required.
                     </p>
                   </div>

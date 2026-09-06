@@ -1,4 +1,4 @@
-// AP Payment Fraud Sentinel — shared types (the data contract between
+// AP Payment Fraud Sentinel - shared types (the data contract between
 // the Next.js dashboard, the API routes, and the Python worker's HTTP responses).
 // Mirrors the interfaces in build prompt §5.2.
 
@@ -24,7 +24,7 @@ export interface Signal {
   fired: boolean;
 }
 
-// Signal weights — frozen on Day 4 per build prompt §4 (no tuning after).
+// Signal weights - frozen on Day 4 per build prompt §4 (no tuning after).
 export const SIGNAL_WEIGHTS: Record<string, number> = {
   domain_lookalike: 0.30,
   timing_suspicious: 0.20,
@@ -155,10 +155,10 @@ export interface TraceEvent {
 
 // ---- Cost model (build prompt §8: "predictable cost", end card $0.04/invoice) ----
 export const COST = {
-  // Deterministic signals cost fractions of a cent — CPU only.
+  // Deterministic signals cost fractions of a cent - CPU only.
   signals_per_invoice: 0.0005,
-  // LLM agent review — 3 subagents + manager, ~$0.015 per case that reaches Stage 05.
+  // LLM agent review - 3 subagents + manager, ~$0.015 per case that reaches Stage 05.
   llm_per_reviewed_case: 0.015,
-  // Verification call (TTS+ASR+classify) — only on held cases.
+  // Verification call (TTS+ASR+classify) - only on held cases.
   call_per_held_case: 0.09,
 };

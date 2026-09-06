@@ -132,7 +132,7 @@
   }
 }
 
-/* AP Payment Fraud Sentinel — custom scrollbar for max-h-96 overflow-y-auto lists. */
+/* AP Payment Fraud Sentinel - custom scrollbar for max-h-96 overflow-y-auto lists. */
 @layer utilities {
   .max-h-96::-webkit-scrollbar,
   [class*="overflow-y-auto"]::-webkit-scrollbar,
@@ -182,7 +182,7 @@ html {
   html { scroll-behavior: auto; }
 }
 
-/* Film-grain overlay — fixed, pointer-events-none, GPU-safe. */
+/* Film-grain overlay - fixed, pointer-events-none, GPU-safe. */
 .apf-grain {
   position: fixed;
   inset: 0;

@@ -1,6 +1,6 @@
 'use client';
 
-// Dashboard — asymmetric command-center composition.
+// Dashboard - asymmetric command-center composition.
 // Hero metric dominates; supporting tiles, the live pipeline trace and an
 // operations feed with inline risk bars replace the old equal-card grid.
 
@@ -29,7 +29,7 @@ const cardVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 260, damping: 24 } },
 };
 
-/** Thin rounded risk meter — 0..1 → colored bar. */
+/** Thin rounded risk meter - 0..1 → colored bar. */
 function RiskBar({ score }: { score: number }) {
   const pct = Math.round(Math.min(1, Math.max(0, score)) * 100);
   return (
@@ -45,7 +45,7 @@ function RiskBar({ score }: { score: number }) {
   );
 }
 
-/** SVG ring gauge — fraud caught vs. cases screened. */
+/** SVG ring gauge - fraud caught vs. cases screened. */
 function RingGauge({ value, total }: { value: number; total: number }) {
   const pct = total > 0 ? Math.min(1, value / total) : 0;
   const r = 26;
@@ -110,7 +110,7 @@ export function DashboardView() {
         animate="show"
         className="grid grid-cols-1 gap-5 md:grid-cols-12"
       >
-        {/* Dominant metric — $ protected + live sparkline */}
+        {/* Dominant metric - $ protected + live sparkline */}
         <motion.div variants={cardVariants} className="md:col-span-5">
           <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-emerald-400/20 bg-emerald-400/[0.04] p-7 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]">
             <div className="flex items-start justify-between">
@@ -172,7 +172,7 @@ export function DashboardView() {
           </div>
         </motion.div>
 
-        {/* Fraud caught — ring gauge */}
+        {/* Fraud caught - ring gauge */}
         <motion.div variants={cardVariants} className="md:col-span-3">
           <div className="flex h-full flex-col justify-between rounded-3xl border border-white/10 bg-[#0B0B0E] p-7 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]">
             <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">
@@ -193,7 +193,7 @@ export function DashboardView() {
           </div>
         </motion.div>
 
-        {/* Held for review — actionable */}
+        {/* Held for review - actionable */}
         <motion.div variants={cardVariants} className="md:col-span-4">
           <button
             type="button"
@@ -213,7 +213,7 @@ export function DashboardView() {
             </div>
             <div className="mt-5 flex items-end justify-between">
               <div className="font-mono text-6xl font-semibold tabular-nums leading-none text-white">
-                {statsLoading ? '—' : (stats?.casesHeld ?? 0)}
+                {statsLoading ? '-' : (stats?.casesHeld ?? 0)}
               </div>
               <span className="flex items-center gap-1.5 text-xs font-semibold text-red-300 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-1">
                 Open queue
@@ -222,7 +222,7 @@ export function DashboardView() {
             </div>
             <p className="mt-3 text-xs text-white/40">
               {batchStatus === 'running'
-                ? 'Pipeline in flight — holds land here as they score.'
+                ? 'Pipeline in flight - holds land here as they score.'
                 : 'Held payments stay frozen until a controller disposes them.'}
             </p>
           </button>
@@ -279,7 +279,7 @@ export function DashboardView() {
             )}
             {!casesLoading && feed.length === 0 && (
               <div className="py-10 text-center text-sm text-white/35">
-                No cases yet — run a batch audit to screen the invoice queue.
+                No cases yet - run a batch audit to screen the invoice queue.
               </div>
             )}
             {!casesLoading &&
@@ -318,7 +318,7 @@ export function DashboardView() {
           </div>
         </motion.div>
 
-        {/* Right rail — efficiency + recent batches */}
+        {/* Right rail - efficiency + recent batches */}
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}

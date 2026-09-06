@@ -24,7 +24,7 @@ export function StatusBadge({ status, className }: { status: CaseStatus; classNa
 }
 
 export function RecommendationBadge({ rec, className }: { rec: Recommendation | null | undefined; className?: string }) {
-  if (!rec) return <Badge variant="outline" className={cn('text-white/30 rounded-full', className)}>—</Badge>;
+  if (!rec) return <Badge variant="outline" className={cn('text-white/30 rounded-full', className)}>-</Badge>;
   if (rec === 'hold') {
     return (
       <Badge variant="outline" className={cn('bg-red-400/10 text-red-300 border-red-400/25 rounded-full font-bold uppercase text-[10px] px-3 py-0.5 tracking-wider flex items-center gap-1', className)}>
@@ -42,7 +42,7 @@ export function RecommendationBadge({ rec, className }: { rec: Recommendation | 
 }
 
 export function DecisionBadge({ decision, className }: { decision: ControllerDecision | null | undefined; className?: string }) {
-  if (!decision) return <Badge variant="outline" className={cn('text-white/30 rounded-full', className)}>—</Badge>;
+  if (!decision) return <Badge variant="outline" className={cn('text-white/30 rounded-full', className)}>-</Badge>;
   const map: Record<ControllerDecision, string> = {
     release: 'bg-emerald-400/10 text-emerald-300 border-emerald-400/25',
     hold: 'bg-red-400/10 text-red-300 border-red-400/25',

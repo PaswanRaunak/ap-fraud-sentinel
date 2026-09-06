@@ -1,8 +1,8 @@
-"""worker.ws_client — push trace events to the pipeline-ws service on port 3003.
+"""worker.ws_client - push trace events to the pipeline-ws service on port 3003.
 
 The dashboard's mini-services/pipeline-ws (Task 2-c) listens for trace events
 on port 3003. This module POSTs each event to /trace with a 1s timeout and
-swallows errors — the worker never crashes if the WS service is unavailable
+swallows errors - the worker never crashes if the WS service is unavailable
 (build prompt §1: "missing WS degrades gracefully with a logged warning").
 """
 
@@ -69,7 +69,7 @@ async def emit(event: Mapping[str, Any] | None = None, **kwargs: Any) -> None:
                 if resp.status >= 400:
                     log.debug("ws trace endpoint returned %s", resp.status)
     except Exception as exc:
-        # Never crash on a missing/unresponsive WS service — log at debug.
+        # Never crash on a missing/unresponsive WS service - log at debug.
         log.debug("ws trace emit failed: %s", exc)
 
 

@@ -1,6 +1,6 @@
 'use client';
 
-// CostTable — 4-row cost table (signals, llm, call, total) + a horizontal bar chart
+// CostTable - 4-row cost table (signals, llm, call, total) + a horizontal bar chart
 // of the cost distribution. Used in the Runs view end-card.
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Cell, Tooltip } from 'recharts';
@@ -51,8 +51,8 @@ export function CostTable({ signalsCost, llmCost, callCost, totalCost, casesProc
             <tr className="border-t-2 border-border bg-muted/30">
               <td className="px-3 py-2 font-semibold text-foreground">Total</td>
               <td className="px-3 py-2 text-right font-semibold text-emerald-300">${totalCost.toFixed(4)}</td>
-              <td className="px-3 py-2 text-right text-muted-foreground">—</td>
-              <td className="px-3 py-2 text-right text-muted-foreground">—</td>
+              <td className="px-3 py-2 text-right text-muted-foreground">-</td>
+              <td className="px-3 py-2 text-right text-muted-foreground">-</td>
             </tr>
           </tbody>
         </table>

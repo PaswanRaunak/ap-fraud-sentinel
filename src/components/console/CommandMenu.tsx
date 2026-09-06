@@ -1,6 +1,6 @@
 'use client';
 
-// CommandMenu — global ⌘K / Ctrl+K palette for the ops console.
+// CommandMenu - global ⌘K / Ctrl+K palette for the ops console.
 // Navigate between views, kick off a batch run, and jump straight to a case
 // by searching its ID or vendor. Open programmatically via the window event
 // 'apf:open-command-menu' (dispatched by the header ⌘K button).
@@ -50,7 +50,7 @@ export function CommandMenu() {
   const startRun = useStartRun();
   const { toast } = useToast();
 
-  // Live case lookup — debounced so typing doesn't hammer the API.
+  // Live case lookup - debounced so typing doesn't hammer the API.
   const [debouncedQuery, setDebouncedQuery] = useState('');
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(caseQuery), 250);
@@ -89,7 +89,7 @@ export function CommandMenu() {
       const r = await startRun.mutateAsync({});
       toast({
         title: 'Batch screening initiated',
-        description: `Run ${r.run_id ?? 'queued'} — 141 invoices entering 7-stage pipeline.`,
+        description: `Run ${r.run_id ?? 'queued'} - 141 invoices entering 7-stage pipeline.`,
       });
       setView('dashboard');
     } catch (e) {

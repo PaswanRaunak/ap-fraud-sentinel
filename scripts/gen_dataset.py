@@ -457,7 +457,7 @@ def derive_tax_id(rng: random.Random, idx: int) -> str:
 
 
 def derive_phone(rng: random.Random) -> str:
-    """+1-555-XXX-XXXX — E.164-ish."""
+    """+1-555-XXX-XXXX - E.164-ish."""
     a = rng.randint(200, 989)
     b = rng.randint(1000, 9999)
     return f"+1-555-{a:03d}-{b:04d}"
@@ -485,7 +485,7 @@ def gen_vendors(rng: random.Random):
     for i, name in enumerate(VENDOR_NAMES, start=1):
         vid = f"V-{i:03d}"
         domain = derive_domain(name)
-        # Special overrides for Acme (V-001) — use a cleaner domain.
+        # Special overrides for Acme (V-001) - use a cleaner domain.
         if vid == "V-001":
             domain = "acmeindustrial.com"
         phone = derive_phone(rng)
@@ -752,12 +752,12 @@ def write_readme(out_dir, seed):
 
 Reproducible synthetic dataset for the AP Payment Fraud Sentinel project.
 
-- Seed: **{seed}** (deterministic — same seed produces byte-identical output)
+- Seed: **{seed}** (deterministic - same seed produces byte-identical output)
 - Vendor master: 60 rows (`vendor_master.csv`)
 - Payment history: 480 rows, ~8 per vendor, 2-year span 2024-04 to 2026-07 (`payment_history.csv`)
-- Fraud ground truth: 10 rows — 8 invoice plants (C-001..C-008), 1 corrupt invoice (C-009, `CORRUPT-9901.json`), 1 corrupt email (C-010, `CORRUPT-9902.json`) (`fraud_ground_truth.csv`)
-- Invoices: `invoices/*.json` — 132 legit + 8 fraud plants + 1 corrupt file
-- Emails: `emails/*.json` — 22 legit + 8 fraud plants + 1 corrupt file
+- Fraud ground truth: 10 rows - 8 invoice plants (C-001..C-008), 1 corrupt invoice (C-009, `CORRUPT-9901.json`), 1 corrupt email (C-010, `CORRUPT-9902.json`) (`fraud_ground_truth.csv`)
+- Invoices: `invoices/*.json` - 132 legit + 8 fraud plants + 1 corrupt file
+- Emails: `emails/*.json` - 22 legit + 8 fraud plants + 1 corrupt file
 
 ## Regenerate
 
@@ -779,7 +779,7 @@ python scripts/seed_db.py
 - V-012 = Juniper Components Inc (account-takeover target).
 - V-050 = York Manufacturing Co (first-time vendor; no payment history).
 - Two intentionally corrupt files (`CORRUPT-9901.json`, `CORRUPT-9902.json`)
-  are NOT valid JSON — the extraction stage should catch and quarantine them.
+  are NOT valid JSON - the extraction stage should catch and quarantine them.
 """
     write_text(os.path.join(out_dir, "README.md"), txt)
 
@@ -829,7 +829,7 @@ def main():
     )
 
     # 2b. Patch INV-2026-4410 amount to be exactly 5.2x V-001's *sample* mean.
-    # The prompt says "amount 5.2x the vendor's historical mean" — the
+    # The prompt says "amount 5.2x the vendor's historical mean" - the
     # historical mean is what's actually in payment_history, so we compute
     # it from the generated payments and patch the fraud invoice accordingly.
     v001_amts = [p["amountUsd"] for p in payments if p["vendorId"] == "V-001"]
@@ -863,7 +863,7 @@ def main():
         path = os.path.join(inv_dir, f"{inv['case_id']}.json")
         write_json(path, inv)
 
-    # 6. Corrupt invoice (1 file) — invalid JSON garbage
+    # 6. Corrupt invoice (1 file) - invalid JSON garbage
     write_text(os.path.join(inv_dir, "CORRUPT-9901.json"),
                "{ this is not valid json {{{\n")
 
@@ -878,7 +878,7 @@ def main():
         path = os.path.join(eml_dir, f"{em['case_id']}.json")
         write_json(path, em)
 
-    # 9. Corrupt email (1 file) — invalid JSON garbage
+    # 9. Corrupt email (1 file) - invalid JSON garbage
     write_text(os.path.join(eml_dir, "CORRUPT-9902.json"),
                "{ this is not valid json {{{\n")
 

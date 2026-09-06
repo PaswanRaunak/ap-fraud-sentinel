@@ -168,7 +168,7 @@ export function PipelineTrace({ stages, runId }: { stages: TraceStage[]; runId?:
           </div>
         </div>
 
-        {/* Status pill — animated swap between idle / processing / complete */}
+        {/* Status pill - animated swap between idle / processing / complete */}
         <div className="mt-6 flex h-9 items-center justify-center">
           <AnimatePresence mode="wait" initial={false}>
             {isRunning ? (

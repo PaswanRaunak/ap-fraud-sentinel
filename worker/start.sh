@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# worker/start.sh — backgrounds the Python worker reliably.
+# worker/start.sh - backgrounds the Python worker reliably.
 # The bash tool kills the process group when the calling command returns;
 # this script double-forks to fully detach so the worker survives.
 set -e

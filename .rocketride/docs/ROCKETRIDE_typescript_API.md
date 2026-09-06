@@ -412,7 +412,7 @@ Close the WebSocket transport entirely.
 ```typescript
 const client = new RocketRideClient({ uri: 'https://api.rocketride.ai' });
 
-await client.attach(); // transport only — public APIs now available
+await client.attach(); // transport only - public APIs now available
 await client.login('your-api-key'); // authenticate
 // ... do authenticated work ...
 await client.logout(); // drop auth, keep transport
@@ -769,7 +769,7 @@ async function myChat(myQuestion: string): Promise<string> {
 	// Issue the chat request
 	const response = await client.chat({ token, question });
 
-	// `answers` is a dynamic field — present only when the pipeline's result_types maps it. Treat it as optional.
+	// `answers` is a dynamic field - present only when the pipeline's result_types maps it. Treat it as optional.
 	if (!response.answers || response.answers.length === 0) {
 		return 'No answer received';
 	}
@@ -964,7 +964,7 @@ const client = new RocketRideClient({
 const status = await client.getTaskStatus(token);
 const numericState = status.state; // number from the TASK_STATE enum (e.g. 3 = RUNNING, 5 = COMPLETED)
 
-// Poll for progress — `completed` is a boolean that flips true once the task finishes
+// Poll for progress - `completed` is a boolean that flips true once the task finishes
 while (true) {
 	const status = await client.getTaskStatus(token);
 	if (status.completed) {
@@ -1033,7 +1033,7 @@ Common error scenarios:
 The SDK exports a typed exception hierarchy so you can catch errors at the right level of specificity. All extend the base `DAPException`, which carries the raw server response on a `dapResult: Record<string, unknown>` property.
 
 ```
-DAPException                      // base — wraps any DAP error response (.dapResult)
+DAPException                      // base - wraps any DAP error response (.dapResult)
 └─ RocketRideException            // root of all RocketRide-specific errors
    ├─ ConnectionException         // connect/transport problems, dropped connections
    │  └─ AuthenticationException  // bad API key / credentials

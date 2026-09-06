@@ -1,7 +1,7 @@
 // POST /api/ai/llm
 // Server-side wrapper around z-ai-web-dev-sdk and Ollama (local LLM).
 // Body: { system, user, max_tokens?, temperature? }
-// Returns: { text } — or { text: '' } on failure.
+// Returns: { text } - or { text: '' } on failure.
 
 import { NextResponse } from 'next/server';
 

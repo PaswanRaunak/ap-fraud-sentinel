@@ -1,6 +1,6 @@
 'use client';
 
-// useTrace — WebSocket hook. Connects to the pipeline-ws mini-service on port 3003.
+// useTrace - WebSocket hook. Connects to the pipeline-ws mini-service on port 3003.
 // Dual-mode connection so the SAME build works in the hosted preview and on a
 // developer PC:
 //   - Hosted preview (page served through the browser gateway): the gateway
@@ -10,7 +10,7 @@
 // Subscribes to 'trace' + 'hello' events and forwards them into the Zustand store.
 //
 // On 'trace':
-//   - `addTraceEvent(e)` — pushes the event to `recentEvents` (last 50) and runs
+//   - `addTraceEvent(e)` - pushes the event to `recentEvents` (last 50) and runs
 //     the existing `applyTraceEvent` side-effects (stage transitions, run_id
 //     tracking, case-status propagation).
 //   - For `e.type === 'case'`, invalidate the relevant TanStack Queries
@@ -34,10 +34,10 @@ function wsUrl(): string {
   const isLocalPc =
     host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]';
   if (isLocalPc) {
-    // Developer PC — reach the WS mini-service directly (no gateway in front).
+    // Developer PC - reach the WS mini-service directly (no gateway in front).
     return `${window.location.protocol}//${host}:3003`;
   }
-  // Hosted preview — route the upgrade through the browser gateway.
+  // Hosted preview - route the upgrade through the browser gateway.
   return '/?XTransformPort=3003';
 }
 
@@ -110,7 +110,7 @@ export function useWsConnected() {
 }
 
 /**
- * useTraceStatus — composite selector for the live trace state.
+ * useTraceStatus - composite selector for the live trace state.
  * Returns `{ connected, activeRunId, stages, recentEvents }` so any component
  * can read the full pipeline picture in one go. Re-renders only when any of
  * those slices change.

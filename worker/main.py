@@ -1,4 +1,4 @@
-"""worker.main — entry point. Starts the aiohttp mini-service on WORKER_PORT.
+"""worker.main - entry point. Starts the aiohttp mini-service on WORKER_PORT.
 
 Usage:
     python3 worker/main.py
@@ -37,7 +37,7 @@ def _startup_banner() -> None:
     mode = "rocketride" if has_key else "local"
     counts = db.db_counts()
     log.info("=" * 72)
-    log.info("AP Payment Fraud Sentinel — pipeline worker")
+    log.info("AP Payment Fraud Sentinel - pipeline worker")
     log.info("Mode:        %s", mode)
     log.info("API key set: %s", has_key)
     log.info("Service URL: %s", os.environ.get("ROCKETRIDE_SERVICE_URL", "https://api.rocketride.ai"))

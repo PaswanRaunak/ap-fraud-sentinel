@@ -27,7 +27,7 @@ function AnimatedNumber({ value }: { value: string | number }) {
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
       // Ease out cubic
       const easedProgress = 1 - Math.pow(1 - progress, 3);
-      // No floor — money values count up through their cents smoothly.
+      // No floor - money values count up through their cents smoothly.
       setDisplayNum(easedProgress * num);
 
       if (progress < 1) {
@@ -42,7 +42,7 @@ function AnimatedNumber({ value }: { value: string | number }) {
 
   if (isNaN(num)) return <span>{value}</span>;
 
-  // Keep cents visible for money values — the count-up floor would otherwise
+  // Keep cents visible for money values - the count-up floor would otherwise
   // land $48,394.27 on $48,394.
   const formatted = isMoney
     ? displayNum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })

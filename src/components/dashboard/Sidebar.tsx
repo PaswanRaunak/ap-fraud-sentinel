@@ -89,7 +89,7 @@ function RunBatchSidebarButton() {
       }
       toast({
         title: 'Batch screening initiated',
-        description: `Run ${r.run_id ?? 'queued'} — 141 invoices entering 7-stage pipeline.`,
+        description: `Run ${r.run_id ?? 'queued'} - 141 invoices entering 7-stage pipeline.`,
       });
       setView('dashboard');
     } catch (e) {

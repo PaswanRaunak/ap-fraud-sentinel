@@ -1,6 +1,6 @@
 'use client';
 
-// Footer — sticky bottom bar. Left: product tagline. Right: worker mode + ws
+// Footer - sticky bottom bar. Left: product tagline. Right: worker mode + ws
 // connection dot + the current view name. Reads worker mode from useHealthz
 // (polled every 15s) and the ws channel from useWsConnected (set by useTrace).
 

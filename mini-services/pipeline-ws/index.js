@@ -19707,7 +19707,7 @@ function router(req, res) {
             ok: false,
             error: "missing required fields (type, runId)"
           }));
-          console.warn("[trace] 400 — malformed body:", body.slice(0, 200));
+          console.warn("[trace] 400 - malformed body:", body.slice(0, 200));
           return;
         }
         io2.emit("trace", event);
@@ -19718,7 +19718,7 @@ function router(req, res) {
       } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ok: false, error: "invalid JSON" }));
-        console.warn("[trace] 400 — JSON parse error:", err);
+        console.warn("[trace] 400 - JSON parse error:", err);
       }
     });
     req.on("error", (err) => {
@@ -19731,7 +19731,7 @@ function router(req, res) {
   }
   if (req.method === "GET" && (pathname === "/" || pathname === "/index.html")) {
     res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end(`pipeline-ws — socket.io on path=/, POST /trace, GET /healthz
+    res.end(`pipeline-ws - socket.io on path=/, POST /trace, GET /healthz
 `);
     return;
   }

@@ -1,6 +1,6 @@
 'use client';
 
-// Batch runs ledger — master-detail layout.
+// Batch runs ledger - master-detail layout.
 // Left: compact, scannable run list (searchable). Right: inspector for the
 // selected run with outcome stats and the cost breakdown chart.
 
@@ -18,7 +18,7 @@ import type { RunRecord } from '@/lib/types';
 const ICON_STROKE = 1.5;
 
 function fmtDateTime(s?: string | null): { date: string; time: string } {
-  if (!s) return { date: '—', time: '' };
+  if (!s) return { date: '-', time: '' };
   try {
     const d = new Date(s.replace(' ', 'T') + (s.endsWith('Z') ? '' : 'Z'));
     return {
@@ -124,7 +124,7 @@ export function RunsView() {
             ) : filtered.length === 0 ? (
               <div className="p-10 text-center text-sm text-white/35">
                 {allRuns.length === 0
-                  ? 'No batch runs yet — click "Run Batch Audit" to screen the invoice queue.'
+                  ? 'No batch runs yet - click "Run Batch Audit" to screen the invoice queue.'
                   : `No runs match "${search.trim()}".`}
               </div>
             ) : (

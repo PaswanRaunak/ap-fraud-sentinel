@@ -1,4 +1,4 @@
-"""worker.call — Stage 06 out-of-band verification call.
+"""worker.call - Stage 06 out-of-band verification call.
 
 Builds the call script from `worker/prompts/call_script.md`, synthesizes the
 audio via the Next.js `/api/ai/tts` route, transcribes the vendor's response
@@ -6,7 +6,7 @@ via `/api/ai/asr`, then classifies the response via
 `worker.utils.call_analysis.classify_response`.
 
 If the AI routes are unavailable, the worker falls back to a deterministic
-vendor denial line so the demo golden path works end-to-end — the transcript,
+vendor denial line so the demo golden path works end-to-end - the transcript,
 not the audio, is the artifact the judges evaluate (build prompt §4).
 
 All audio bytes produced are persisted under
@@ -79,7 +79,7 @@ def build_call_script(case: Mapping[str, Any]) -> str:
     out = out.replace("{{ bank_change_request_date }}", str(bank_change_request_date))
     out = out.replace("{{ requested_bank_account_last4 }}", requested_last4)
     out = out.replace("{{ case_id }}", str(case_id))
-    # Strip leading "# Verification Call Script — template" header + the inline
+    # Strip leading "# Verification Call Script - template" header + the inline
     # commentary so only the spoken lines are sent to TTS.
     spoken_lines = []
     in_template = False
@@ -106,7 +106,7 @@ def fallback_transcript(case: Mapping[str, Any]) -> str:
     """The deterministic vendor denial line used when AI routes are unavailable.
 
     The BEC defense is conservative: when we can't actually place the call, we
-    assume the vendor would have denied the change — that routes the case to
+    assume the vendor would have denied the change - that routes the case to
     the controller queue with verificationResult='denied', which is the same
     state the demo would land in had the call really happened.
     """
@@ -128,7 +128,7 @@ async def _synthesize(script: str) -> tuple[bytes | None, str | None]:
         async with aiohttp.ClientSession(timeout=timeout) as session:
             async with session.post(TTS_URL, json={"text": script, "voice": "professional"}) as resp:
                 if resp.status != 200:
-                    log.warning("TTS route returned %s — falling back", resp.status)
+                    log.warning("TTS route returned %s - falling back", resp.status)
                     return None, None
                 data = await resp.json()
                 b64 = data.get("audio_base64") or data.get("audioBase64")
@@ -141,7 +141,7 @@ async def _synthesize(script: str) -> tuple[bytes | None, str | None]:
                     log.warning("TTS audio base64 decode failed: %s", exc)
                     return None, None
     except Exception as exc:
-        log.warning("TTS route unavailable at %s: %s — using fallback transcript", TTS_URL, exc)
+        log.warning("TTS route unavailable at %s: %s - using fallback transcript", TTS_URL, exc)
         return None, None
 
 
@@ -153,12 +153,12 @@ async def _transcribe(audio_bytes: bytes, fmt: str = "wav") -> str | None:
         async with aiohttp.ClientSession(timeout=timeout) as session:
             async with session.post(ASR_URL, json={"audio_base64": b64, "format": fmt}) as resp:
                 if resp.status != 200:
-                    log.warning("ASR route returned %s — falling back", resp.status)
+                    log.warning("ASR route returned %s - falling back", resp.status)
                     return None
                 data = await resp.json()
                 return data.get("text") or data.get("transcript")
     except Exception as exc:
-        log.warning("ASR route unavailable at %s: %s — using fallback transcript", ASR_URL, exc)
+        log.warning("ASR route unavailable at %s: %s - using fallback transcript", ASR_URL, exc)
         return None
 
 
@@ -200,7 +200,7 @@ async def run_verification_call(case: Mapping[str, Any]) -> dict:
         # In the real product, we'd send the script to the vendor over Bland AI,
         # record their reply, and ASR the reply audio. With our /api/ai/* routes
         # we only TTS our script + ASR whatever audio they return. Since we don't
-        # have a real call here, we ASR our own synthesized script — that gives a
+        # have a real call here, we ASR our own synthesized script - that gives a
         # sanity check that TTS+ASR roundtrip works, but the actual vendor
         # verdict has to come from the fallback transcript.
         # (Build prompt §4 allows the fallback transcript path explicitly.)

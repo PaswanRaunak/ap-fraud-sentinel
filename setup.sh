@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AP Payment Fraud Sentinel — one-time setup (macOS / Linux).
+# AP Payment Fraud Sentinel - one-time setup (macOS / Linux).
 # Installs Node + Python dependencies, creates .env, creates + seeds the DB.
 set -e
 cd "$(dirname "$0")"
@@ -11,7 +11,7 @@ command -v "$PY" >/dev/null 2>&1 || PY=python
 # (Prisma gives process env precedence over .env files).
 export DATABASE_URL=file:../db/custom.db
 
-echo "=== AP Payment Fraud Sentinel — setup ==="
+echo "=== AP Payment Fraud Sentinel - setup ==="
 
 echo "[1/5] Node dependencies..."
 if command -v bun >/dev/null 2>&1; then
@@ -31,7 +31,7 @@ echo "[3/5] Python dependencies..."
 
 echo "[4/5] Environment file..."
 if [ -f .env ]; then
-  echo "      .env already exists — keeping it."
+  echo "      .env already exists - keeping it."
 else
   cp .env.example .env
 fi

@@ -54,9 +54,9 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
         return NextResponse.json(json);
       }
     }
-    // Worker responded with non-OK or empty body — fall through to DB.
+    // Worker responded with non-OK or empty body - fall through to DB.
   } catch (e) {
-    // Worker unreachable — fall through to DB.
+    // Worker unreachable - fall through to DB.
     console.warn(
       '[/api/runs/[id]] worker unreachable, falling back to DB:',
       e instanceof Error ? e.message : String(e),

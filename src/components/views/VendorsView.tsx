@@ -1,6 +1,6 @@
 'use client';
 
-// VendorsView — master-detail vendor master registry.
+// VendorsView - master-detail vendor master registry.
 // Left: searchable vendor list. Right: inspector with grounding stats,
 // payment-history chart and recent records. Add/vendor CSV import stays a
 // dialog; editing happens inline in the inspector.
@@ -27,7 +27,7 @@ import { cn } from '@/lib/utils';
 const ICON_STROKE = 1.5;
 
 function maskedBank(acct?: string) {
-  if (!acct) return '—';
+  if (!acct) return '-';
   const clean = acct.replace(/\s+/g, '');
   if (clean.length <= 6) return clean;
   if (clean.startsWith('GB') || clean.startsWith('US') || clean.startsWith('DE')) {
@@ -117,7 +117,7 @@ function DetailField({
         {label}
       </span>
       <span className="mt-1.5 block truncate font-mono text-xs font-bold text-white/85" title={value}>
-        {value || '—'}
+        {value || '-'}
       </span>
     </div>
   );
@@ -559,7 +559,7 @@ export function VendorsView() {
                 <h3 className="mb-2 text-xs font-bold text-white/85">Recent payment records</h3>
                 {vendorDetail.payments.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-6 text-center text-xs text-white/30">
-                    No payment records — first-time vendors have no baseline yet.
+                    No payment records - first-time vendors have no baseline yet.
                   </div>
                 ) : (
                   <div className="overflow-hidden rounded-2xl border border-white/[0.08]">

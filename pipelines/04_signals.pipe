@@ -283,7 +283,7 @@
       ]
     }
   ],
-  "name": "Stage 04 — Risk Signals & Composite Scoring Pipeline",
+  "name": "Stage 04 - Risk Signals & Composite Scoring Pipeline",
   "description": "Processes payload text, chunks into documents, embeds vectors, evaluates 6 risk detection rules using LLM reasoning, and outputs composite risk score.",
   "version": 1,
   "source": "webhook_1",

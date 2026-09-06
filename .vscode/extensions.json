@@ -1,5 +1,5 @@
 {
-  // Workspace recommendations — VS Code prompts to install these on first open.
+  // Workspace recommendations - VS Code prompts to install these on first open.
   "recommendations": [
     "ms-python.python",
     "dbaeumer.vscode-eslint",

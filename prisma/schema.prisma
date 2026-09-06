@@ -1,4 +1,4 @@
-// AP Payment Fraud Sentinel — Prisma schema (SQLite)
+// AP Payment Fraud Sentinel - Prisma schema (SQLite)
 // Mirrors the data model described in the build prompt §3 (dataset) and §4 (pipeline).
 
 generator client {
@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ---- Vendor master (§3.1) — 60 rows, ground truth for known_phone / known_bank_account ----
+// ---- Vendor master (§3.1) - 60 rows, ground truth for known_phone / known_bank_account ----
 model Vendor {
   vendorId              String   @id // V-001 .. V-060
   legalName             String
@@ -27,7 +27,7 @@ model Vendor {
   cases       Case[]
 }
 
-// ---- Payment history (§3.2) — ~480 rows, the anomaly detector's training data ----
+// ---- Payment history (§3.2) - ~480 rows, the anomaly detector's training data ----
 model PaymentHistory {
   id                Int      @id @default(autoincrement())
   paymentId         String   @unique // P-0001 ..
@@ -40,7 +40,7 @@ model PaymentHistory {
   vendor            Vendor   @relation(fields: [vendorId], references: [vendorId])
 }
 
-// ---- Ground truth (§3.3) — 10 rows, held out, used to score the detector ----
+// ---- Ground truth (§3.3) - 10 rows, held out, used to score the detector ----
 model FraudGroundTruth {
   id               Int     @id @default(autoincrement())
   caseId           String

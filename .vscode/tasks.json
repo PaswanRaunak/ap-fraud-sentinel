@@ -1,5 +1,5 @@
 {
-  // AP Payment Fraud Sentinel — VS Code tasks.
+  // AP Payment Fraud Sentinel - VS Code tasks.
   // Open the project folder in VS Code, then Terminal ▸ Run Task…
   "version": "2.0.0",
   "tasks": [
@@ -30,7 +30,7 @@
     },
     {
       "label": "3 · Pipeline worker only",
-      "detail": "python worker/main.py — port 3030",
+      "detail": "python worker/main.py - port 3030",
       "type": "shell",
       "command": "python3 worker/main.py",
       "windows": { "command": "python worker/main.py" },
@@ -39,7 +39,7 @@
     },
     {
       "label": "3 · Trace WS only",
-      "detail": "node mini-services/pipeline-ws/index.js — port 3003",
+      "detail": "node mini-services/pipeline-ws/index.js - port 3003",
       "type": "shell",
       "command": "node mini-services/pipeline-ws/index.js",
       "isBackground": true,

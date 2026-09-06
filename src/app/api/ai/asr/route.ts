@@ -1,7 +1,7 @@
 // POST /api/ai/asr
 // Server-side only wrapper around z-ai-web-dev-sdk ASR.
 // Body: { audio_base64, format? }
-// Returns: { text } — or { text: '' } on failure (worker falls back to deterministic transcript).
+// Returns: { text } - or { text: '' } on failure (worker falls back to deterministic transcript).
 
 import { NextResponse } from 'next/server';
 

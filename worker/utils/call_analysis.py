@@ -1,11 +1,11 @@
-"""worker.utils.call_analysis — classify vendor call transcript.
+"""worker.utils.call_analysis - classify vendor call transcript.
 
 Pure function. Referenced from ``pipelines/06_verification.pipe`` as
 ``worker.utils.call_analysis.classify_response``.
 
 Deterministic: the same transcript always classifies the same way. The
 classification is intentionally keyword-driven (not LLM) because the build
-prompt §4 calls this the "audit-grade" lane — same verdict every time.
+prompt §4 calls this the "audit-grade" lane - same verdict every time.
 """
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ _CONFIRM_PATTERNS = (
 def _contains_any(text: str, patterns: Tuple[str, ...]) -> bool:
     lower = text.lower()
     for p in patterns:
-        # Word-boundary-ish check — avoid matching "no" inside "now" etc.
+        # Word-boundary-ish check - avoid matching "no" inside "now" etc.
         if " " in p or "'" in p:
             if p in lower:
                 return True
@@ -55,9 +55,9 @@ def classify_response(
 
     Looks for deny/confirm keyword clusters in the transcript text. Returns
     one of:
-        - 'denied'    — vendor says they did not request the change.
-        - 'confirmed' — vendor says they did request it.
-        - 'unclear'   — neither pattern matches confidently.
+        - 'denied'    - vendor says they did not request the change.
+        - 'confirmed' - vendor says they did request it.
+        - 'unclear'   - neither pattern matches confidently.
 
     expected_change is reserved for richer future classifiers that vary their
     keyword set by what the call was about (bank_account, address, vendor_name).
@@ -74,7 +74,7 @@ def classify_response(
     denied = _contains_any(text, _DENY_PATTERNS)
     confirmed = _contains_any(text, _CONFIRM_PATTERNS)
 
-    # If both appear (rare), trust the deny — the BEC defense is conservative.
+    # If both appear (rare), trust the deny - the BEC defense is conservative.
     if denied:
         return "denied"
     if confirmed:

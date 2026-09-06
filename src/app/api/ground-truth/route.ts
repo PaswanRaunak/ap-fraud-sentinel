@@ -35,7 +35,7 @@ export async function GET() {
   const caseIds = truth.map((t) => t.caseId);
   let detector: DetectorRow[] = [];
   if (caseIds.length > 0) {
-    // SQLite `IN (...)` via $queryRawUnsafe — bind each caseId.
+    // SQLite `IN (...)` via $queryRawUnsafe - bind each caseId.
     const placeholders = caseIds.map(() => '?').join(',');
     detector = (await db.$queryRawUnsafe<DetectorRow[]>(
       `SELECT "caseId", "invoiceNumber", "recommendation", "isFraud", "fraudType", "status"
@@ -63,7 +63,7 @@ export async function GET() {
       falsePositives += 1;
     }
     return {
-      // Wrap id with Number() — Prisma $queryRaw returns SQLite INTEGER as
+      // Wrap id with Number() - Prisma $queryRaw returns SQLite INTEGER as
       // BigInt for safety; JSON.stringify can't serialize BigInt and would
       // crash the response.
       id: Number(t.id),

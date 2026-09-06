@@ -1,4 +1,4 @@
-// GET /api/healthz — worker + ws channel health.
+// GET /api/healthz - worker + ws channel health.
 // Server-side fetches to the Python worker (3030) and the WS mini-service (3003).
 // Always returns 200; if a service is down, that service's payload carries {ok:false,error}.
 

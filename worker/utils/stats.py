@@ -1,4 +1,4 @@
-"""worker.utils.stats — per-vendor statistics + first-time-vendor detection.
+"""worker.utils.stats - per-vendor statistics + first-time-vendor detection.
 
 Pure functions. The RocketRide ``python_tool`` node ``worker.utils.stats.*``
 references in ``pipelines/03_grounding.pipe`` and ``pipelines/04_signals.pipe``

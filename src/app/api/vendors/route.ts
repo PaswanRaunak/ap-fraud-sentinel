@@ -82,7 +82,7 @@ export async function GET(req: Request) {
 
   const totalSql = `SELECT COUNT(*) AS count FROM "Vendor" ${whereClause}`;
   const totalRow = (await db.$queryRawUnsafe<Array<{ count: number }>>(totalSql, ...params)) as Array<{ count: number }>;
-  // SQLite COUNT(*) returns BigInt via Prisma raw — wrap with Number() so JSON.stringify works.
+  // SQLite COUNT(*) returns BigInt via Prisma raw - wrap with Number() so JSON.stringify works.
   const total = Number(totalRow.at(0)?.count ?? items.length);
 
   return NextResponse.json({ items, total, page, limit: limitRaw });

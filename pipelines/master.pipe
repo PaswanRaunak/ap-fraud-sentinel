@@ -234,7 +234,7 @@
       ]
     }
   ],
-  "name": "AP Payment Fraud Sentinel — Master Orchestration Pipeline",
+  "name": "AP Payment Fraud Sentinel - Master Orchestration Pipeline",
   "description": "Master end-to-end pipeline that ingests invoice image, extracts OCR text, chunks documents, embeds vectors, grounds against Vendor DB, evaluates multi-agent swarm, and outputs final decision.",
   "version": 1,
   "source": "webhook_1",

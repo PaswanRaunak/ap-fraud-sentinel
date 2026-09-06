@@ -1,4 +1,4 @@
-"""worker.runner — the REAL RocketRide SDK wrapper.
+"""worker.runner - the REAL RocketRide SDK wrapper.
 
 When ``ROCKETRIDE_API_KEY`` is set in the environment, this module connects
 to RocketRide cloud and runs each stage via ``RocketRideClient.use(pipeline=...)``.
@@ -27,7 +27,7 @@ try:
     from rocketride import RocketRideClient, AuthenticationException, RocketRideException
     _SDK_OK = True
 except Exception as exc:  # pragma: no cover - defensive import
-    log.warning("rocketride SDK import failed: %s — runner always falls back to local", exc)
+    log.warning("rocketride SDK import failed: %s - runner always falls back to local", exc)
     _SDK_OK = False
     RocketRideClient = None  # type: ignore[assignment]
     AuthenticationException = Exception  # type: ignore[assignment]
@@ -89,12 +89,12 @@ class RocketRideRunner:
             self._connected = True
             log.info("RocketRide connected (uri=%s)", SERVICE_URL)
         except AuthenticationException as exc:
-            log.warning("RocketRide auth failed: %s — falling back to local executor", exc)
+            log.warning("RocketRide auth failed: %s - falling back to local executor", exc)
             self._connected = False
             self._client = None
             raise RocketRideUnavailable(f"auth failed: {exc}") from exc
         except Exception as exc:
-            log.warning("RocketRide connect failed (%s): %s — falling back to local", SERVICE_URL, exc)
+            log.warning("RocketRide connect failed (%s): %s - falling back to local", SERVICE_URL, exc)
             self._connected = False
             self._client = None
             raise RocketRideUnavailable(f"connect failed: {exc}") from exc
@@ -130,7 +130,7 @@ class RocketRideRunner:
             status = await self._client.get_task_status(token)
             return {"stage": stage_name, "token": token, "status": status, "result": result}
         except (RocketRideException, Exception) as exc:
-            log.warning("RocketRide stage %s failed: %s — falling back to local", stage_name, exc)
+            log.warning("RocketRide stage %s failed: %s - falling back to local", stage_name, exc)
             raise RocketRideUnavailable(f"stage {stage_name} failed: {exc}") from exc
         finally:
             if token is not None:

@@ -1,10 +1,10 @@
-"""worker.utils.timing — bank-change vs due-date arithmetic.
+"""worker.utils.timing - bank-change vs due-date arithmetic.
 
 Pure function. Referenced from ``pipelines/04_signals.pipe`` as
 ``worker.utils.timing.bank_change_vs_due_date``.
 
 The signal fires when a bank-account-change email arrives within 3 days of
-the invoice due date — i.e. the attacker is manufacturing urgency (last-
+the invoice due date - i.e. the attacker is manufacturing urgency (last-
 minute change before AP cuts the check).
 """
 
@@ -63,7 +63,7 @@ def bank_change_vs_due_date(
         return -1, False, 0.0
     days = (dd.date() - bc.date()).days
     if days < 0:
-        # Bank change arrived AFTER due date — weird, but not the urgent-change
+        # Bank change arrived AFTER due date - weird, but not the urgent-change
         # attack signature we're screening for here. Treat as not-suspicious;
         # other signals (first_time, lookalike) will catch what they catch.
         return days, False, 0.0

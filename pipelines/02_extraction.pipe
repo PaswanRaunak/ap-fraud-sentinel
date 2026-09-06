@@ -152,7 +152,7 @@
       ]
     }
   ],
-  "name": "Stage 02 — Data Extraction Pipeline",
+  "name": "Stage 02 - Data Extraction Pipeline",
   "description": "Extracts raw text via OCR, cleans image, extracts structured invoice facts using an LLM, and returns extracted answers.",
   "version": 1,
   "source": "webhook_1",

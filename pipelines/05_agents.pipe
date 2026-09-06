@@ -111,7 +111,7 @@
       }
     }
   ],
-  "name": "Stage 05 — Multi-Agent Intelligence Swarm Pipeline",
+  "name": "Stage 05 - Multi-Agent Intelligence Swarm Pipeline",
   "description": "Orchestrates an autonomous AI Agent Swarm (BEC Analyst, Vendor Verifier, Case Builder) with LLM reasoning and internal working memory.",
   "version": 1,
   "source": "chat_1",
