@@ -68,7 +68,8 @@ async function walkDir(zip: ZipWriter, absDir: string, relDir: string): Promise<
   entries.sort((a, b) => a.name.localeCompare(b.name));
   for (const entry of entries) {
     if (SKIP_NAMES.has(entry.name)) continue;
-    const abs = path.join(absDir, entry.name);
+    // Runtime filesystem path — not a module import for turbopack to trace.
+    const abs = path.join(/* turbopackIgnore: true */ absDir, entry.name);
     const rel = `${relDir}/${entry.name}`;
     if (entry.isDirectory()) {
       count += await walkDir(zip, abs, rel);
@@ -116,7 +117,7 @@ export async function GET() {
 
     // 1. Directory trees.
     for (const dir of INCLUDE_DIRS) {
-      const abs = path.join(ROOT, dir);
+      const abs = path.join(/* turbopackIgnore: true */ ROOT, dir);
       try {
         await fs.access(abs);
       } catch {
@@ -128,7 +129,7 @@ export async function GET() {
     // 2. Top-level files.
     for (const file of INCLUDE_FILES) {
       try {
-        const abs = path.join(ROOT, file);
+        const abs = path.join(/* turbopackIgnore: true */ ROOT, file);
         const data = await fs.readFile(abs);
         const st = await fs.stat(abs);
         const mode = file.endsWith('.sh') ? 0o755 : 0o644;
@@ -140,7 +141,7 @@ export async function GET() {
     }
 
     // 3. Rewritten package.json (portable scripts).
-    const pkgRaw = await fs.readFile(path.join(ROOT, 'package.json'), 'utf8');
+    const pkgRaw = await fs.readFile(path.join(/* turbopackIgnore: true */ ROOT, 'package.json'), 'utf8');
     zip.add(`${PREFIX}/package.json`, Buffer.from(buildPcPackageJson(JSON.parse(pkgRaw))));
     count += 1;
 

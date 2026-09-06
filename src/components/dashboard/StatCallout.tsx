@@ -74,39 +74,39 @@ export function StatCallout({
   icon?: React.ReactNode;
 }) {
   const accentMap: Record<string, string> = {
-    default: 'text-slate-900',
-    red: 'text-red-600',
-    emerald: 'text-[#0f766e]',
-    steel: 'text-[#00668c]',
-    amber: 'text-amber-600',
+    default: 'text-white',
+    red: 'text-red-400',
+    emerald: 'text-emerald-300',
+    steel: 'text-sky-300',
+    amber: 'text-amber-400',
   };
 
   const borderMap: Record<string, string> = {
-    default: 'border-[#E2E5E8] bg-white hover:border-[#C4C7C5] hover:shadow-md',
-    red: 'border-[#FFDAD6] bg-white hover:border-[#BA1A1A]/30 hover:shadow-md',
-    emerald: 'border-[#D6E8D6] bg-white hover:border-[#1E6827]/30 hover:shadow-md',
-    steel: 'border-[#CCE8EE] bg-white hover:border-[#006874]/30 hover:shadow-md',
-    amber: 'border-amber-200 bg-white hover:border-amber-400 hover:shadow-md',
+    default: 'border-white/10 bg-white/[0.03] hover:border-white/20',
+    red: 'border-red-400/20 bg-red-400/[0.04] hover:border-red-400/40',
+    emerald: 'border-emerald-400/20 bg-emerald-400/[0.04] hover:border-emerald-400/40',
+    steel: 'border-sky-400/20 bg-sky-400/[0.04] hover:border-sky-400/40',
+    amber: 'border-amber-400/20 bg-amber-400/[0.04] hover:border-amber-400/40',
   };
 
   const iconBgMap: Record<string, string> = {
-    default: 'bg-[#F1F3F5] text-[#44474E]',
-    red: 'bg-[#FFDAD6] text-[#C00018]',
-    emerald: 'bg-[#D6E8D6] text-[#1E6827]',
-    steel: 'bg-[#CCE8EE] text-[#006874]',
-    amber: 'bg-amber-100 text-amber-800',
+    default: 'bg-white/[0.06] text-white/60',
+    red: 'bg-red-400/10 text-red-300',
+    emerald: 'bg-emerald-400/10 text-emerald-300',
+    steel: 'bg-sky-400/10 text-sky-300',
+    amber: 'bg-amber-400/10 text-amber-300',
   };
 
   return (
     <motion.div
       whileHover={{ y: -4, transition: { type: 'spring', stiffness: 350, damping: 22 } }}
       className={cn(
-        'group relative flex flex-col justify-between overflow-hidden rounded-3xl border p-6 transition-all duration-300 shadow-xs',
+        'group relative flex flex-col justify-between overflow-hidden rounded-3xl border p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] transition-all duration-300',
         borderMap[accent]
       )}
     >
       <div className="flex items-center justify-between">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#74777F]">
+        <span className="text-xs font-medium uppercase tracking-[0.15em] text-white/40">
           {label}
         </span>
         {icon && (
@@ -120,11 +120,10 @@ export function StatCallout({
       </div>
 
       <div className="mt-4 flex items-baseline">
-        <span className={cn('font-poppins text-3xl font-extrabold tracking-tight sm:text-4xl', accentMap[accent])}>
+        <span className={cn('font-mono text-3xl font-semibold tabular-nums tracking-tighter sm:text-4xl', accentMap[accent])}>
           <AnimatedNumber value={value} />
         </span>
       </div>
     </motion.div>
   );
 }
-

@@ -20,6 +20,8 @@ import { useStats } from '@/hooks/useDashboardData';
 import { useAppStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
+const ICON_STROKE = 1.5;
+
 const STAGES: { name: TraceStage['name']; label: string; icon: LucideIcon }[] = [
   { name: 'intake', label: 'Intake', icon: Inbox },
   { name: 'extraction', label: 'Extraction', icon: FileText },
@@ -72,9 +74,10 @@ export function PipelineTrace({ stages, runId }: { stages: TraceStage[]; runId?:
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Material 3 Process Stepper Container */}
-      <div className="relative overflow-hidden rounded-3xl border border-[#E2E5E8] bg-white p-6 sm:p-8 text-[#1B1B1F] shadow-xs">
-        <div className="flex min-w-max items-center justify-between gap-4">
+      {/* Stepper card */}
+      <div className="relative rounded-3xl border border-white/10 bg-[#0B0B0E] p-6 text-white shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] sm:p-8">
+        <div className="-mx-6 overflow-x-auto px-6 pb-2 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/15">
+          <div className="flex min-w-max items-center justify-between gap-4">
           {STAGES.map((stage, i) => {
             const s = map.get(stage.name);
             const status = s?.status ?? 'idle';
@@ -91,12 +94,12 @@ export function PipelineTrace({ stages, runId }: { stages: TraceStage[]; runId?:
                     animate={{ scale: isRunningStage && !reduceMotion ? 1.08 : 1 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     className={cn(
-                      'relative flex h-12 w-12 items-center justify-center rounded-full transition-colors duration-300',
+                      'relative flex h-12 w-12 items-center justify-center rounded-full border transition-colors duration-300',
                       isComplete
-                        ? 'bg-[#D6E8D6] text-[#1E6827] border border-[#A8D5A8]'
+                        ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300'
                         : isRunningStage
-                          ? 'bg-white text-[#C00018] border-2 border-[#FFB4AB] shadow-[0_0_0_6px_rgba(192,0,24,0.06)]'
-                          : 'bg-[#F1F3F5] text-[#74777F] border border-[#E2E5E8]',
+                          ? 'border-red-400/40 bg-white text-[#C00018] shadow-[0_0_0_6px_rgba(192,0,24,0.12)]'
+                          : 'border-white/10 bg-white/[0.04] text-white/35',
                     )}
                   >
                     {isComplete ? (
@@ -112,27 +115,27 @@ export function PipelineTrace({ stages, runId }: { stages: TraceStage[]; runId?:
                     ) : isRunningStage ? (
                       <>
                         {!reduceMotion && (
-                          <span className="absolute -inset-1 rounded-full border-2 border-transparent border-t-[#C00018] animate-spin" />
+                          <span className="absolute -inset-1 animate-spin rounded-full border-2 border-transparent border-t-[#C00018]" />
                         )}
-                        <Icon className="h-5 w-5" />
+                        <Icon className="h-5 w-5" strokeWidth={ICON_STROKE} />
                       </>
                     ) : (
-                      <Icon className="h-5 w-5" />
+                      <Icon className="h-5 w-5" strokeWidth={ICON_STROKE} />
                     )}
                   </motion.div>
                   <div className="text-center">
                     <span
                       className={cn(
-                        'text-xs font-bold block transition-colors duration-200 font-poppins',
-                        isRunningStage ? 'text-[#C00018]' : isComplete ? 'text-[#1E6827]' : 'text-[#44474E]',
+                        'block text-xs font-semibold transition-colors duration-200',
+                        isRunningStage ? 'text-red-300' : isComplete ? 'text-emerald-300' : 'text-white/45',
                       )}
                     >
                       {stage.label}
                     </span>
                     <span
                       className={cn(
-                        'block text-[10px] font-mono transition-opacity duration-300',
-                        duration ? 'text-[#74777F] opacity-100' : 'opacity-0',
+                        'block font-mono text-[10px] tabular-nums transition-opacity duration-300',
+                        duration ? 'text-white/35 opacity-100' : 'opacity-0',
                       )}
                     >
                       {duration ?? '·'}
@@ -141,7 +144,7 @@ export function PipelineTrace({ stages, runId }: { stages: TraceStage[]; runId?:
                 </div>
 
                 {i < STAGES.length - 1 && (
-                  <div className="relative mb-5 h-1.5 flex-1 rounded-full bg-[#E2E5E8] overflow-hidden">
+                  <div className="relative mb-5 h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.08]">
                     <motion.div
                       initial={false}
                       animate={{
@@ -151,7 +154,7 @@ export function PipelineTrace({ stages, runId }: { stages: TraceStage[]; runId?:
                       className={cn(
                         'absolute inset-y-0 left-0 rounded-full',
                         isComplete
-                          ? 'bg-[#1E6827]'
+                          ? 'bg-emerald-400'
                           : isRunningStage
                             ? 'bg-gradient-to-r from-[#C00018] to-[#FF8A80] apf-shimmer'
                             : 'bg-transparent',
@@ -162,6 +165,7 @@ export function PipelineTrace({ stages, runId }: { stages: TraceStage[]; runId?:
               </div>
             );
           })}
+          </div>
         </div>
 
         {/* Status pill — animated swap between idle / processing / complete */}
@@ -174,9 +178,9 @@ export function PipelineTrace({ stages, runId }: { stages: TraceStage[]; runId?:
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: reduceMotion ? 0 : 0.2 }}
-                className="inline-flex items-center gap-2 rounded-full bg-[#FFF4E0] border border-[#FFE3B3] px-4 py-1.5 text-xs font-bold text-[#8A5A00]"
+                className="inline-flex items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/10 px-4 py-1.5 text-xs font-semibold text-amber-300"
               >
-                <Loader2 className={cn('h-3.5 w-3.5', !reduceMotion && 'animate-spin')} />
+                <Loader2 className={cn('h-3.5 w-3.5', !reduceMotion && 'animate-spin')} strokeWidth={ICON_STROKE} />
                 <span>
                   Processing {activeInvoiceNo ?? 'invoice batch'}
                   {activeStage ? ` · ${STAGES.find((st) => st.name === activeStage.name)?.label}` : ''}
@@ -189,9 +193,9 @@ export function PipelineTrace({ stages, runId }: { stages: TraceStage[]; runId?:
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: reduceMotion ? 0 : 0.2 }}
-                className="inline-flex items-center gap-2 rounded-full bg-[#D6E8D6] border border-[#A8D5A8] px-4 py-1.5 text-xs font-bold text-[#1E6827]"
+                className="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-4 py-1.5 text-xs font-semibold text-emerald-300"
               >
-                <CheckCircle2 className="h-3.5 w-3.5" />
+                <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
                 <span>
                   Batch complete · {screenedCount} invoices screened
                   {fraudCaught > 0 ? ` · ${fraudCaught} fraud caught` : ''}
@@ -204,17 +208,16 @@ export function PipelineTrace({ stages, runId }: { stages: TraceStage[]; runId?:
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: reduceMotion ? 0 : 0.2 }}
-                className="inline-flex items-center gap-2 rounded-full bg-[#F1F3F5] px-4 py-1.5 text-xs font-semibold text-[#44474E] border border-[#E2E5E8]"
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs font-medium text-white/50"
               >
-                <CheckCircle2 className="h-3.5 w-3.5 text-[#1E6827]" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" strokeWidth={ICON_STROKE} />
                 <span>Batch Screening Ready · {totalCount} Invoices Synchronized</span>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Live case-level activity ticker — shows the per-case flow the
-            stage stepper above aggregates away. */}
+        {/* Live case-level activity ticker */}
         <AnimatePresence initial={false}>
           {tickerEvents.length > 0 && (
             <motion.div
@@ -225,9 +228,9 @@ export function PipelineTrace({ stages, runId }: { stages: TraceStage[]; runId?:
               transition={{ duration: reduceMotion ? 0 : 0.25 }}
               className="overflow-hidden"
             >
-              <div className="mt-4 rounded-2xl bg-[#F7F8FA] border border-[#E2E5E8] px-4 py-2.5">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#74777F]">
-                  <Activity className="h-3 w-3" />
+              <div className="mt-4 rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-2.5">
+                <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/35">
+                  <Activity className="h-3 w-3" strokeWidth={ICON_STROKE} />
                   Live Case Activity
                   {runId && <span className="ml-auto font-mono normal-case tracking-normal">{runId}</span>}
                 </div>
@@ -243,24 +246,24 @@ export function PipelineTrace({ stages, runId }: { stages: TraceStage[]; runId?:
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: reduceMotion ? 0 : 0.2 }}
-                          className="flex items-center gap-2 font-mono text-[11px] text-[#44474E]"
+                          className="flex items-center gap-2 font-mono text-[11px] text-white/70"
                         >
-                          <span className="text-[#9AA0A6]">{formatClock(e.timestamp)}</span>
-                          <StageIcon className="h-3 w-3 text-[#00668C]" />
-                          <span className="font-bold">{e.caseId}</span>
+                          <span className="text-white/25">{formatClock(e.timestamp)}</span>
+                          <StageIcon className="h-3 w-3 text-sky-300" strokeWidth={ICON_STROKE} />
+                          <span className="font-bold text-white">{e.caseId}</span>
                           <span
                             className={cn(
                               'font-semibold',
                               e.caseStatus === 'quarantined'
-                                ? 'text-amber-700'
+                                ? 'text-amber-300'
                                 : e.caseStatus === 'closed'
-                                  ? 'text-[#1E6827]'
-                                  : 'text-[#00668C]',
+                                  ? 'text-emerald-300'
+                                  : 'text-sky-300',
                             )}
                           >
                             {e.caseStatus}
                           </span>
-                          {e.stage && <span className="text-[#9AA0A6]">· {e.stage}</span>}
+                          {e.stage && <span className="text-white/25">· {e.stage}</span>}
                         </motion.div>
                       );
                     })}
@@ -272,9 +275,9 @@ export function PipelineTrace({ stages, runId }: { stages: TraceStage[]; runId?:
         </AnimatePresence>
       </div>
 
-      {/* Linear progress bar with shimmer while the batch is in flight */}
+      {/* Linear progress bar */}
       <div className="flex items-center gap-4 px-1">
-        <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-[#E2E5E8]">
+        <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-white/[0.08]">
           <motion.div
             initial={false}
             animate={{ width: `${progressPercent}%` }}
@@ -282,14 +285,14 @@ export function PipelineTrace({ stages, runId }: { stages: TraceStage[]; runId?:
             className={cn(
               'h-full rounded-full',
               isDone
-                ? 'bg-[#1E6827]'
+                ? 'bg-emerald-400'
                 : isRunning
                   ? 'bg-gradient-to-r from-[#C00018] to-[#FF8A80] apf-shimmer'
-                  : 'bg-[#C4C7C5]',
+                  : 'bg-white/20',
             )}
           />
         </div>
-        <span className="min-w-[7.5rem] text-right text-xs font-bold text-[#44474E] font-mono tabular-nums">
+        <span className="min-w-[7.5rem] text-right font-mono text-xs font-bold tabular-nums text-white/60">
           {screenedCount} / {totalCount} ({progressPercent}%)
         </span>
       </div>

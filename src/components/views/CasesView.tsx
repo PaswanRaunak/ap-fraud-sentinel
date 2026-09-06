@@ -28,6 +28,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import type { CaseRecord } from '@/lib/types';
 
+const ICON_STROKE = 1.5;
+
 const columnHelper = createColumnHelper<CaseRecord>();
 
 export function CasesView() {
@@ -53,20 +55,20 @@ export function CasesView() {
     () => [
       columnHelper.accessor('caseId', {
         header: 'CASE ID',
-        cell: (info) => <code className="font-mono text-xs font-bold text-slate-800">{info.getValue()}</code>,
+        cell: (info) => <code className="font-mono text-xs font-bold text-white/90">{info.getValue()}</code>,
       }),
       columnHelper.accessor('vendorName', {
         header: 'VENDOR',
-        cell: (info) => <span className="font-medium text-slate-800 text-xs">{info.getValue()}</span>,
+        cell: (info) => <span className="text-xs font-medium text-white/75">{info.getValue()}</span>,
       }),
       columnHelper.accessor('invoiceNumber', {
         header: 'INVOICE #',
-        cell: (info) => <code className="font-mono text-xs text-slate-600">{info.getValue()}</code>,
+        cell: (info) => <code className="font-mono text-xs text-white/45">{info.getValue()}</code>,
       }),
       columnHelper.accessor('amountUsd', {
         header: 'AMOUNT',
         cell: (info) => (
-          <span className="font-mono text-xs font-bold text-slate-900">
+          <span className="font-mono text-xs font-bold tabular-nums text-white">
             {formatCurrency(info.getValue(), info.row.original.currency)}
           </span>
         ),
@@ -75,17 +77,21 @@ export function CasesView() {
         header: 'RISK SCORE',
         cell: (info) => {
           const score = info.getValue();
+          const pct = Math.round(Math.min(1, Math.max(0, score)) * 100);
           const isHigh = score >= 0.7;
           const isMed = score >= 0.4;
           return (
-            <div className="flex items-center gap-2">
-              <span
-                className={cn(
-                  'h-2 w-2 rounded-full',
-                  isHigh ? 'bg-red-500' : isMed ? 'bg-amber-500' : 'bg-emerald-500',
-                )}
-              />
-              <span className="font-mono text-xs font-bold text-slate-900">{score.toFixed(2)}</span>
+            <div className="flex items-center justify-end gap-2.5">
+              <div className="h-1 w-14 overflow-hidden rounded-full bg-white/[0.08]">
+                <div
+                  className={cn(
+                    'h-full rounded-full transition-all duration-500',
+                    isHigh ? 'bg-amber-400' : isMed ? 'bg-red-400' : 'bg-emerald-400',
+                  )}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <span className="font-mono text-xs font-bold tabular-nums text-white">{score.toFixed(2)}</span>
             </div>
           );
         },
@@ -97,10 +103,10 @@ export function CasesView() {
           return (
             <span
               className={cn(
-                'inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider',
+                'inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider',
                 isHold
-                  ? 'bg-red-100 text-red-700 border border-red-200'
-                  : 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+                  ? 'border border-red-400/25 bg-red-400/10 text-red-300'
+                  : 'border border-emerald-400/25 bg-emerald-400/10 text-emerald-300',
               )}
             >
               {info.getValue()}
@@ -122,10 +128,10 @@ export function CasesView() {
                 selectCase(row.original.caseId);
               }}
               className={cn(
-                'rounded-full px-4 text-[11px] font-bold tracking-wider uppercase h-7',
+                'h-7 cursor-pointer rounded-full px-4 text-[11px] font-bold uppercase tracking-wider',
                 isHold
-                  ? 'border-red-300 text-red-600 hover:bg-red-50'
-                  : 'border-[#00668c] text-[#00668c] hover:bg-sky-50',
+                  ? 'border-red-400/40 text-red-300 hover:bg-red-400/10'
+                  : 'border-sky-400/40 text-sky-300 hover:bg-sky-400/10',
               )}
             >
               {isHold ? 'HOLD' : 'RELEASE'}
@@ -169,44 +175,44 @@ export function CasesView() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
+    <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 p-4 sm:p-6 lg:p-8">
       {/* Page Title & Search Bar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
-          Cases <span className="text-slate-500 font-normal">({totalCases})</span>
+        <h1 className="text-2xl font-bold tracking-tight text-white">
+          Cases <span className="font-normal text-white/35">({totalCases})</span>
         </h1>
 
         <div className="flex items-center gap-3">
           <div className="relative w-64 sm:w-80">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-white/30" strokeWidth={ICON_STROKE} />
             <Input
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0); }}
               placeholder="Search case, vendor, invoice..."
-              className="rounded-full bg-slate-100 border-none pl-9 pr-4 text-xs shadow-inner focus-visible:ring-1 focus-visible:ring-[#00668c]"
+              className="rounded-full border-white/10 bg-white/[0.04] pl-9 pr-4 text-xs text-white placeholder:text-white/25 focus-visible:ring-1 focus-visible:ring-[#C00018]/60"
             />
           </div>
           <Button
             onClick={exportCsv}
-            className="rounded-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-5 gap-2"
+            className="cursor-pointer gap-2 rounded-full bg-amber-600 px-5 text-xs font-bold text-white transition-colors hover:bg-amber-700"
           >
-            <Download className="h-3.5 w-3.5" />
+            <Download className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
             Export CSV
           </Button>
         </div>
       </div>
 
-      {/* Filter Tabs matching Reference Screenshot 2 */}
+      {/* Filter tabs */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Status Filters */}
-        <div className="flex items-center gap-1 rounded-full bg-slate-200/70 p-1">
+        <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
           {['all', 'scored', 'held', 'closed'].map((tab) => (
             <button
               key={tab}
               onClick={() => { setStatus(tab); setPage(0); }}
               className={cn(
-                'rounded-full px-4 py-1.5 text-xs font-bold capitalize transition-all',
-                status === tab ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900',
+                'cursor-pointer rounded-full px-4 py-1.5 text-xs font-semibold capitalize transition-all duration-300',
+                status === tab ? 'bg-white text-black' : 'text-white/45 hover:text-white',
               )}
             >
               {tab}
@@ -216,8 +222,8 @@ export function CasesView() {
 
         {/* Category Type Filters */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600">
-            <SlidersHorizontal className="h-3.5 w-3.5" />
+          <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-white/45">
+            <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
             <span>Filter Type</span>
           </div>
           {[
@@ -232,10 +238,10 @@ export function CasesView() {
                 setPage(0);
               }}
               className={cn(
-                'rounded-full px-4 py-1.5 text-xs font-bold transition-all border',
+                'cursor-pointer rounded-full border px-4 py-1.5 text-xs font-semibold transition-all duration-300',
                 fraudType === cat.id
-                  ? 'bg-sky-100 text-[#005577] border-sky-300 shadow-sm'
-                  : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200',
+                  ? 'border-sky-400/40 bg-sky-400/10 text-sky-300'
+                  : 'border-white/10 bg-white/[0.03] text-white/45 hover:text-white',
               )}
             >
               {cat.label}
@@ -245,13 +251,13 @@ export function CasesView() {
       </div>
 
       {/* Table Container */}
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0B0B0E] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]">
         <Table>
-          <TableHeader className="bg-slate-100/70">
+          <TableHeader className="bg-white/[0.03]">
             {table.getHeaderGroups().map((hg) => (
-              <TableRow key={hg.id}>
+              <TableRow key={hg.id} className="hover:bg-transparent">
                 {hg.headers.map((header) => (
-                  <TableHead key={header.id} className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 py-3">
+                  <TableHead key={header.id} className="py-3 text-[10px] font-bold uppercase tracking-wider text-white/35">
                     {flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
@@ -267,7 +273,7 @@ export function CasesView() {
               </TableRow>
             ) : rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={columns.length} className="py-12 text-center text-sm text-slate-500">
+                <TableCell colSpan={columns.length} className="py-12 text-center text-sm text-white/35">
                   No cases found for the selected filter.
                 </TableCell>
               </TableRow>
@@ -276,7 +282,7 @@ export function CasesView() {
                 <TableRow
                   key={row.id}
                   onClick={() => selectCase(row.original.caseId)}
-                  className="cursor-pointer hover:bg-slate-50 border-b border-slate-100"
+                  className="cursor-pointer border-b border-white/[0.05] hover:bg-white/[0.03]"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="py-3">
@@ -289,24 +295,26 @@ export function CasesView() {
           </TableBody>
         </Table>
 
-        {/* Pagination matching Reference Image 2 */}
-        <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4 text-xs font-semibold text-slate-500">
-          <span>Showing {page * pageSize + 1}-{Math.min((page + 1) * pageSize, totalCases)} of {totalCases} cases</span>
+        {/* Pagination */}
+        <div className="flex items-center justify-between border-t border-white/[0.08] px-6 py-4 text-xs font-semibold text-white/40">
+          <span className="tabular-nums">
+            Showing {page * pageSize + 1}-{Math.min((page + 1) * pageSize, totalCases)} of {totalCases} cases
+          </span>
           <div className="flex items-center gap-1.5">
             <button
               disabled={page === 0}
               onClick={() => setPage((p) => Math.max(0, p - 1))}
-              className="p-1.5 rounded-full hover:bg-slate-100 disabled:opacity-30 border border-slate-200"
+              className="cursor-pointer rounded-full border border-white/10 p-1.5 transition-colors hover:bg-white/[0.06] disabled:opacity-30"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4" strokeWidth={ICON_STROKE} />
             </button>
             {Array.from({ length: Math.min(5, totalPages) }, (_, idx) => (
               <button
                 key={idx}
                 onClick={() => setPage(idx)}
                 className={cn(
-                  'flex h-7 w-7 items-center justify-center rounded-full font-bold transition-all text-xs',
-                  page === idx ? 'bg-[#0284c7] text-white shadow-sm' : 'hover:bg-slate-100 text-slate-700',
+                  'flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-xs font-bold transition-all duration-300',
+                  page === idx ? 'bg-white text-black' : 'text-white/50 hover:bg-white/[0.06] hover:text-white',
                 )}
               >
                 {idx + 1}
@@ -317,8 +325,8 @@ export function CasesView() {
               <button
                 onClick={() => setPage(totalPages - 1)}
                 className={cn(
-                  'flex h-7 w-7 items-center justify-center rounded-full font-bold transition-all text-xs',
-                  page === totalPages - 1 ? 'bg-[#0284c7] text-white shadow-sm' : 'hover:bg-slate-100 text-slate-700',
+                  'flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-xs font-bold transition-all duration-300',
+                  page === totalPages - 1 ? 'bg-white text-black' : 'text-white/50 hover:bg-white/[0.06] hover:text-white',
                 )}
               >
                 {totalPages}
@@ -327,9 +335,9 @@ export function CasesView() {
             <button
               disabled={page >= totalPages - 1}
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-              className="p-1.5 rounded-full hover:bg-slate-100 disabled:opacity-30 border border-slate-200"
+              className="cursor-pointer rounded-full border border-white/10 p-1.5 transition-colors hover:bg-white/[0.06] disabled:opacity-30"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" strokeWidth={ICON_STROKE} />
             </button>
           </div>
         </div>
@@ -337,4 +345,3 @@ export function CasesView() {
     </div>
   );
 }
-

@@ -1,211 +1,272 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown, SlidersHorizontal, Calendar, Search } from 'lucide-react';
+// Batch runs ledger — master-detail layout.
+// Left: compact, scannable run list (searchable). Right: inspector for the
+// selected run with outcome stats and the cost breakdown chart.
+
+import { useEffect, useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, CheckCircle2, XCircle, Loader2, Clock, ShieldCheck, ShieldAlert, Radar, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell,
-} from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useRuns, useGroundTruth } from '@/hooks/useDashboardData';
+import { useRuns } from '@/hooks/useDashboardData';
 import { CostTable } from '@/components/dashboard/CostTable';
-import { useAppStore, formatCurrency } from '@/lib/store';
+import { formatCurrency } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import type { RunRecord } from '@/lib/types';
 
-function fmtDate(s?: string | null) {
-  if (!s) return '—';
+const ICON_STROKE = 1.5;
+
+function fmtDateTime(s?: string | null): { date: string; time: string } {
+  if (!s) return { date: '—', time: '' };
   try {
     const d = new Date(s.replace(' ', 'T') + (s.endsWith('Z') ? '' : 'Z'));
-    return d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' }) + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    return {
+      date: d.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }),
+      time: d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+    };
   } catch {
-    return s;
+    return { date: s, time: '' };
   }
 }
 
-function fmtMoney(n: number) {
-  return Number(n).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+function fmtDuration(s: number): string {
+  return `${Math.floor(s / 60)}m ${Math.round(s % 60)}s`;
 }
 
-export function RunsView() {
-  const currency = useAppStore((state) => state.currency);
-  const currSymbol = currency === 'INR' ? '₹' : '$';
+function StatusIcon({ status }: { status: RunRecord['status'] }) {
+  if (status === 'complete')
+    return <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" strokeWidth={ICON_STROKE} />;
+  if (status === 'running')
+    return <Loader2 className="h-4 w-4 shrink-0 animate-spin text-sky-400" strokeWidth={ICON_STROKE} />;
+  return <XCircle className="h-4 w-4 shrink-0 text-red-400" strokeWidth={ICON_STROKE} />;
+}
 
-  const { data: runs, isLoading } = useRuns();
-  const { data: truth } = useGroundTruth();
-  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
-
-  const runs_items: RunRecord[] = runs?.items ?? [
-    {
-      runId: '#R-2023-9021',
-      startedAt: '2026-10-24 14:30:00',
-      endedAt: '2026-10-24 14:42:15',
-      status: 'complete',
-      casesProcessed: 14205,
-      casesHeld: 342,
-      fraudCaught: 12,
-      amountSavedUsd: 42500,
-      signalsCostUsd: 120.5,
-      llmCostUsd: 800.0,
-      callCostUsd: 284.0,
-      totalUsd: 1204.5,
-      durationS: 735,
-    },
-    {
-      runId: '#R-2023-9020',
-      startedAt: '2026-10-24 10:15:00',
-      endedAt: '2026-10-24 10:28:40',
-      status: 'complete',
-      casesProcessed: 12850,
-      casesHeld: 280,
-      fraudCaught: 5,
-      amountSavedUsd: 18200,
-      signalsCostUsd: 100.0,
-      llmCostUsd: 650.0,
-      callCostUsd: 230.2,
-      totalUsd: 980.2,
-      durationS: 820,
-    },
-    {
-      runId: '#R-2023-9019',
-      startedAt: '2026-10-23 18:00:00',
-      endedAt: '2026-10-23 18:05:12',
-      status: 'failed',
-      casesProcessed: 4500,
-      casesHeld: 0,
-      fraudCaught: 0,
-      amountSavedUsd: 0,
-      signalsCostUsd: 20.0,
-      llmCostUsd: 80.0,
-      callCostUsd: 20.0,
-      totalUsd: 120.0,
-      durationS: 312,
-    },
-  ];
-
-  const selectedRun = runs_items.find((r) => r.runId === selectedRunId) ?? runs_items[0] ?? null;
-
+function StatCell({
+  icon,
+  label,
+  value,
+  tone = 'text-white',
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  tone?: string;
+}) {
   return (
-    <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
-      {/* Top Header & Search matching Reference Image 3 */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Batch runs</h1>
-
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50">
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              <span>Filter</span>
-            </button>
-            <button className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50">
-              <Calendar className="h-3.5 w-3.5" />
-              <span>Last 7 Days</span>
-            </button>
-          </div>
-
-          <div className="relative w-64">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search Run ID..."
-              className="rounded-full bg-slate-100 border-none pl-9 pr-4 text-xs shadow-inner focus-visible:ring-1 focus-visible:ring-[#00668c]"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Main Table Card */}
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <Table>
-          <TableHeader className="bg-slate-100/70">
-            <TableRow>
-              <TableHead className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 py-3">RUN ID</TableHead>
-              <TableHead className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 py-3">STARTED</TableHead>
-              <TableHead className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 py-3">ENDED</TableHead>
-              <TableHead className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 py-3">STATUS</TableHead>
-              <TableHead className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 py-3 text-right">CASES</TableHead>
-              <TableHead className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 py-3 text-right">HELD</TableHead>
-              <TableHead className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 py-3 text-right">FRAUD</TableHead>
-              <TableHead className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 py-3 text-right">{currSymbol} SAVED</TableHead>
-              <TableHead className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 py-3 text-right">TOTAL COST</TableHead>
-              <TableHead className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 py-3 text-right">DURATION</TableHead>
-              <TableHead className="w-10"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow><TableCell colSpan={11} className="p-4"><Skeleton className="h-10 w-full" /></TableCell></TableRow>
-            ) : runs_items.map((r) => (
-              <TableRow
-                key={r.runId}
-                onClick={() => setSelectedRunId(r.runId)}
-                className={cn(
-                  'cursor-pointer hover:bg-slate-50 border-b border-slate-100',
-                  selectedRun?.runId === r.runId && 'bg-sky-50/50',
-                )}
-              >
-                <TableCell><code className="font-mono text-xs font-bold text-slate-800">{r.runId}</code></TableCell>
-                <TableCell className="text-xs text-slate-600 font-medium">{fmtDate(r.startedAt)}</TableCell>
-                <TableCell className="text-xs text-slate-600 font-medium">{fmtDate(r.endedAt)}</TableCell>
-                <TableCell>
-                  {r.status === 'complete' ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-3 py-0.5 text-[10px] font-extrabold text-[#005577] border border-sky-300">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#005577]" />
-                      COMPLETED
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-3 py-0.5 text-[10px] font-extrabold text-red-700 border border-red-300">
-                      <span className="h-1.5 w-1.5 rounded-full bg-red-600" />
-                      FAILED
-                    </span>
-                  )}
-                </TableCell>
-                <TableCell className="text-right font-mono text-xs font-bold text-slate-700">{r.casesProcessed.toLocaleString()}</TableCell>
-                <TableCell className="text-right font-mono text-xs font-bold text-slate-700">{r.casesHeld}</TableCell>
-                <TableCell className="text-right font-mono text-xs font-bold text-slate-700">{r.fraudCaught}</TableCell>
-                <TableCell className="text-right font-mono text-xs font-bold text-slate-900">{formatCurrency(r.amountSavedUsd, 'USD')}</TableCell>
-                <TableCell className="text-right font-mono text-xs font-bold text-slate-800">{formatCurrency(r.totalUsd, 'USD')}</TableCell>
-                <TableCell className="text-right font-mono text-xs text-slate-600">{Math.floor(r.durationS / 60)}m {Math.round(r.durationS % 60)}s</TableCell>
-                <TableCell className="text-slate-400"><ChevronDown className="h-4 w-4" /></TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-
-        {/* Pagination Footer */}
-        <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4 text-xs font-semibold text-slate-500">
-          <span>Showing 1-3 of 124 runs</span>
-          <div className="flex items-center gap-2">
-            <button className="p-1 rounded hover:bg-slate-100"><ChevronLeft className="h-4 w-4" /></button>
-            <button className="p-1 rounded hover:bg-slate-100"><ChevronRight className="h-4 w-4" /></button>
-          </div>
-        </div>
-      </div>
-
-      {selectedRun && (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-sm font-bold text-slate-800">
-              Cost breakdown — <code className="font-mono text-xs text-[#00668c]">{selectedRun.runId}</code>
-            </h2>
-            <CostTable
-              signalsCost={selectedRun.signalsCostUsd}
-              llmCost={selectedRun.llmCostUsd}
-              callCost={selectedRun.callCostUsd}
-              totalCost={selectedRun.totalUsd}
-              casesProcessed={selectedRun.casesProcessed}
-            />
-          </div>
-        </div>
-      )}
+    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4">
+      <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-white/35">
+        {icon}
+        {label}
+      </span>
+      <span className={cn('mt-2 block font-mono text-2xl font-semibold tabular-nums tracking-tight', tone)}>
+        {value}
+      </span>
     </div>
   );
 }
 
+export function RunsView() {
+  const { data: runs, isLoading } = useRuns();
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+
+  const allRuns: RunRecord[] = useMemo(() => runs?.items ?? [], [runs]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return allRuns;
+    return allRuns.filter((r) => r.runId.toLowerCase().includes(q));
+  }, [allRuns, search]);
+
+  // Keep a valid selection as data refreshes.
+  useEffect(() => {
+    if (filtered.length === 0) {
+      setSelectedRunId(null);
+    } else if (!filtered.some((r) => r.runId === selectedRunId)) {
+      setSelectedRunId(filtered[0].runId);
+    }
+  }, [filtered, selectedRunId]);
+
+  const selected = filtered.find((r) => r.runId === selectedRunId) ?? null;
+  const started = selected ? fmtDateTime(selected.startedAt) : null;
+  const ended = selected ? fmtDateTime(selected.endedAt) : null;
+
+  return (
+    <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 p-4 sm:p-6 lg:p-8">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold tracking-tight text-white">
+          Batch ledger{' '}
+          {!isLoading && <span className="text-base font-normal text-white/35">({allRuns.length})</span>}
+        </h1>
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-white/30" strokeWidth={ICON_STROKE} />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search run ID…"
+            className="rounded-full border-white/10 bg-white/[0.04] pl-9 pr-4 text-xs text-white placeholder:text-white/25 focus-visible:ring-1 focus-visible:ring-[#C00018]/60"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+        {/* ===== Master: run list ===== */}
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#0B0B0E] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] lg:col-span-5">
+          <div className="max-h-[640px] overflow-y-auto">
+            {isLoading ? (
+              <div className="flex flex-col gap-2 p-4">
+                <Skeleton className="h-16 w-full rounded-2xl" />
+                <Skeleton className="h-16 w-full rounded-2xl" />
+                <Skeleton className="h-16 w-full rounded-2xl" />
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="p-10 text-center text-sm text-white/35">
+                {allRuns.length === 0
+                  ? 'No batch runs yet — click "Run Batch Audit" to screen the invoice queue.'
+                  : `No runs match "${search.trim()}".`}
+              </div>
+            ) : (
+              filtered.map((r) => {
+                const active = r.runId === selectedRunId;
+                const started = fmtDateTime(r.startedAt);
+                return (
+                  <button
+                    key={r.runId}
+                    type="button"
+                    onClick={() => setSelectedRunId(r.runId)}
+                    className={cn(
+                      'flex w-full cursor-pointer items-center gap-3.5 border-b border-white/[0.05] px-5 py-3.5 text-left transition-colors duration-200 last:border-b-0',
+                      active ? 'bg-white/[0.06]' : 'hover:bg-white/[0.03]',
+                    )}
+                  >
+                    <StatusIcon status={r.status} />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-mono text-xs font-bold text-white/90">{r.runId}</div>
+                      <div className="mt-0.5 font-mono text-[10px] tabular-nums text-white/30">
+                        {started.date} {started.time} · {r.casesProcessed} cases · {fmtDuration(r.durationS)}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-mono text-xs font-bold tabular-nums text-emerald-300">
+                        {formatCurrency(r.amountSavedUsd, 'USD')}
+                      </div>
+                      <div className="mt-0.5 font-mono text-[10px] tabular-nums text-white/30">
+                        {r.fraudCaught} caught
+                      </div>
+                    </div>
+                    <ArrowRight
+                      className={cn(
+                        'h-3.5 w-3.5 shrink-0 transition-all duration-300',
+                        active ? 'translate-x-0.5 text-white/70' : 'text-white/15',
+                      )}
+                      strokeWidth={ICON_STROKE}
+                    />
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        {/* ===== Detail: run inspector ===== */}
+        <div className="lg:col-span-7">
+          <AnimatePresence mode="wait">
+            {selected ? (
+              <motion.div
+                key={selected.runId}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+                className="flex flex-col gap-5 rounded-3xl border border-white/10 bg-[#0B0B0E] p-7 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]"
+              >
+                {/* Inspector header */}
+                <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/[0.06] pb-5">
+                  <div>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">
+                      Run inspector
+                    </span>
+                    <h2 className="mt-1 font-mono text-lg font-bold text-white">{selected.runId}</h2>
+                  </div>
+                  <div className="flex items-center gap-2 text-right font-mono text-xs text-white/45">
+                    <Clock className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
+                    <span className="tabular-nums">
+                      {started?.date} {started?.time}
+                      {ended?.time ? ` → ${ended.time}` : ''}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Outcome stats */}
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  <StatCell
+                    icon={<Radar className="h-3 w-3" strokeWidth={ICON_STROKE} />}
+                    label="Cases"
+                    value={selected.casesProcessed.toLocaleString()}
+                  />
+                  <StatCell
+                    icon={<ShieldAlert className="h-3 w-3" strokeWidth={ICON_STROKE} />}
+                    label="Held"
+                    value={String(selected.casesHeld)}
+                    tone="text-red-300"
+                  />
+                  <StatCell
+                    icon={<ShieldCheck className="h-3 w-3" strokeWidth={ICON_STROKE} />}
+                    label="Caught"
+                    value={String(selected.fraudCaught)}
+                    tone="text-emerald-300"
+                  />
+                  <StatCell
+                    icon={<Clock className="h-3 w-3" strokeWidth={ICON_STROKE} />}
+                    label="Duration"
+                    value={fmtDuration(selected.durationS)}
+                  />
+                </div>
+
+                {/* Money strip */}
+                <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.05] px-5 py-4">
+                  <div>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300/70">
+                      Fraud losses prevented
+                    </span>
+                    <div className="mt-1 font-mono text-2xl font-semibold tabular-nums tracking-tight text-white">
+                      {formatCurrency(selected.amountSavedUsd, 'USD')}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-white/35">
+                      Total run cost
+                    </span>
+                    <div className="mt-1 font-mono text-2xl font-semibold tabular-nums tracking-tight text-white/85">
+                      {formatCurrency(selected.totalUsd, 'USD')}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Cost breakdown */}
+                <div>
+                  <h3 className="mb-3 text-sm font-bold text-white">Cost breakdown</h3>
+                  <CostTable
+                    signalsCost={selected.signalsCostUsd}
+                    llmCost={selected.llmCostUsd}
+                    callCost={selected.callCostUsd}
+                    totalCost={selected.totalUsd}
+                    casesProcessed={selected.casesProcessed}
+                  />
+                </div>
+              </motion.div>
+            ) : (
+              !isLoading && (
+                <div className="flex h-64 items-center justify-center rounded-3xl border border-dashed border-white/10 text-sm text-white/30">
+                  Select a run to inspect it.
+                </div>
+              )
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </div>
+  );
+}
