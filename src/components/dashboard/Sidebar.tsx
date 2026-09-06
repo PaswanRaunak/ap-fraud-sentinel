@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import {
-  Globe,
   LayoutDashboard,
   ShieldAlert,
   Upload,
@@ -25,13 +24,14 @@ import {
   CheckCircle2,
   LogOut,
   User,
-  Sparkles,
 } from 'lucide-react';
 import { useAppStore, type View } from '@/lib/store';
 import { useAuthStore } from '@/lib/authStore';
 import { useStartRun } from '@/hooks/useDashboardData';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+
+const ICON_STROKE = 1.5;
 
 interface NavItem {
   id: View;
@@ -52,16 +52,16 @@ function Brand() {
   return (
     <div
       onClick={() => setView('landing')}
-      className="flex items-center gap-3 px-3 py-4 cursor-pointer group"
+      className="flex cursor-pointer items-center gap-3 px-3 py-4 group"
     >
-      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#C00018] text-white shadow-xs transition-transform group-hover:scale-105">
-        <ShieldCheck className="h-6 w-6" />
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C00018] text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105">
+        <ShieldCheck className="h-5 w-5" strokeWidth={ICON_STROKE} />
       </div>
       <div className="flex flex-col leading-tight">
-        <span className="font-poppins text-xs font-black uppercase tracking-wider text-[#C00018]">
-          SENTINEL <span className="text-[#1B1B1F]">PAYMENTS</span>
+        <span className="text-xs font-semibold tracking-tight text-white">
+          Sentinel <span className="text-white/40">Payments</span>
         </span>
-        <span className="text-[11px] font-medium text-[#74777F]">AP Fraud Defense</span>
+        <span className="text-[11px] text-white/35">AP Fraud Defense</span>
       </div>
     </div>
   );
@@ -117,9 +117,9 @@ function RunBatchSidebarButton() {
         <Button
           type="button"
           onClick={onStopBatch}
-          className="w-full justify-center gap-2 rounded-full bg-[#BA1A1A] py-5 text-xs font-bold uppercase tracking-wider text-white shadow-xs hover:bg-[#93000A] active:scale-[0.98] cursor-pointer"
+          className="w-full cursor-pointer justify-center gap-2 rounded-full bg-[#BA1A1A] py-5 text-xs font-bold uppercase tracking-wider text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] transition-all hover:bg-[#93000A] active:scale-[0.98]"
         >
-          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20 animate-pulse">
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20">
             <Square className="h-3 w-3 fill-white text-white" />
           </div>
           <span>Stop Batch</span>
@@ -134,12 +134,12 @@ function RunBatchSidebarButton() {
         <Button
           type="button"
           onClick={onRunBatch}
-          className="w-full justify-center gap-2 rounded-full bg-[#1E6827] py-5 text-xs font-bold uppercase tracking-wider text-white shadow-xs hover:bg-[#144F1C] active:scale-[0.98] cursor-pointer"
+          className="w-full cursor-pointer justify-center gap-2 rounded-full bg-emerald-600 py-5 text-xs font-bold uppercase tracking-wider text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] transition-all hover:bg-emerald-700 active:scale-[0.98]"
         >
           <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20">
-            <CheckCircle2 className="h-3.5 w-3.5 text-white" />
+            <CheckCircle2 className="h-3.5 w-3.5 text-white" strokeWidth={ICON_STROKE} />
           </div>
-          <span>Screen Again ✓</span>
+          <span>Screen Again</span>
         </Button>
       </div>
     );
@@ -151,7 +151,7 @@ function RunBatchSidebarButton() {
         type="button"
         onClick={onRunBatch}
         disabled={startRun.isPending}
-        className="w-full justify-center gap-2.5 rounded-full bg-[#C00018] py-5 text-xs font-bold uppercase tracking-wider text-white shadow-xs hover:shadow-md hover:bg-[#A80015] active:scale-[0.98] cursor-pointer"
+        className="group w-full cursor-pointer justify-center gap-2.5 rounded-full bg-[#C00018] py-5 text-xs font-bold uppercase tracking-wider text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-[#A80015] active:scale-[0.98]"
       >
         <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20">
           <Play className="h-3 w-3 fill-white text-white" />
@@ -167,7 +167,7 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
   const setView = useAppStore((s) => s.setView);
 
   return (
-    <nav className="flex flex-col gap-1.5 py-2 relative" aria-label="Primary">
+    <nav className="relative flex flex-col gap-1 py-2" aria-label="Primary">
       {NAV.map((item) => {
         const active = view === item.id;
         const Icon = item.icon;
@@ -181,35 +181,33 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
             }}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'group relative flex items-center gap-3.5 rounded-full px-4 py-3 text-xs font-bold transition-all duration-200 cursor-pointer select-none',
+              'group relative flex cursor-pointer select-none items-center gap-3.5 rounded-2xl px-4 py-3 text-xs font-medium transition-all duration-300',
               active
-                ? 'text-[#410002]'
-                : 'text-[#44474E] hover:text-[#1B1B1F] hover:bg-[#F1F3F5]'
+                ? 'text-white'
+                : 'text-white/45 hover:bg-white/[0.04] hover:text-white/85',
             )}
           >
             {active && (
               <motion.div
                 layoutId="m3-active-nav-indicator"
-                className="absolute inset-0 rounded-full bg-[#FFDAD6] shadow-xs"
+                className="absolute inset-0 rounded-2xl border border-white/10 bg-white/[0.06]"
                 transition={{ type: 'spring', stiffness: 400, damping: 32 }}
               />
             )}
 
             <Icon
               className={cn(
-                'relative z-10 h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110',
-                active ? 'text-[#C00018]' : 'text-[#74777F] group-hover:text-[#1B1B1F]'
+                'relative z-10 h-4 w-4 shrink-0 transition-all duration-300',
+                active ? 'text-red-400' : 'text-white/35 group-hover:scale-110 group-hover:text-white/70',
               )}
             />
-            <span className="relative z-10 font-medium">
-              {item.label}
-            </span>
+            <span className="relative z-10">{item.label}</span>
 
             {active && (
               <motion.span
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="relative z-10 ml-auto h-2 w-2 rounded-full bg-[#C00018]"
+                className="relative z-10 ml-auto h-1.5 w-1.5 rounded-full bg-[#C00018]"
               />
             )}
           </button>
@@ -229,29 +227,29 @@ function UserProfileWidget() {
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="mt-auto border-t border-[#E2E5E8] pt-3 px-1">
+      <div className="mt-auto border-t border-white/[0.08] px-1 pt-3">
         <Button
           onClick={() => openAuthModal('login')}
           variant="outline"
-          className="w-full justify-center gap-2 rounded-full border-[#C4C7C5] text-xs font-bold text-[#1B1B1F] hover:bg-[#F1F3F5]"
+          className="w-full cursor-pointer justify-center gap-2 rounded-full border-white/15 bg-transparent text-xs font-semibold text-white/70 hover:bg-white/[0.06] hover:text-white"
         >
-          <User className="h-4 w-4" />
-          <span>Sign In to Console</span>
+          <User className="h-4 w-4" strokeWidth={ICON_STROKE} />
+          <span>Sign in to console</span>
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="mt-auto border-t border-[#E2E5E8] pt-3 px-1">
-      <div className="flex items-center justify-between rounded-2xl bg-[#F7F8FA] p-3 border border-[#E2E5E8]">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#C00018] text-xs font-bold text-white shadow-xs">
+    <div className="mt-auto border-t border-white/[0.08] px-1 pt-3">
+      <div className="flex items-center justify-between rounded-2xl border border-white/[0.08] bg-white/[0.03] p-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#C00018] text-xs font-bold text-white">
             {user.name.charAt(0)}
           </div>
-          <div className="flex flex-col min-w-0">
-            <span className="truncate text-xs font-bold text-[#1B1B1F]">{user.name}</span>
-            <span className="truncate text-[10px] text-[#74777F]">{user.role}</span>
+          <div className="flex min-w-0 flex-col">
+            <span className="truncate text-xs font-semibold text-white">{user.name}</span>
+            <span className="truncate text-[10px] text-white/35">{user.role}</span>
           </div>
         </div>
 
@@ -263,9 +261,9 @@ function UserProfileWidget() {
             toast({ title: 'Logged Out', description: 'Session safely closed.' });
           }}
           title="Sign Out"
-          className="p-1.5 rounded-full text-[#74777F] hover:text-[#C00018] hover:bg-[#FFDAD6] transition-colors cursor-pointer"
+          className="cursor-pointer rounded-full p-1.5 text-white/40 transition-colors duration-300 hover:bg-white/[0.06] hover:text-red-300"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-4 w-4" strokeWidth={ICON_STROKE} />
         </button>
       </div>
     </div>
@@ -277,19 +275,24 @@ export function SidebarTrigger() {
   return (
     <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="lg:hidden rounded-full" aria-label="Open navigation">
-          <Menu className="h-4 w-4" />
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full border-white/15 bg-transparent text-white/70 hover:bg-white/[0.06] hover:text-white lg:hidden"
+          aria-label="Open navigation"
+        >
+          <Menu className="h-4 w-4" strokeWidth={ICON_STROKE} />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-72 bg-white p-4 flex flex-col rounded-r-3xl">
+      <SheetContent side="left" className="flex w-72 flex-col rounded-r-3xl border-white/10 bg-[#0B0B0E] p-4">
         <SheetHeader>
-          <SheetTitle className="flex items-center gap-2 text-sm">
-            <ShieldCheck className="h-5 w-5 text-[#C00018]" />
-            SENTINEL PAYMENTS
+          <SheetTitle className="flex items-center gap-2 text-sm text-white">
+            <ShieldCheck className="h-5 w-5 text-[#C00018]" strokeWidth={ICON_STROKE} />
+            Sentinel Payments
           </SheetTitle>
-          <SheetDescription className="text-xs text-[#74777F]">AP Fraud Defense System</SheetDescription>
+          <SheetDescription className="text-xs text-white/35">AP Fraud Defense System</SheetDescription>
         </SheetHeader>
-        <div className="mt-4 flex-1 flex flex-col">
+        <div className="mt-4 flex flex-1 flex-col">
           <RunBatchSidebarButton />
           <NavItems onNavigate={() => setMobileOpen(false)} />
           <UserProfileWidget />
@@ -301,7 +304,7 @@ export function SidebarTrigger() {
 
 export function SidebarNav() {
   return (
-    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-[#E2E5E8] bg-white p-3 lg:flex lg:flex-col">
+    <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-white/[0.08] bg-[#0B0B0E]/60 p-3 lg:flex">
       <Brand />
       <RunBatchSidebarButton />
       <div className="flex-1 overflow-y-auto">
