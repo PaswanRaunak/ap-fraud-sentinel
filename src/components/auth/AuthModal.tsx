@@ -1,13 +1,13 @@
 'use client';
 
+// Portal auth dialog — dark "Ethereal Glass" skin matching the public landing.
+// All auth flows unchanged: login, demo sign-in, registration, OTP reset.
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,13 +24,19 @@ import {
   Sparkles,
   KeyRound,
   CheckCircle2,
-  AlertCircle,
   Zap,
 } from 'lucide-react';
 import { useAuthStore, type UserRole } from '@/lib/authStore';
 import { useAppStore } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+
+const ICON_STROKE = 1.5;
+const EASE = [0.32, 0.72, 0, 1] as const;
+
+// Shared dark input treatment.
+const inputCls =
+  'h-11 rounded-2xl border border-white/10 bg-white/[0.04] text-sm text-white placeholder:text-white/25 transition-colors duration-300 focus-visible:border-[#C00018]/60 focus-visible:ring-0';
 
 export function AuthModal() {
   const isAuthModalOpen = useAuthStore((s) => s.isAuthModalOpen);
@@ -157,62 +163,50 @@ export function AuthModal() {
 
   return (
     <Dialog open={isAuthModalOpen} onOpenChange={(open) => !open && closeAuthModal()}>
-      <DialogContent className="sm:max-w-[460px] p-0 overflow-hidden border border-[#E2E5E8] bg-white text-[#1B1B1F] shadow-2xl rounded-3xl">
-        {/* M3 Header Banner */}
-        <div className="bg-[#F7F8FA] p-6 border-b border-[#E2E5E8]">
+      <DialogContent className="sm:max-w-[460px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#0B0B0E] p-0 text-white shadow-[0_40px_80px_-20px_rgba(0,0,0,0.8)] [&>button]:text-white/40 [&>button]:hover:text-white">
+        {/* Header */}
+        <div className="border-b border-white/[0.06] p-6 pb-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#C00018] text-white shadow-xs">
-              <ShieldCheck className="h-6 w-6" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C00018] text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]">
+              <ShieldCheck className="h-5 w-5" strokeWidth={ICON_STROKE} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-poppins text-base font-extrabold tracking-tight text-[#C00018]">
-                  Sentinel <span className="text-[#1B1B1F]">Payments</span>
+                <span className="text-sm font-semibold tracking-tight">
+                  Sentinel <span className="text-white/40">Payments</span>
                 </span>
-                <span className="rounded-full bg-[#FFDAD6] px-2.5 py-0.5 text-[10px] font-bold text-[#410002]">
-                  PORTAL
+                <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.15em] text-white/50">
+                  Portal
                 </span>
               </div>
-              <p className="text-xs text-[#74777F]">Enterprise AP Fraud Sentinel</p>
+              <p className="text-xs text-white/35">Enterprise AP fraud sentinel</p>
             </div>
           </div>
 
-          {/* M3 Segmented Button / Tabs */}
-          <div className="mt-5 flex rounded-full bg-[#EAECEF] p-1 text-xs font-semibold">
-            <button
-              type="button"
-              onClick={() => {
-                setAuthModalTab('login');
-                setForgotStep('request');
-              }}
-              className={cn(
-                'flex-1 py-1.5 rounded-full transition-all cursor-pointer text-center font-poppins',
-                authModalTab === 'login'
-                  ? 'bg-white text-[#C00018] font-bold shadow-xs'
-                  : 'text-[#44474E] hover:text-[#1B1B1F]'
-              )}
-            >
-              Sign In
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setAuthModalTab('register');
-                setForgotStep('request');
-              }}
-              className={cn(
-                'flex-1 py-1.5 rounded-full transition-all cursor-pointer text-center font-poppins',
-                authModalTab === 'register'
-                  ? 'bg-white text-[#C00018] font-bold shadow-xs'
-                  : 'text-[#44474E] hover:text-[#1B1B1F]'
-              )}
-            >
-              Create Account
-            </button>
+          {/* Segmented tabs */}
+          <div className="mt-5 flex rounded-full border border-white/10 bg-white/[0.03] p-1 text-xs font-medium">
+            {(['login', 'register'] as const).map((tabKey) => (
+              <button
+                key={tabKey}
+                type="button"
+                onClick={() => {
+                  setAuthModalTab(tabKey);
+                  setForgotStep('request');
+                }}
+                className={cn(
+                  'flex-1 cursor-pointer rounded-full py-1.5 text-center transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
+                  authModalTab === tabKey
+                    ? 'bg-white font-semibold text-black'
+                    : 'text-white/50 hover:text-white',
+                )}
+              >
+                {tabKey === 'login' ? 'Sign in' : 'Create account'}
+              </button>
+            ))}
             {authModalTab === 'forgot' && (
               <button
                 type="button"
-                className="flex-1 py-1.5 rounded-full bg-white text-amber-700 font-bold shadow-xs font-poppins text-center"
+                className="flex-1 cursor-pointer rounded-full bg-[#C00018]/20 py-1.5 text-center text-xs font-semibold text-red-300"
               >
                 Reset
               </button>
@@ -220,188 +214,193 @@ export function AuthModal() {
           </div>
         </div>
 
-        {/* Tab Body */}
+        {/* Tab body */}
         <div className="p-6">
           <AnimatePresence mode="wait">
-            {/* 1. LOGIN TAB */}
+            {/* 1. LOGIN */}
             {authModalTab === 'login' && (
               <motion.div
                 key="login"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.25, ease: EASE }}
                 className="space-y-4"
               >
-                {/* 1-Click Demo M3 Tonal Card */}
-                <div className="rounded-2xl border border-[#FFDAD6] bg-[#FFF8F7] p-4">
+                {/* 1-click evaluation access */}
+                <div className="rounded-2xl border border-[#C00018]/25 bg-[#C00018]/[0.07] p-4">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <Zap className="h-4 w-4 text-[#C00018] fill-[#C00018]" />
-                      <span className="text-xs font-bold text-[#410002] font-poppins">Evaluation Access</span>
+                      <Zap className="h-3.5 w-3.5 text-red-300" strokeWidth={ICON_STROKE} />
+                      <span className="text-xs font-semibold text-red-200">Evaluation access</span>
                     </div>
-                    <span className="text-[10px] text-[#C00018] font-mono">1-Click Sign In</span>
+                    <span className="font-mono text-[10px] text-red-200/50">1-click sign in</span>
                   </div>
-                  <p className="mt-1 text-xs text-[#44474E]">
-                    Instantly sign in as Lead Controller to test batch screenings.
+                  <p className="mt-1 text-xs text-white/45">
+                    Sign in instantly as a lead controller to run batch screenings.
                   </p>
                   <div className="mt-3 flex gap-2">
                     <Button
                       type="button"
                       size="sm"
                       onClick={() => handleDemoClick('Controller')}
-                      className="h-9 flex-1 gap-1.5 rounded-full bg-[#C00018] text-white font-bold text-xs hover:bg-[#A80015] shadow-xs"
+                      className="h-9 flex-1 gap-1.5 rounded-full bg-[#C00018] text-xs font-semibold text-white hover:bg-[#A80015] active:scale-[0.98]"
                     >
-                      <Sparkles className="h-3.5 w-3.5" />
-                      <span>Controller Sign In</span>
+                      <Sparkles className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
+                      <span>Controller sign in</span>
                     </Button>
                     <Button
                       type="button"
                       size="sm"
                       variant="outline"
                       onClick={() => handleDemoClick('AP Analyst')}
-                      className="h-9 rounded-full border-[#C4C7C5] bg-white text-xs font-medium text-[#44474E] hover:bg-[#F1F3F5]"
+                      className="h-9 rounded-full border-white/10 bg-transparent text-xs font-medium text-white/60 hover:bg-white/[0.06] hover:text-white"
                     >
                       <span>Auditor</span>
                     </Button>
                   </div>
                 </div>
 
-                <div className="relative flex items-center justify-center text-xs uppercase text-[#74777F]">
-                  <div className="flex-1 border-t border-[#E2E5E8]" />
-                  <span className="px-3 bg-white font-mono text-[10px]">Or enter credentials</span>
-                  <div className="flex-1 border-t border-[#E2E5E8]" />
+                <div className="relative flex items-center justify-center">
+                  <div className="flex-1 border-t border-white/[0.06]" />
+                  <span className="bg-[#0B0B0E] px-3 font-mono text-[10px] uppercase tracking-[0.15em] text-white/30">
+                    or enter credentials
+                  </span>
+                  <div className="flex-1 border-t border-white/[0.06]" />
                 </div>
 
-                <form onSubmit={handleLoginSubmit} className="space-y-3.5">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-[#44474E] font-medium">Business Email Address</Label>
+                <form onSubmit={handleLoginSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium text-white/60">Business email</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3.5 top-3 h-4 w-4 text-[#74777F]" />
+                      <Mail className="absolute left-3.5 top-3 h-4 w-4 text-white/30" strokeWidth={ICON_STROKE} />
                       <Input
                         type="email"
                         placeholder="controller@company.com"
                         value={loginEmail}
                         onChange={(e) => setLoginEmail(e.target.value)}
-                        className="h-11 pl-10 rounded-2xl bg-[#F7F8FA] border-[#C4C7C5] text-sm text-[#1B1B1F] placeholder:text-[#74777F] focus-visible:border-[#C00018]"
+                        className={cn(inputCls, 'pl-10')}
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label className="text-xs text-[#44474E] font-medium">Password</Label>
+                      <Label className="text-xs font-medium text-white/60">Password</Label>
                       <button
                         type="button"
                         onClick={() => setAuthModalTab('forgot')}
-                        className="text-xs text-[#C00018] hover:underline cursor-pointer"
+                        className="cursor-pointer text-xs text-white/50 transition-colors hover:text-white"
                       >
                         Forgot password?
                       </button>
                     </div>
                     <div className="relative">
-                      <Lock className="absolute left-3.5 top-3 h-4 w-4 text-[#74777F]" />
+                      <Lock className="absolute left-3.5 top-3 h-4 w-4 text-white/30" strokeWidth={ICON_STROKE} />
                       <Input
                         type={showPassword ? 'text' : 'password'}
                         placeholder="••••••••••••"
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
-                        className="h-11 pl-10 pr-10 rounded-2xl bg-[#F7F8FA] border-[#C4C7C5] text-sm text-[#1B1B1F] placeholder:text-[#74777F] focus-visible:border-[#C00018]"
+                        className={cn(inputCls, 'pl-10 pr-10')}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3.5 top-3 text-[#74777F] hover:text-[#1B1B1F]"
+                        className="absolute right-3.5 top-3 text-white/30 transition-colors hover:text-white"
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showPassword ? <EyeOff className="h-4 w-4" strokeWidth={ICON_STROKE} /> : <Eye className="h-4 w-4" strokeWidth={ICON_STROKE} />}
                       </button>
                     </div>
                   </div>
 
-                  <Button
+                  <button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-11 gap-2 rounded-full bg-[#C00018] font-bold text-white shadow-xs hover:shadow-md hover:bg-[#A80015] active:scale-[0.99] transition-all"
+                    className="group flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-white py-3 text-sm font-semibold text-black transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-white/85 active:scale-[0.99] disabled:opacity-60"
                   >
-                    <span>{loading ? 'Authenticating...' : 'Sign In to Console'}</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+                    <span>{loading ? 'Authenticating…' : 'Sign in to console'}</span>
+                    <ArrowRight
+                      className="h-4 w-4 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5"
+                      strokeWidth={ICON_STROKE}
+                    />
+                  </button>
                 </form>
 
-                <p className="text-center text-xs text-[#74777F]">
+                <p className="text-center text-xs text-white/35">
                   Don&apos;t have an account?{' '}
                   <button
                     type="button"
                     onClick={() => setAuthModalTab('register')}
-                    className="font-bold text-[#C00018] hover:underline cursor-pointer"
+                    className="cursor-pointer font-semibold text-white/80 transition-colors hover:text-white"
                   >
-                    Register new team
+                    Register your team
                   </button>
                 </p>
               </motion.div>
             )}
 
-            {/* 2. REGISTER TAB */}
+            {/* 2. REGISTER */}
             {authModalTab === 'register' && (
               <motion.div
                 key="register"
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.25, ease: EASE }}
                 className="space-y-4"
               >
-                <form onSubmit={handleRegisterSubmit} className="space-y-3">
-                  <div className="space-y-1">
-                    <Label className="text-xs text-[#44474E] font-medium">Full Name</Label>
+                <form onSubmit={handleRegisterSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium text-white/60">Full name</Label>
                     <div className="relative">
-                      <User className="absolute left-3.5 top-3 h-4 w-4 text-[#74777F]" />
+                      <User className="absolute left-3.5 top-3 h-4 w-4 text-white/30" strokeWidth={ICON_STROKE} />
                       <Input
                         type="text"
-                        placeholder="Jane Doe"
+                        placeholder="Dana Whitfield"
                         value={regName}
                         onChange={(e) => setRegName(e.target.value)}
-                        className="h-11 pl-10 rounded-2xl bg-[#F7F8FA] border-[#C4C7C5] text-sm text-[#1B1B1F] focus-visible:border-[#C00018]"
+                        className={cn(inputCls, 'pl-10')}
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <Label className="text-xs text-[#44474E] font-medium">Company</Label>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium text-white/60">Company</Label>
                     <div className="relative">
-                      <Building className="absolute left-3.5 top-3 h-4 w-4 text-[#74777F]" />
+                      <Building className="absolute left-3.5 top-3 h-4 w-4 text-white/30" strokeWidth={ICON_STROKE} />
                       <Input
                         type="text"
-                        placeholder="Acme Global Corp"
+                        placeholder="Meridian Logistics Group"
                         value={regCompany}
                         onChange={(e) => setRegCompany(e.target.value)}
-                        className="h-11 pl-10 rounded-2xl bg-[#F7F8FA] border-[#C4C7C5] text-sm text-[#1B1B1F] focus-visible:border-[#C00018]"
+                        className={cn(inputCls, 'pl-10')}
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <div className="space-y-1">
-                      <Label className="text-xs text-[#44474E] font-medium">Work Email</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium text-white/60">Work email</Label>
                       <Input
                         type="email"
-                        placeholder="jane@company.com"
+                        placeholder="dana@meridianlogistics.com"
                         value={regEmail}
                         onChange={(e) => setRegEmail(e.target.value)}
-                        className="h-11 rounded-2xl bg-[#F7F8FA] border-[#C4C7C5] text-xs text-[#1B1B1F] focus-visible:border-[#C00018]"
+                        className={cn(inputCls, 'text-xs')}
                         required
                       />
                     </div>
 
-                    <div className="space-y-1">
-                      <Label className="text-xs text-[#44474E] font-medium">AP Role</Label>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium text-white/60">AP role</Label>
                       <select
                         value={regRole}
                         onChange={(e) => setRegRole(e.target.value as UserRole)}
-                        className="w-full h-11 rounded-2xl border border-[#C4C7C5] bg-[#F7F8FA] px-3 text-xs text-[#1B1B1F] focus:outline-hidden focus:border-[#C00018]"
+                        className="h-11 w-full cursor-pointer rounded-2xl border border-white/10 bg-white/[0.04] px-3 text-xs text-white transition-colors duration-300 focus:border-[#C00018]/60 focus:outline-none [&>option]:bg-[#0B0B0E]"
                       >
                         <option value="Controller">Lead Controller</option>
                         <option value="AP Analyst">Senior AP Analyst</option>
@@ -411,36 +410,35 @@ export function AuthModal() {
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <Label className="text-xs text-[#44474E] font-medium">Password</Label>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium text-white/60">Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3.5 top-3 h-4 w-4 text-[#74777F]" />
+                      <Lock className="absolute left-3.5 top-3 h-4 w-4 text-white/30" strokeWidth={ICON_STROKE} />
                       <Input
                         type="password"
                         placeholder="••••••••••••"
                         value={regPassword}
                         onChange={(e) => setRegPassword(e.target.value)}
-                        className="h-11 pl-10 rounded-2xl bg-[#F7F8FA] border-[#C4C7C5] text-sm text-[#1B1B1F] focus-visible:border-[#C00018]"
+                        className={cn(inputCls, 'pl-10')}
                       />
                     </div>
                   </div>
 
-                  <Button
+                  <button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-11 gap-2 rounded-full bg-[#C00018] font-bold text-white shadow-xs hover:bg-[#A80015] active:scale-[0.99] transition-all"
+                    className="w-full cursor-pointer rounded-full bg-white py-3 text-sm font-semibold text-black transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-white/85 active:scale-[0.99] disabled:opacity-60"
                   >
-                    <span>{loading ? 'Creating...' : 'Create Account'}</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+                    <span>{loading ? 'Creating…' : 'Create account'}</span>
+                  </button>
                 </form>
 
-                <p className="text-center text-xs text-[#74777F]">
+                <p className="text-center text-xs text-white/35">
                   Already have an account?{' '}
                   <button
                     type="button"
                     onClick={() => setAuthModalTab('login')}
-                    className="font-bold text-[#C00018] hover:underline cursor-pointer"
+                    className="cursor-pointer font-semibold text-white/80 transition-colors hover:text-white"
                   >
                     Sign in here
                   </button>
@@ -448,32 +446,32 @@ export function AuthModal() {
               </motion.div>
             )}
 
-            {/* 3. FORGOT PASSWORD TAB */}
+            {/* 3. FORGOT PASSWORD */}
             {authModalTab === 'forgot' && (
               <motion.div
                 key="forgot"
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.25, ease: EASE }}
                 className="space-y-4"
               >
                 {forgotStep === 'request' && (
                   <form onSubmit={handleForgotSubmit} className="space-y-4">
-                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3.5 text-xs text-amber-900">
-                      Enter your corporate email address to receive a 6-digit security OTP code.
+                    <div className="rounded-2xl border border-amber-400/20 bg-amber-400/[0.06] p-3.5 text-xs leading-relaxed text-amber-200/80">
+                      Enter your corporate email address to receive a 6-digit security code.
                     </div>
 
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-[#44474E] font-medium">Registered Email</Label>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium text-white/60">Registered email</Label>
                       <div className="relative">
-                        <Mail className="absolute left-3.5 top-3 h-4 w-4 text-[#74777F]" />
+                        <Mail className="absolute left-3.5 top-3 h-4 w-4 text-white/30" strokeWidth={ICON_STROKE} />
                         <Input
                           type="email"
                           placeholder="controller@company.com"
                           value={forgotEmail}
                           onChange={(e) => setForgotEmail(e.target.value)}
-                          className="h-11 pl-10 rounded-2xl bg-[#F7F8FA] border-[#C4C7C5] text-sm text-[#1B1B1F] focus-visible:border-[#C00018]"
+                          className={cn(inputCls, 'pl-10')}
                           required
                         />
                       </div>
@@ -482,41 +480,42 @@ export function AuthModal() {
                     <Button
                       type="submit"
                       disabled={loading}
-                      className="w-full h-11 gap-2 rounded-full bg-amber-600 font-bold text-white shadow-xs hover:bg-amber-700"
+                      className="h-11 w-full gap-2 rounded-full bg-[#C00018] text-xs font-semibold text-white hover:bg-[#A80015] active:scale-[0.99]"
                     >
-                      <KeyRound className="h-4 w-4" />
-                      <span>{loading ? 'Dispatching...' : 'Send Verification OTP'}</span>
+                      <KeyRound className="h-4 w-4" strokeWidth={ICON_STROKE} />
+                      <span>{loading ? 'Dispatching…' : 'Send verification code'}</span>
                     </Button>
                   </form>
                 )}
 
                 {forgotStep === 'otp' && (
                   <form onSubmit={handleOtpVerify} className="space-y-4">
-                    <div className="rounded-2xl border border-[#CCE8EE] bg-[#F0F9FB] p-3.5 text-xs text-[#006874]">
-                      Enter the 6-digit OTP sent to <strong>{forgotEmail}</strong>. (Demo code: <code className="font-bold">849201</code>).
+                    <div className="rounded-2xl border border-sky-400/20 bg-sky-400/[0.06] p-3.5 text-xs leading-relaxed text-sky-200/80">
+                      Enter the 6-digit code sent to <strong>{forgotEmail}</strong>. Demo code:{' '}
+                      <code className="font-bold">849201</code>.
                     </div>
 
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-[#44474E] font-medium">6-Digit Verification Code</Label>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium text-white/60">Verification code</Label>
                       <Input
                         type="text"
                         placeholder="849201"
                         maxLength={6}
                         value={otpCode}
                         onChange={(e) => setOtpCode(e.target.value)}
-                        className="h-11 rounded-2xl bg-[#F7F8FA] border-[#C4C7C5] text-center font-mono text-lg font-bold tracking-widest text-[#1B1B1F] focus-visible:border-[#C00018]"
+                        className={cn(inputCls, 'text-center font-mono text-lg font-bold tracking-[0.3em]')}
                         required
                       />
                     </div>
 
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-[#44474E] font-medium">New Password</Label>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium text-white/60">New password</Label>
                       <Input
                         type="password"
                         placeholder="••••••••••••"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="h-11 rounded-2xl bg-[#F7F8FA] border-[#C4C7C5] text-sm text-[#1B1B1F] focus-visible:border-[#C00018]"
+                        className={inputCls}
                         required
                       />
                     </div>
@@ -524,44 +523,51 @@ export function AuthModal() {
                     <Button
                       type="submit"
                       disabled={loading}
-                      className="w-full h-11 gap-2 rounded-full bg-[#C00018] font-bold text-white shadow-xs hover:bg-[#A80015]"
+                      className="h-11 w-full gap-2 rounded-full bg-white text-sm font-semibold text-black hover:bg-white/85 active:scale-[0.99]"
                     >
-                      <CheckCircle2 className="h-4 w-4" />
-                      <span>{loading ? 'Verifying...' : 'Confirm New Password'}</span>
+                      <CheckCircle2 className="h-4 w-4" strokeWidth={ICON_STROKE} />
+                      <span>{loading ? 'Verifying…' : 'Confirm new password'}</span>
                     </Button>
                   </form>
                 )}
 
                 {forgotStep === 'done' && (
-                  <div className="text-center py-4 space-y-3">
-                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#D6E8D6] text-[#1E6827]">
-                      <CheckCircle2 className="h-6 w-6" />
+                  <div className="space-y-4 py-4 text-center">
+                    <motion.div
+                      initial={{ scale: 0.6, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 18 }}
+                      className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300"
+                    >
+                      <CheckCircle2 className="h-6 w-6" strokeWidth={ICON_STROKE} />
+                    </motion.div>
+                    <div>
+                      <h4 className="text-base font-semibold tracking-tight">Password updated</h4>
+                      <p className="mt-1 text-xs text-white/40">Your credentials have been securely updated.</p>
                     </div>
-                    <h4 className="text-base font-bold text-[#1B1B1F] font-poppins">Password Updated</h4>
-                    <p className="text-xs text-[#44474E]">Your credentials have been securely updated.</p>
                     <Button
                       type="button"
                       onClick={() => {
                         setAuthModalTab('login');
                         setForgotStep('request');
                       }}
-                      className="w-full h-11 rounded-full bg-[#C00018] font-bold text-white hover:bg-[#A80015]"
+                      className="h-11 w-full rounded-full bg-white text-sm font-semibold text-black hover:bg-white/85"
                     >
-                      <span>Proceed to Sign In</span>
+                      <span>Proceed to sign in</span>
                     </Button>
                   </div>
                 )}
 
-                <div className="pt-2 text-center">
+                <div className="pt-1 text-center">
                   <button
                     type="button"
                     onClick={() => {
                       setAuthModalTab('login');
                       setForgotStep('request');
                     }}
-                    className="text-xs text-[#74777F] hover:text-[#1B1B1F] hover:underline cursor-pointer"
+                    className="cursor-pointer text-xs text-white/40 transition-colors hover:text-white"
                   >
-                    ← Back to Sign In
+                    Back to sign in
                   </button>
                 </div>
               </motion.div>

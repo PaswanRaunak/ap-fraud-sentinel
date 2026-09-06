@@ -1,41 +1,34 @@
 'use client';
 
+// Sentinel Payments — public corporate portal.
+// Dark "Ethereal Glass" identity: OLED base, red/emerald mesh orbs, film grain,
+// glass double-bezel cards, Geist typography. The ops console (light) is a
+// separate internal surface — this page is the marketing/public face.
+
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShieldCheck,
-  ShieldAlert,
   ArrowRight,
-  Play,
-  Lock,
-  Mail,
-  Phone,
-  Building,
+  ArrowUpRight,
   CheckCircle2,
-  Cpu,
-  Layers,
-  Sparkles,
-  ExternalLink,
-  ChevronRight,
   LogOut,
-  User,
   Radar,
   Network,
   Bot,
   PhoneCall,
   Gavel,
   FileText,
-  Volume2,
   Check,
-  Sliders,
-  DollarSign,
-  Clock,
-  HelpCircle,
   ChevronDown,
   Activity,
   AlertTriangle,
   Zap,
   TrendingUp,
+  Layers,
+  Lock,
+  Mail,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/lib/authStore';
@@ -43,6 +36,74 @@ import { useAppStore, formatCurrency } from '@/lib/store';
 import { useStats } from '@/hooks/useDashboardData';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+
+// Standardized icon stroke for this surface — light, precise lines.
+const ICON_STROKE = 1.5;
+
+const EASE = [0.32, 0.72, 0, 1] as const;
+
+const fadeUp = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-80px' },
+  transition: { duration: 0.7, ease: EASE },
+};
+
+/** Section heading block — eyebrow tag + display heading + lede, left-aligned. */
+function SectionHead({
+  eyebrow,
+  title,
+  lede,
+}: {
+  eyebrow: string;
+  title: React.ReactNode;
+  lede?: string;
+}) {
+  return (
+    <motion.div {...fadeUp} className="max-w-3xl">
+      <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-white/60">
+        {eyebrow}
+      </span>
+      <h2 className="mt-5 text-3xl font-semibold tracking-tighter text-white sm:text-4xl lg:text-5xl">
+        {title}
+      </h2>
+      {lede && (
+        <p className="mt-4 max-w-[65ch] text-sm leading-relaxed text-white/50 sm:text-base">
+          {lede}
+        </p>
+      )}
+    </motion.div>
+  );
+}
+
+/** Double-bezel glass card — outer shell + inner core with concentric radii. */
+function GlassCard({
+  children,
+  className,
+  innerClassName,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  innerClassName?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        'rounded-[2rem] border border-white/10 bg-white/[0.04] p-1.5 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]',
+        className,
+      )}
+    >
+      <div
+        className={cn(
+          'h-full rounded-[calc(2rem-0.375rem)] border border-white/[0.06] bg-[#0B0B0E] p-7 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]',
+          innerClassName,
+        )}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export function LandingPage() {
   const user = useAuthStore((s) => s.user);
@@ -53,18 +114,15 @@ export function LandingPage() {
   const { data: stats } = useStats();
   const { toast } = useToast();
 
-  // Navigation / Stepper states
   const [activeStageIndex, setActiveStageIndex] = useState(0);
   const [activeSandboxScenario, setActiveSandboxScenario] = useState<'bec' | 'amount' | 'clean'>('bec');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // ROI Calculator states
   const [monthlyInvoices, setMonthlyInvoices] = useState(2500);
   const [avgInvoiceAmount, setAvgInvoiceAmount] = useState(12000);
 
-  // FAQ state
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
-  // Contact form state
   const [contactName, setContactName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [contactCompany, setContactCompany] = useState('');
@@ -88,1005 +146,1206 @@ export function LandingPage() {
     });
   };
 
-  // ROI Calculations
   const annualDisbursements = monthlyInvoices * avgInvoiceAmount * 12;
-  const estimatedFraudPrevented = Math.round(annualDisbursements * 0.0045); // industry avg 0.45% AP fraud rate
-  const manualAuditHoursSaved = Math.round((monthlyInvoices * 12 * 4.5) / 60); // 4.5 mins saved per invoice
+  const estimatedFraudPrevented = Math.round(annualDisbursements * 0.0045);
+  const manualAuditHoursSaved = Math.round((monthlyInvoices * 12 * 4.5) / 60);
+
+  const enterConsole = () => {
+    if (isAuthenticated) setView('dashboard');
+    else openAuthModal('login');
+  };
+
+  const navLinks = [
+    { href: '#what-we-do', label: 'Platform' },
+    { href: '#sandbox', label: 'Sandbox' },
+    { href: '#how-it-works', label: 'Pipeline' },
+    { href: '#security', label: 'Signals' },
+    { href: '#contact', label: 'Contact' },
+  ];
 
   const stagesData = [
     {
       no: '01',
       title: 'Intake & Classification',
       icon: FileText,
-      desc: 'Ingests inbound PDF invoices and EML email attachments via secure REST webhooks, strips payload tags, extracts MIME structure, and classifies document kind using lightweight heuristics.',
+      desc: 'Inbound PDF invoices and EML emails enter through secure REST webhooks. Payload tags are stripped, MIME structure parsed, and the document kind classified before anything touches the risk engine.',
     },
     {
       no: '02',
       title: 'OCR Fact Extraction',
       icon: Layers,
-      desc: 'Extracts structured invoice facts (vendor, invoice date, due date, amount, remit bank account) using pdfplumber and Tesseract OCR, normalizing all figures to USD baseline.',
+      desc: 'Vendor, dates, amounts and remit bank account are pulled from the document with pdfplumber and Tesseract OCR, then normalized to a USD baseline so downstream signals compare like-for-like.',
     },
     {
       no: '03',
       title: 'Vendor Master Grounding',
       icon: Network,
-      desc: 'Cross-references invoice facts against the 60-vendor Master Record and historical payment ledger (480 historical payments) to compute dynamic baseline statistics (μ, σ).',
+      desc: 'Facts are cross-referenced against the 60-record vendor master and 480-row historical payment ledger to compute a live statistical baseline (mean, standard deviation) per vendor.',
     },
     {
       no: '04',
       title: '6-Rule Risk Signal Engine',
       icon: Radar,
-      desc: 'Executes 6 deterministic detection algorithms in parallel (Levenshtein lookalikes, 3-sigma Z-scores, timing windows, duplicate SQL matching, SAR threshold skirting).',
+      desc: 'Six deterministic detectors run in parallel — Levenshtein domain lookalikes, 3-sigma z-scores, bank-change timing windows, duplicate SQL matching, first-time vendor gating and SAR threshold skirting.',
     },
     {
       no: '05',
       title: 'Tri-Agent Swarm Reasoning',
       icon: Bot,
-      desc: 'Coordinates an autonomous 3-agent swarm (BEC Analyst, Vendor Verifier, Case Builder) supervised by a Manager Arbitrator to synthesize evidence and recommend action.',
+      desc: 'A 3-agent swarm (BEC Analyst, Vendor Verifier, Case Builder) supervised by a Manager Arbitrator synthesizes the fired signals into an evidence pack and a recommendation. Ties break to hold.',
     },
     {
       no: '06',
       title: 'Out-of-Band Voice Verification',
       icon: PhoneCall,
-      desc: 'Places an automated phone call via Bland AI to the verified vendor phone number on file with Whisper speech-to-text transcription and intent classification.',
+      desc: 'For held bank-change cases, an automated call is placed to the vendor phone number registered on file — never a number from the suspicious email — with speech-to-text and intent classification.',
     },
     {
       no: '07',
       title: 'Controller Decision Gate',
       icon: Gavel,
-      desc: 'Auto-releases verified clean invoices while isolating suspicious or bank change holds in the Controller Audit Queue with complete cryptographic traceability.',
+      desc: 'Clean invoices auto-release with zero human latency. Everything suspicious lands in the Controller Audit Queue with the full evidence pack, call transcript and decision trail attached.',
+    },
+  ];
+
+  const signalMatrix = [
+    {
+      weight: '30%',
+      name: 'Domain Lookalike',
+      desc: 'Levenshtein distance catches character spoofing — acme-industria1.com against the registered acmeindustrial.com.',
+      accent: 'text-red-300',
+      badge: 'bg-red-950/60 text-red-300',
+    },
+    {
+      weight: '20%',
+      name: 'Amount Anomaly',
+      desc: '3-sigma z-score thresholding against the vendor historical payment ledger.',
+      accent: 'text-amber-300',
+      badge: 'bg-amber-950/60 text-amber-300',
+    },
+    {
+      weight: '20%',
+      name: 'Timing Window',
+      desc: 'Flags bank-change requests arriving 3 days or fewer before the invoice due date.',
+      accent: 'text-amber-300',
+      badge: 'bg-amber-950/60 text-amber-300',
+    },
+    {
+      weight: '15%',
+      name: 'Duplicate Invoice',
+      desc: 'SQL cross-match on payment history stops double disbursement and resubmitted invoices.',
+      accent: 'text-sky-300',
+      badge: 'bg-sky-950/60 text-sky-300',
+    },
+    {
+      weight: '10%',
+      name: 'First-Time Vendor',
+      desc: 'Unregistered vendors are gated behind mandatory verification before any payment.',
+      accent: 'text-violet-300',
+      badge: 'bg-violet-950/60 text-violet-300',
+    },
+    {
+      weight: '5%',
+      name: 'SAR Threshold Skirting',
+      desc: 'Structuring detection for amounts priced between $9,500 and $9,999 — just under the report line.',
+      accent: 'text-emerald-300',
+      badge: 'bg-emerald-950/60 text-emerald-300',
     },
   ];
 
   const faqs = [
     {
-      q: 'How does Sentinel Payments detect Business Email Compromise (BEC) attacks?',
-      a: 'Sentinel combines Levenshtein distance domain lookalike algorithms (detecting character spoofing like acme-industria1.com) with header provenance checks, bank alteration timing analysis, and our tri-agent LLM swarm to intercept wire redirection before disbursements occur.',
+      q: 'How does Sentinel detect Business Email Compromise attacks?',
+      a: 'Sentinel combines Levenshtein domain-lookalike detection (catching character spoofing like acme-industria1.com) with header provenance checks, bank-change timing analysis and the tri-agent LLM swarm — intercepting wire redirection before disbursement.',
     },
     {
-      q: 'Does Sentinel slow down legitimate Accounts Payable invoice workflows?',
-      a: 'No. Clean invoices matching verified master vendor records and historical amount baselines evaluate in under 1 millisecond and are auto-released without human intervention. Only high-risk anomaly cases (typically <5% of volume) are routed for hold and out-of-band verification.',
+      q: 'Does it slow down legitimate invoice workflows?',
+      a: 'No. Clean invoices matching verified master records and historical baselines evaluate in under a millisecond and auto-release. Only high-risk anomalies — typically under 5% of volume — route to hold and out-of-band verification.',
     },
     {
-      q: 'How does Out-of-Band Phone Call verification work?',
-      a: 'When an unverified bank modification is detected, Sentinel autonomously places a voice call via Bland AI strictly to the pre-registered verified supplier phone number on file in the vendor master record—never using phone numbers extracted from the suspicious email.',
+      q: 'How does out-of-band phone verification work?',
+      a: 'When an unverified bank modification is detected, Sentinel places an automated call strictly to the supplier number registered in the vendor master record. It never dials a number taken from the suspicious email.',
     },
     {
-      q: 'Which ERP systems does Sentinel Payments integrate with?',
-      a: 'Sentinel integrates with SAP S/4HANA, NetSuite, Oracle Cloud ERP, Workday Financials, Microsoft Dynamics 365, and QuickBooks Enterprise via secure REST webhooks and certified connectors.',
+      q: 'Which ERP systems does it integrate with?',
+      a: 'SAP S/4HANA, NetSuite, Oracle Cloud ERP, Workday Financials, Microsoft Dynamics 365 and QuickBooks Enterprise — via secure REST webhooks and certified connectors.',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAFAFC] text-[#1B1B1F] font-sans antialiased selection:bg-[#FFDAD6] selection:text-[#410002]">
-      {/* 1. MATERIAL 3 TOP APP BAR */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#E2E5E8] shadow-xs">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          {/* Logo matching reference screenshot with Material 3 branding */}
-          <div
-            className="flex items-center gap-3 cursor-pointer group"
-            onClick={() => setView('landing')}
-          >
-            <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-[#C00018] text-white shadow-sm transition-transform group-hover:scale-105">
-              <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                <circle cx="6" cy="6" r="3" fill="currentColor" fillOpacity="0.3" />
-                <circle cx="18" cy="6" r="3" fill="currentColor" fillOpacity="0.3" />
-                <circle cx="12" cy="18" r="3" fill="currentColor" fillOpacity="0.3" />
-                <path d="M8.5 7.5L15.5 7.5M7.5 8.5L10.5 15.5M16.5 8.5L13.5 15.5" stroke="#FFFFFF" strokeWidth="2" />
-              </svg>
-            </div>
-            <div className="flex flex-col leading-none">
-              <span className="font-poppins text-lg font-black tracking-tight text-[#C00018]">
-                Sentinel
-              </span>
-              <span className="font-poppins text-base font-bold tracking-tight text-[#1B1B1F]">
-                Payments
-              </span>
-            </div>
-          </div>
+    <div className="relative min-h-[100dvh] overflow-x-hidden bg-[#050505] font-sans text-white antialiased selection:bg-[#C00018]/30 selection:text-white">
+      {/* Ambient layer: mesh orbs + film grain */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute -top-40 left-1/2 h-[560px] w-[820px] -translate-x-1/2 rounded-full opacity-25 blur-[140px]"
+          style={{ background: 'radial-gradient(closest-side, #C00018, transparent)' }}
+        />
+        <div
+          className="absolute right-[-180px] top-[38%] h-[480px] w-[480px] rounded-full opacity-[0.12] blur-[130px]"
+          style={{ background: 'radial-gradient(closest-side, #34d399, transparent)' }}
+        />
+        <div
+          className="absolute bottom-[-200px] left-[-160px] h-[520px] w-[520px] rounded-full opacity-[0.10] blur-[130px]"
+          style={{ background: 'radial-gradient(closest-side, #C00018, transparent)' }}
+        />
+      </div>
+      <div className="apf-grain" aria-hidden />
 
-          {/* Desktop Navigation Links — Clean, spacious, and minimalist */}
-          <nav className="hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-wider text-[#44474E]">
-            <a
-              href="#home"
-              className="text-[#C00018] hover:text-[#A80015] transition-colors"
-            >
-              Home
-            </a>
-            <a
-              href="#what-we-do"
-              className="hover:text-[#C00018] transition-colors"
-            >
-              What We Do
-            </a>
-            <a
-              href="#sandbox"
-              className="hover:text-[#C00018] transition-colors"
-            >
-              Live Sandbox
-            </a>
-            <a
-              href="#how-it-works"
-              className="hover:text-[#C00018] transition-colors"
-            >
-              How It Works
-            </a>
-            <a
-              href="#security"
-              className="hover:text-[#C00018] transition-colors"
-            >
-              Security
-            </a>
+      {/* Floating glass pill nav */}
+      <header className="fixed inset-x-0 top-0 z-50 mt-5 flex justify-center px-4">
+        <div className="flex w-full max-w-5xl items-center justify-between rounded-full border border-white/10 bg-black/60 py-2 pl-4 pr-2 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.6)] backdrop-blur-2xl">
+          {/* Logo */}
+          <button
+            type="button"
+            onClick={() => setView('landing')}
+            className="group flex cursor-pointer items-center gap-2.5"
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#C00018] text-white transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105">
+              <ShieldCheck className="h-4.5 w-4.5" strokeWidth={ICON_STROKE} />
+            </span>
+            <span className="text-sm font-semibold tracking-tight">
+              Sentinel<span className="text-white/40"> Payments</span>
+            </span>
+          </button>
+
+          {/* Desktop links */}
+          <nav className="hidden items-center gap-1 lg:flex">
+            {navLinks.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className="rounded-full px-4 py-2 text-xs font-medium text-white/60 transition-colors duration-300 hover:bg-white/5 hover:text-white"
+              >
+                {l.label}
+              </a>
+            ))}
           </nav>
 
-          {/* Material 3 Header Action Buttons */}
-          <div className="flex items-center gap-3">
-            {/* M3 Outlined CONTACT Button */}
-            <a
-              href="#contact"
-              className="hidden sm:inline-flex items-center justify-center rounded-full border border-[#74777F] px-5 py-2 text-xs font-bold uppercase tracking-wider text-[#1B1B1F] hover:bg-[#F1F3F5] transition-all"
-            >
-              Contact
-            </a>
-
+          <div className="flex items-center gap-2">
             {isAuthenticated && user ? (
-              <div className="flex items-center gap-2">
+              <>
                 <Button
                   onClick={() => setView('dashboard')}
-                  className="h-10 rounded-full bg-[#C00018] px-5 text-xs font-bold uppercase tracking-wider text-white shadow-xs hover:shadow-md hover:bg-[#A80015] active:scale-[0.98] transition-all"
+                  className="h-9 rounded-full bg-white px-4 text-xs font-semibold text-black transition-all duration-300 hover:bg-white/85 active:scale-[0.98]"
                 >
-                  <ShieldCheck className="h-4 w-4 mr-1.5" />
-                  <span>Sentinel Console</span>
+                  Console
+                  <ArrowUpRight className="ml-1 h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
                 </Button>
-
                 <button
+                  type="button"
                   onClick={() => {
                     logout();
                     toast({ title: 'Signed Out', description: 'You have been logged out.' });
                   }}
                   title={`Log out (${user.name})`}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E2E5E8] bg-[#F7F8FA] text-[#74777F] hover:text-[#C00018] hover:bg-[#FFDAD6]/40 transition-colors cursor-pointer"
+                  className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-white/10 text-white/50 transition-colors duration-300 hover:text-white"
                 >
-                  <LogOut className="h-4 w-4" />
+                  <LogOut className="h-4 w-4" strokeWidth={ICON_STROKE} />
                 </button>
-              </div>
+              </>
             ) : (
               <Button
                 onClick={() => openAuthModal('login')}
-                className="h-10 rounded-full bg-[#C00018] px-6 text-xs font-bold uppercase tracking-wider text-white shadow-xs hover:shadow-md hover:bg-[#A80015] active:scale-[0.98] transition-all"
+                className="h-9 rounded-full bg-white px-5 text-xs font-semibold text-black transition-all duration-300 hover:bg-white/85 active:scale-[0.98]"
               >
-                Sign In
+                Sign in
               </Button>
             )}
+
+            {/* Mobile hamburger — morphs to X */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              className="relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-white/10 lg:hidden"
+              aria-label="Menu"
+            >
+              <span
+                className={cn(
+                  'absolute h-[1.5px] w-4 bg-white transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
+                  mobileMenuOpen ? 'rotate-45' : '-translate-y-[3.5px]',
+                )}
+              />
+              <span
+                className={cn(
+                  'absolute h-[1.5px] w-4 bg-white transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
+                  mobileMenuOpen ? '-rotate-45' : 'translate-y-[3.5px]',
+                )}
+              />
+            </button>
           </div>
         </div>
       </header>
 
-      {/* 2. MATERIAL 3 HERO SECTION (MATCHING SENTINELCHARGE REFERENCE) */}
-      <section
-        id="home"
-        className="relative min-h-[620px] lg:min-h-[680px] flex items-center justify-center overflow-hidden bg-[#0A0D14] text-white"
-      >
-        {/* Photographic background image with warm terminal / payment flow */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-35 mix-blend-luminosity scale-105 transition-transform duration-1000"
-          style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1556742049-0a67c55c2f82?q=80&w=2070&auto=format&fit=crop')`,
-          }}
-        />
-        {/* Material 3 Surface Scrim Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0D14] via-[#0A0D14]/80 to-[#0A0D14]/60" />
-
-        {/* Hero Content */}
-        <div className="relative z-10 mx-auto max-w-5xl px-4 py-16 text-center sm:px-6 lg:px-8">
-          {/* Live Alert Pill Badge */}
+      {/* Mobile menu overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 rounded-full bg-[#C00018]/20 border border-[#C00018]/40 px-4 py-1.5 text-xs text-red-200 backdrop-blur-md mb-4 shadow-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: EASE }}
+            className="fixed inset-0 z-40 flex flex-col justify-center bg-black/85 px-8 backdrop-blur-3xl lg:hidden"
           >
-            <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="font-semibold">Live Threat Intercepted:</span>
-            <span className="font-mono text-white font-bold">#INV-2026-4410 spoofed domain (+$48,394.27 BLOCKED)</span>
+            <nav className="flex flex-col gap-2">
+              {navLinks.map((l, i) => (
+                <motion.a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  initial={{ opacity: 0, y: 32 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 + i * 0.07, ease: EASE }}
+                  className="border-b border-white/10 py-5 text-3xl font-semibold tracking-tight text-white/80 transition-colors hover:text-white"
+                >
+                  {l.label}
+                </motion.a>
+              ))}
+            </nav>
           </motion.div>
+        )}
+      </AnimatePresence>
 
-          <motion.p
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="font-serif italic text-xl sm:text-2xl text-slate-300 tracking-wide font-normal"
-          >
-            Sentinel Payments
-          </motion.p>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="mt-3 text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white font-poppins leading-tight sm:leading-none"
-          >
-            Payment Processing <br />
-            And Workflow Experts
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mx-auto mt-6 max-w-2xl text-sm sm:text-base text-slate-300 font-normal leading-relaxed"
-          >
-            Autonomous Accounts Payable Fraud Prevention Platform powered by RocketRide Visual Pipe Architecture &amp; Multi-Agent AI Swarms.
-          </motion.p>
-
-          {/* Material 3 Action Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-8 flex flex-wrap items-center justify-center gap-4"
-          >
-            {/* M3 Filled Button (Red) */}
-            <Button
-              size="lg"
-              onClick={() => {
-                if (isAuthenticated) setView('dashboard');
-                else openAuthModal('login');
-              }}
-              className="h-12 rounded-full bg-[#C00018] px-8 text-xs font-bold uppercase tracking-widest text-white shadow-md hover:shadow-lg hover:bg-[#A80015] active:scale-[0.98] transition-all"
-            >
-              <span>{isAuthenticated ? 'Enter Fraud Console' : 'Access Sentinel Portal'}</span>
-            </Button>
-
-            {/* M3 Outlined Button (White) */}
-            <a
-              href="#sandbox"
-              className="inline-flex h-12 items-center justify-center rounded-full border-2 border-white/90 bg-transparent px-8 text-xs font-bold uppercase tracking-widest text-white hover:bg-white hover:text-[#0A0D14] active:scale-[0.98] transition-all"
-            >
-              <span>Test Live Sandbox</span>
-            </a>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 3. ENTERPRISE TRUST & ERP INTEGRATIONS BAR */}
-      <section className="bg-white border-b border-[#E2E5E8] py-8 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <p className="text-center text-xs font-bold uppercase tracking-widest text-[#74777F] mb-6">
-            Engineered for enterprise ERP systems &amp; global supply chains
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-75 grayscale hover:grayscale-0 transition-all">
-            <span className="font-poppins font-black text-base text-slate-800 tracking-wider">SAP S/4HANA</span>
-            <span className="font-poppins font-black text-base text-slate-800 tracking-wider">ORACLE Cloud ERP</span>
-            <span className="font-poppins font-black text-base text-slate-800 tracking-wider">NetSuite</span>
-            <span className="font-poppins font-black text-base text-slate-800 tracking-wider">Workday</span>
-            <span className="font-poppins font-black text-base text-slate-800 tracking-wider">Microsoft Dynamics</span>
-            <span className="font-poppins font-black text-base text-slate-800 tracking-wider">QuickBooks Enterprise</span>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. MATERIAL 3 "WHAT WE DO" SECTION */}
-      <section id="what-we-do" className="bg-[#F7F8FA] py-20 px-4 sm:px-6 lg:px-8 border-b border-[#E2E5E8] text-center">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal text-[#1B1B1F] leading-snug">
-            We specialize in payment processing services for a wide variety of industries.
-          </h2>
-
-          <p className="mt-6 text-sm sm:text-base text-[#44474E] leading-relaxed max-w-3xl mx-auto">
-            We take the time to understand your unique challenges and find the perfect merchant security and automated fraud prevention setup.
-          </p>
-
-          {/* 4 M3 Bento Cards */}
-          <div className="mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
-            <div className="rounded-3xl border border-[#E2E5E8] bg-white p-7 shadow-xs hover:shadow-md transition-shadow">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FFDAD6] text-[#C00018] mb-5">
-                <ShieldAlert className="h-6 w-6" />
-              </div>
-              <h3 className="text-base font-bold text-[#1B1B1F] font-poppins">BEC &amp; Phishing Defense</h3>
-              <p className="mt-2 text-xs text-[#44474E] leading-relaxed">
-                Autonomous screening of supplier invoices &amp; emails. Identifies lookalike domains and urgency coercion before disbursements occur.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-[#E2E5E8] bg-white p-7 shadow-xs hover:shadow-md transition-shadow">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#CCE8EE] text-[#006874] mb-5">
-                <Network className="h-6 w-6" />
-              </div>
-              <h3 className="text-base font-bold text-[#1B1B1F] font-poppins">Master Vendor Grounding</h3>
-              <p className="mt-2 text-xs text-[#44474E] leading-relaxed">
-                Grounds transactions against 60+ verified records and 480+ historical ledgers for 3-sigma statistical baseline anomaly thresholds.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-[#E2E5E8] bg-white p-7 shadow-xs hover:shadow-md transition-shadow">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#D6E8D6] text-[#1E6827] mb-5">
-                <PhoneCall className="h-6 w-6" />
-              </div>
-              <h3 className="text-base font-bold text-[#1B1B1F] font-poppins">Out-of-Band Telephony</h3>
-              <p className="mt-2 text-xs text-[#44474E] leading-relaxed">
-                Automated phone calls placed to the registered supplier contact on file (never attacker&apos;s phone) with speech-to-text verification.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-[#E2E5E8] bg-white p-7 shadow-xs hover:shadow-md transition-shadow">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#EAECEF] text-[#1B1B1F] mb-5">
-                <Zap className="h-6 w-6" />
-              </div>
-              <h3 className="text-base font-bold text-[#1B1B1F] font-poppins">&lt;1ms Zero Friction</h3>
-              <p className="mt-2 text-xs text-[#44474E] leading-relaxed">
-                Clean, routine supplier invoices pass all 6 statistical signal checks in under 1 millisecond with zero workflow interruption.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. INTERACTIVE LIVE THREAT SCENARIO SANDBOX */}
-      <section id="sandbox" className="py-20 px-4 sm:px-6 lg:px-8 bg-white border-b border-[#E2E5E8]">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#CCE8EE] px-4 py-1 text-xs font-bold uppercase tracking-wider text-[#006874]">
-              <Zap className="h-3.5 w-3.5" /> Interactive Sandbox
-            </span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-[#1B1B1F] font-poppins">
-              Test Real-World Attack Scenarios
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-[#44474E] max-w-2xl mx-auto">
-              Select a scenario below to see how our 6-rule risk engine and tri-agent AI swarm analyze, verify, and resolve cases in real time.
-            </p>
-          </div>
-
-          {/* Scenario Tabs */}
-          <div className="mt-10 flex flex-wrap justify-center gap-3">
-            <button
-              onClick={() => setActiveSandboxScenario('bec')}
-              className={cn(
-                'rounded-full px-5 py-2.5 text-xs font-bold transition-all cursor-pointer flex items-center gap-2',
-                activeSandboxScenario === 'bec'
-                  ? 'bg-[#FFDAD6] text-[#410002] shadow-xs'
-                  : 'bg-[#F1F3F5] text-[#44474E] hover:bg-[#EAECEF]'
-              )}
-            >
-              <AlertTriangle className="h-4 w-4 text-[#C00018]" />
-              <span>Scenario 1: Spoofed BEC Domain ($48,394.27)</span>
-            </button>
-
-            <button
-              onClick={() => setActiveSandboxScenario('amount')}
-              className={cn(
-                'rounded-full px-5 py-2.5 text-xs font-bold transition-all cursor-pointer flex items-center gap-2',
-                activeSandboxScenario === 'amount'
-                  ? 'bg-amber-100 text-amber-950 shadow-xs'
-                  : 'bg-[#F1F3F5] text-[#44474E] hover:bg-[#EAECEF]'
-              )}
-            >
-              <TrendingUp className="h-4 w-4 text-amber-600" />
-              <span>Scenario 2: 3-Sigma Amount Spike ($98,500.00)</span>
-            </button>
-
-            <button
-              onClick={() => setActiveSandboxScenario('clean')}
-              className={cn(
-                'rounded-full px-5 py-2.5 text-xs font-bold transition-all cursor-pointer flex items-center gap-2',
-                activeSandboxScenario === 'clean'
-                  ? 'bg-[#D6E8D6] text-[#1E6827] shadow-xs'
-                  : 'bg-[#F1F3F5] text-[#44474E] hover:bg-[#EAECEF]'
-              )}
-            >
-              <CheckCircle2 className="h-4 w-4 text-[#1E6827]" />
-              <span>Scenario 3: Verified Clean Invoice ($3,450.00)</span>
-            </button>
-          </div>
-
-          {/* Sandbox Live Display Card */}
-          <div className="mt-8 rounded-3xl border border-[#E2E5E8] bg-[#F7F8FA] p-6 sm:p-10 shadow-sm">
-            <AnimatePresence mode="wait">
-              {activeSandboxScenario === 'bec' && (
-                <motion.div
-                  key="bec"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-                >
-                  <div className="lg:col-span-1 rounded-2xl bg-white p-6 border border-[#E2E5E8]">
-                    <span className="text-[10px] font-mono font-bold uppercase text-[#74777F]">Inbound Invoice Facts</span>
-                    <h4 className="mt-2 text-lg font-bold text-[#1B1B1F] font-poppins">Acme Industrial Supply</h4>
-                    <div className="mt-4 space-y-2 text-xs font-mono">
-                      <div className="flex justify-between border-b border-[#F1F3F5] pb-1.5">
-                        <span className="text-[#74777F]">Invoice No:</span>
-                        <strong className="text-[#1B1B1F]">INV-2026-4410</strong>
-                      </div>
-                      <div className="flex justify-between border-b border-[#F1F3F5] pb-1.5">
-                        <span className="text-[#74777F]">Sender Email:</span>
-                        <strong className="text-[#C00018]">billing@acme-industria1.com</strong>
-                      </div>
-                      <div className="flex justify-between border-b border-[#F1F3F5] pb-1.5">
-                        <span className="text-[#74777F]">Amount:</span>
-                        <strong className="text-[#C00018]">{formatCurrency(48394.27, 'USD')}</strong>
-                      </div>
-                      <div className="flex justify-between pt-1">
-                        <span className="text-[#74777F]">Bank Account:</span>
-                        <strong className="text-amber-700">MODIFIED (Rogue IBAN)</strong>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="lg:col-span-2 space-y-4">
-                    <div className="rounded-2xl bg-white p-6 border border-[#E2E5E8]">
-                      <span className="text-[10px] font-mono font-bold uppercase text-[#74777F]">Fired Signals &amp; Composite Risk</span>
-                      <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
-                        <div className="p-3 bg-[#FFDAD6]/50 rounded-xl border border-[#FFDAD6]">
-                          <span className="font-bold text-[#410002]">domain_lookalike: 1.00</span>
-                          <p className="text-[11px] text-[#410002] mt-0.5">Levenshtein distance = 2 from registered acmeindustrial.com</p>
-                        </div>
-                        <div className="p-3 bg-[#FFDAD6]/50 rounded-xl border border-[#FFDAD6]">
-                          <span className="font-bold text-[#410002]">amount_anomaly: 1.00</span>
-                          <p className="text-[11px] text-[#410002] mt-0.5">Z-Score 42.10 (Amount $48k vs historical average $1.2k)</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl bg-[#1B1B1F] p-6 text-white text-xs font-mono">
-                      <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                        <span className="text-cyan-400 font-bold">Manager Agent Arbitrator Verdict:</span>
-                        <span className="bg-[#FFDAD6] text-[#410002] px-3 py-0.5 rounded-full font-bold">RECOMMENDATION: HOLD</span>
-                      </div>
-                      <p className="mt-3 text-slate-300">
-                        &quot;Definite BEC impersonation attempt. Domain character substitution identified. Bank modification requested 1 day before due date. Out-of-band phone call confirmed vendor DID NOT request this change. Payment disbursement frozen.&quot;
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {activeSandboxScenario === 'amount' && (
-                <motion.div
-                  key="amount"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-                >
-                  <div className="lg:col-span-1 rounded-2xl bg-white p-6 border border-[#E2E5E8]">
-                    <span className="text-[10px] font-mono font-bold uppercase text-[#74777F]">Inbound Invoice Facts</span>
-                    <h4 className="mt-2 text-lg font-bold text-[#1B1B1F] font-poppins">Vertex Technology Partners</h4>
-                    <div className="mt-4 space-y-2 text-xs font-mono">
-                      <div className="flex justify-between border-b border-[#F1F3F5] pb-1.5">
-                        <span className="text-[#74777F]">Invoice No:</span>
-                        <strong className="text-[#1B1B1F]">INV-2026-8821</strong>
-                      </div>
-                      <div className="flex justify-between border-b border-[#F1F3F5] pb-1.5">
-                        <span className="text-[#74777F]">Sender Email:</span>
-                        <strong className="text-emerald-700">finance@vertextech.com</strong>
-                      </div>
-                      <div className="flex justify-between border-b border-[#F1F3F5] pb-1.5">
-                        <span className="text-[#74777F]">Amount:</span>
-                        <strong className="text-amber-600">{formatCurrency(98500.0, 'USD')}</strong>
-                      </div>
-                      <div className="flex justify-between pt-1">
-                        <span className="text-[#74777F]">Historical Avg:</span>
-                        <strong className="text-[#74777F]">{formatCurrency(4200.0, 'USD')}</strong>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="lg:col-span-2 space-y-4">
-                    <div className="rounded-2xl bg-white p-6 border border-[#E2E5E8]">
-                      <span className="text-[10px] font-mono font-bold uppercase text-[#74777F]">Fired Signals &amp; Composite Risk</span>
-                      <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
-                        <div className="p-3 bg-amber-50 rounded-xl border border-amber-200">
-                          <span className="font-bold text-amber-900">amount_anomaly: 0.95</span>
-                          <p className="text-[11px] text-amber-800 mt-0.5">3-Sigma violation: Amount is 23x above standard historical baseline</p>
-                        </div>
-                        <div className="p-3 bg-[#D6E8D6]/60 rounded-xl border border-[#A8D5A8]">
-                          <span className="font-bold text-[#1E6827]">domain_lookalike: 0.00</span>
-                          <p className="text-[11px] text-[#1E6827] mt-0.5">Legitimate registered vendor domain matched master record</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl bg-[#1B1B1F] p-6 text-white text-xs font-mono">
-                      <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                        <span className="text-cyan-400 font-bold">Manager Agent Arbitrator Verdict:</span>
-                        <span className="bg-amber-100 text-amber-900 px-3 py-0.5 rounded-full font-bold">RECOMMENDATION: AUDIT HOLD</span>
-                      </div>
-                      <p className="mt-3 text-slate-300">
-                        &quot;Valid sender domain, but transaction size violates 3-sigma statistical threshold. Placed in Controller Review Queue with automated secondary signature requirement.&quot;
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {activeSandboxScenario === 'clean' && (
-                <motion.div
-                  key="clean"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-                >
-                  <div className="lg:col-span-1 rounded-2xl bg-white p-6 border border-[#E2E5E8]">
-                    <span className="text-[10px] font-mono font-bold uppercase text-[#74777F]">Inbound Invoice Facts</span>
-                    <h4 className="mt-2 text-lg font-bold text-[#1B1B1F] font-poppins">Pacific Cloud Logistics</h4>
-                    <div className="mt-4 space-y-2 text-xs font-mono">
-                      <div className="flex justify-between border-b border-[#F1F3F5] pb-1.5">
-                        <span className="text-[#74777F]">Invoice No:</span>
-                        <strong className="text-[#1B1B1F]">INV-2026-1044</strong>
-                      </div>
-                      <div className="flex justify-between border-b border-[#F1F3F5] pb-1.5">
-                        <span className="text-[#74777F]">Sender Email:</span>
-                        <strong className="text-emerald-700">billing@pacificcloud.com</strong>
-                      </div>
-                      <div className="flex justify-between border-b border-[#F1F3F5] pb-1.5">
-                        <span className="text-[#74777F]">Amount:</span>
-                        <strong className="text-emerald-700">{formatCurrency(3450.0, 'USD')}</strong>
-                      </div>
-                      <div className="flex justify-between pt-1">
-                        <span className="text-[#74777F]">Status:</span>
-                        <strong className="text-emerald-700">VERIFIED CLEAN</strong>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="lg:col-span-2 space-y-4">
-                    <div className="rounded-2xl bg-white p-6 border border-[#E2E5E8]">
-                      <span className="text-[10px] font-mono font-bold uppercase text-[#74777F]">Fired Signals &amp; Composite Risk</span>
-                      <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
-                        <div className="p-3 bg-[#D6E8D6]/60 rounded-xl border border-[#A8D5A8]">
-                          <span className="font-bold text-[#1E6827]">Composite Risk Score: 0.00</span>
-                          <p className="text-[11px] text-[#1E6827] mt-0.5">All 6 statistical anomaly algorithms passed cleanly</p>
-                        </div>
-                        <div className="p-3 bg-[#D6E8D6]/60 rounded-xl border border-[#A8D5A8]">
-                          <span className="font-bold text-[#1E6827]">Processing Time: 0.8ms</span>
-                          <p className="text-[11px] text-[#1E6827] mt-0.5">Grounding verified with zero human latency</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl bg-[#1B1B1F] p-6 text-white text-xs font-mono">
-                      <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                        <span className="text-cyan-400 font-bold">Controller Gate Verdict:</span>
-                        <span className="bg-[#D6E8D6] text-[#1E6827] px-3 py-0.5 rounded-full font-bold">RECOMMENDATION: AUTO-RELEASE</span>
-                      </div>
-                      <p className="mt-3 text-slate-300">
-                        &quot;Transaction facts fully grounded in master ledger. Zero risk signals triggered. Dispatched directly to ERP payment batch scheduler.&quot;
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. INTERACTIVE AP FRAUD ROI CALCULATOR */}
-      <section id="roi-calculator" className="py-20 px-4 sm:px-6 lg:px-8 bg-[#F7F8FA] border-b border-[#E2E5E8]">
-        <div className="mx-auto max-w-5xl rounded-3xl border border-[#E2E5E8] bg-white p-8 sm:p-12 shadow-sm">
-          <div className="text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFDAD6] px-4 py-1 text-xs font-bold uppercase tracking-wider text-[#410002]">
-              <DollarSign className="h-3.5 w-3.5" /> ROI Calculator
-            </span>
-            <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold text-[#1B1B1F] font-poppins">
-              Estimate Your Annual AP Fraud Savings
-            </h2>
-            <p className="mt-2 text-xs sm:text-sm text-[#44474E] max-w-xl mx-auto">
-              Adjust your monthly volume and average invoice value to calculate protected exposure.
-            </p>
-          </div>
-
-          <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-            {/* Sliders */}
-            <div className="space-y-6">
-              <div>
-                <div className="flex justify-between text-xs font-bold text-[#1B1B1F] mb-2">
-                  <span>Monthly Inbound Invoices:</span>
-                  <span className="font-mono text-[#C00018]">{monthlyInvoices.toLocaleString()} invoices/mo</span>
-                </div>
-                <input
-                  type="range"
-                  min="200"
-                  max="20000"
-                  step="200"
-                  value={monthlyInvoices}
-                  onChange={(e) => setMonthlyInvoices(Number(e.target.value))}
-                  className="w-full accent-[#C00018] cursor-pointer"
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs font-bold text-[#1B1B1F] mb-2">
-                  <span>Average Invoice Value:</span>
-                  <span className="font-mono text-[#C00018]">{formatCurrency(avgInvoiceAmount, 'USD')}</span>
-                </div>
-                <input
-                  type="range"
-                  min="1000"
-                  max="50000"
-                  step="500"
-                  value={avgInvoiceAmount}
-                  onChange={(e) => setAvgInvoiceAmount(Number(e.target.value))}
-                  className="w-full accent-[#C00018] cursor-pointer"
-                />
-              </div>
-
-              <div className="p-4 rounded-2xl bg-[#F7F8FA] border border-[#E2E5E8] text-xs text-[#44474E] space-y-1">
-                <div className="flex justify-between">
-                  <span>Annual AP Disbursements:</span>
-                  <strong className="text-[#1B1B1F] font-mono">{formatCurrency(annualDisbursements, 'USD')}</strong>
-                </div>
-                <div className="flex justify-between">
-                  <span>Industry Baseline Fraud Risk:</span>
-                  <strong className="text-[#1B1B1F] font-mono">0.45%</strong>
-                </div>
-              </div>
-            </div>
-
-            {/* Calculated Output Display */}
-            <div className="rounded-3xl border border-[#FFDAD6] bg-gradient-to-br from-[#FFF8F7] to-[#FFF0EE] p-8 text-center shadow-xs">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#410002]">Estimated Annual Value</span>
-              <div className="mt-3 font-poppins text-4xl sm:text-5xl font-black text-[#C00018]">
-                {formatCurrency(estimatedFraudPrevented, 'USD')}
-              </div>
-              <p className="mt-1 text-xs font-medium text-[#410002]">Fraudulent Disbursements Intercepted</p>
-
-              <div className="mt-6 pt-6 border-t border-[#FFDAD6] grid grid-cols-2 gap-4 text-left">
-                <div>
-                  <span className="text-[11px] text-[#74777F] block">Audit Hours Saved:</span>
-                  <strong className="text-sm font-bold text-[#1B1B1F] font-mono">{manualAuditHoursSaved.toLocaleString()} hrs / yr</strong>
-                </div>
-                <div>
-                  <span className="text-[11px] text-[#74777F] block">False Alarm Friction:</span>
-                  <strong className="text-sm font-bold text-[#1E6827] font-mono">0.00% Disruption</strong>
-                </div>
-              </div>
-
-              <Button
-                onClick={() => {
-                  if (isAuthenticated) setView('dashboard');
-                  else openAuthModal('register');
-                }}
-                className="mt-6 w-full h-11 rounded-full bg-[#C00018] text-xs font-bold uppercase tracking-wider text-white shadow-xs hover:bg-[#A80015]"
+      <main className="relative z-10 w-full max-w-full">
+        {/* ============ HERO — asymmetric split ============ */}
+        <section id="home" className="relative flex min-h-[100dvh] items-center px-4 pb-20 pt-36 sm:px-6 lg:px-8">
+          <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-14 lg:grid-cols-12">
+            {/* Left: massive typography */}
+            <div className="lg:col-span-7">
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: EASE }}
+                className="inline-flex items-center gap-2 rounded-full border border-[#C00018]/30 bg-[#C00018]/10 px-3.5 py-1.5 text-[11px] font-medium text-red-200"
               >
-                <span>Protect Your AP Pipeline Now</span>
-                <ArrowRight className="h-4 w-4 ml-1.5" />
-              </Button>
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+                </span>
+                Live interception — INV-2026-4410 · spoofed domain blocked
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.08, ease: EASE }}
+                className="mt-7 max-w-5xl text-[clamp(2.5rem,4.4vw,3.5rem)] font-semibold leading-[1.04] tracking-tighter text-white"
+              >
+                Out-of-band verification,
+                <br />
+                <span className="text-white/35">shipped as software.</span>
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.16, ease: EASE }}
+                className="mt-7 max-w-[60ch] text-base leading-relaxed text-white/50 sm:text-lg"
+              >
+                Sentinel Payments screens every inbound invoice and vendor email through a
+                7-stage pipeline — six deterministic risk signals, a tri-agent AI swarm, and an
+                automated verification call to the number on file — before a single dollar moves.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.24, ease: EASE }}
+                className="mt-10 flex flex-wrap items-center gap-4"
+              >
+                {/* Primary CTA — button-in-button trailing icon */}
+                <button
+                  type="button"
+                  onClick={enterConsole}
+                  className="group inline-flex cursor-pointer items-center gap-3 rounded-full bg-[#C00018] py-2 pl-7 pr-2 text-sm font-semibold text-white transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-[#A80015] active:scale-[0.98]"
+                >
+                  {isAuthenticated ? 'Enter the console' : 'Access the portal'}
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black/25 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-1 group-hover:-translate-y-[1px]">
+                    <ArrowUpRight className="h-4 w-4" strokeWidth={ICON_STROKE} />
+                  </span>
+                </button>
+                <a
+                  href="#sandbox"
+                  className="inline-flex h-[52px] items-center rounded-full border border-white/15 px-7 text-sm font-medium text-white/70 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-white/30 hover:text-white active:scale-[0.98]"
+                >
+                  Try the live sandbox
+                </a>
+              </motion.div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* 7. MATERIAL 3 "HOW IT WORKS" — 7-STAGE DAG WORKFLOW */}
-      <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 bg-white border-b border-[#E2E5E8]">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <span className="inline-flex items-center rounded-full bg-[#FFDAD6] px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#410002]">
-              Visual DAG Architecture
-            </span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-[#1B1B1F] font-poppins">
-              The 7-Stage RocketRide Pipeline
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-[#44474E] max-w-2xl mx-auto">
-              Every invoice flows through an end-to-end modular Directed Acyclic Graph (DAG) before payment authorization.
-            </p>
-          </div>
+            {/* Right: floating live-threat glass card */}
+            <motion.div
+              initial={{ opacity: 0, y: 40, rotate: 2 }}
+              animate={{ opacity: 1, y: 0, rotate: 0 }}
+              transition={{ duration: 1, delay: 0.35, ease: EASE }}
+              className="lg:col-span-5"
+            >
+              <div className="lg:rotate-[1.5deg] lg:hover:rotate-0 transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]">
+                <GlassCard>
+                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
+                    <span className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">
+                      <Activity className="h-3.5 w-3.5 text-red-400" strokeWidth={ICON_STROKE} />
+                      Live interception feed
+                    </span>
+                    <span className="rounded-full bg-[#C00018]/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-red-300">
+                      BLOCKED
+                    </span>
+                  </div>
 
-          {/* M3 Interactive Stepper & Stage Card */}
-          <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            {/* Stage Selector Chips / List */}
-            <div className="space-y-2 lg:col-span-1">
-              {stagesData.map((st, i) => {
-                const Icon = st.icon;
-                const isActive = activeStageIndex === i;
+                  <div className="mt-5 space-y-3.5 font-mono text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-white/35">Invoice</span>
+                      <span className="text-white">INV-2026-4410</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-white/35">Sender domain</span>
+                      <span className="text-red-300">acme-industria1.com</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-white/35">Amount</span>
+                      <span className="text-white">{formatCurrency(48394.27, 'USD')}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-white/35">Top signal</span>
+                      <span className="text-amber-300">domain_lookalike · 1.00</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 text-xs leading-relaxed text-white/55">
+                    &ldquo;Vendor confirmed by phone: no bank change was requested. Disbursement
+                    frozen, case routed to controller queue.&rdquo;
+                    <span className="mt-2 block font-mono text-[10px] text-white/30">
+                      — Manager Agent, arbitration verdict
+                    </span>
+                  </div>
+
+                  {/* Live stats strip */}
+                  <div className="mt-6 grid grid-cols-3 gap-2 border-t border-white/[0.06] pt-5 text-center">
+                    <div>
+                      <div className="font-mono text-lg font-semibold tabular-nums text-white">
+                        {stats?.casesScreened ?? 141}
+                      </div>
+                      <div className="mt-0.5 text-[10px] uppercase tracking-wider text-white/35">Screened</div>
+                    </div>
+                    <div>
+                      <div className="font-mono text-lg font-semibold tabular-nums text-[#4ade80]">
+                        {stats?.fraudCaught ?? 1}
+                      </div>
+                      <div className="mt-0.5 text-[10px] uppercase tracking-wider text-white/35">Caught</div>
+                    </div>
+                    <div>
+                      <div className="font-mono text-lg font-semibold tabular-nums text-white">
+                        {formatCurrency(stats?.amountSavedUsd ?? 48394.27, 'USD')}
+                      </div>
+                      <div className="mt-0.5 text-[10px] uppercase tracking-wider text-white/35">Protected</div>
+                    </div>
+                  </div>
+                </GlassCard>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ============ ERP MARQUEE ============ */}
+        <section className="border-y border-white/[0.06] py-10">
+          <div className="relative overflow-hidden">
+            <div className="apf-marquee-track flex w-max items-center gap-16 whitespace-nowrap">
+              {[0, 1].map((copy) => (
+                <div key={copy} className="flex items-center gap-16" aria-hidden={copy === 1}>
+                  {['SAP S/4HANA', 'Oracle Cloud ERP', 'NetSuite', 'Workday', 'Microsoft Dynamics', 'QuickBooks Enterprise'].map((erp) => (
+                    <span
+                      key={`${copy}-${erp}`}
+                      className="font-mono text-sm uppercase tracking-[0.25em] text-white/25 transition-colors duration-500 hover:text-white/60"
+                    >
+                      {erp}
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
+            {/* Edge fades */}
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#050505] to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[#050505] to-transparent" />
+          </div>
+        </section>
+
+        {/* ============ PLATFORM — asymmetric bento ============ */}
+        <section id="what-we-do" className="px-4 py-28 sm:px-6 sm:py-36 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <SectionHead
+              eyebrow="Platform"
+              title={<>Four layers of defense between the invoice and the wire.</>}
+              lede="Every payment passes statistical grounding, six deterministic signals, agent reasoning and a human gate — clean invoices in under a millisecond, suspicious ones never leave the building."
+            />
+
+            <motion.div
+              {...fadeUp}
+              className="mt-16 grid grid-flow-dense grid-cols-1 gap-5 md:grid-cols-12"
+            >
+              <GlassCard className="md:col-span-7">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#C00018]/15 text-red-400">
+                  <AlertTriangle className="h-5 w-5" strokeWidth={ICON_STROKE} />
+                </div>
+                <h3 className="mt-5 text-lg font-semibold tracking-tight">BEC &amp; phishing defense</h3>
+                <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-white/45">
+                  Supplier invoices and emails are screened autonomously. Lookalike domains and
+                  urgency coercion are flagged before disbursement — not after the wire clears.
+                </p>
+                <div className="mt-6 flex items-center gap-2 font-mono text-[11px]">
+                  <span className="rounded-lg bg-white/[0.04] px-2.5 py-1 text-red-300 line-through decoration-red-400/60">
+                    acme-industria1.com
+                  </span>
+                  <span className="text-white/25">vs</span>
+                  <span className="rounded-lg bg-white/[0.04] px-2.5 py-1 text-emerald-300">
+                    acmeindustrial.com
+                  </span>
+                </div>
+              </GlassCard>
+
+              <GlassCard className="md:col-span-5">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-400/10 text-emerald-300">
+                  <PhoneCall className="h-5 w-5" strokeWidth={ICON_STROKE} />
+                </div>
+                <h3 className="mt-5 text-lg font-semibold tracking-tight">Out-of-band telephony</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/45">
+                  Automated calls to the supplier number on file — never the attacker&apos;s —
+                  with speech-to-text verification of every bank change.
+                </p>
+              </GlassCard>
+
+              <GlassCard className="md:col-span-5">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-400/10 text-sky-300">
+                  <Network className="h-5 w-5" strokeWidth={ICON_STROKE} />
+                </div>
+                <h3 className="mt-5 text-lg font-semibold tracking-tight">Master vendor grounding</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/45">
+                  60+ verified records and 480+ historical payments set the 3-sigma statistical
+                  baseline every amount is judged against.
+                </p>
+              </GlassCard>
+
+              <GlassCard className="md:col-span-7">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/[0.06] text-white">
+                  <Zap className="h-5 w-5" strokeWidth={ICON_STROKE} />
+                </div>
+                <h3 className="mt-5 text-lg font-semibold tracking-tight">Under a millisecond, zero friction</h3>
+                <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-white/45">
+                  Routine invoices clear all six statistical checks without a human in the loop.
+                  Only genuine anomalies interrupt anyone.
+                </p>
+                <div className="mt-6 inline-flex items-baseline gap-2">
+                  <span className="font-mono text-3xl font-semibold tabular-nums tracking-tighter">0.8ms</span>
+                  <span className="text-xs text-white/35">median clean-invoice evaluation</span>
+                </div>
+              </GlassCard>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ============ LIVE SANDBOX ============ */}
+        <section id="sandbox" className="border-t border-white/[0.06] px-4 py-28 sm:px-6 sm:py-36 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <SectionHead
+              eyebrow="Live sandbox"
+              title="Run a real attack scenario."
+              lede="Pick a case and watch the six-rule engine and tri-agent swarm analyze, verify and resolve it — the same pipeline that screens production invoices."
+            />
+
+            <motion.div {...fadeUp} className="mt-12 flex flex-wrap gap-2.5">
+              {(
+                [
+                  { key: 'bec', label: 'Spoofed BEC domain', amount: '$48,394.27', icon: AlertTriangle, tone: 'text-red-300' },
+                  { key: 'amount', label: '3-sigma amount spike', amount: '$98,500.00', icon: TrendingUp, tone: 'text-amber-300' },
+                  { key: 'clean', label: 'Verified clean invoice', amount: '$3,450.00', icon: CheckCircle2, tone: 'text-emerald-300' },
+                ] as const
+              ).map((s) => {
+                const Icon = s.icon;
+                const active = activeSandboxScenario === s.key;
                 return (
                   <button
-                    key={st.no}
-                    onClick={() => setActiveStageIndex(i)}
+                    key={s.key}
+                    type="button"
+                    onClick={() => setActiveSandboxScenario(s.key)}
                     className={cn(
-                      'w-full flex items-center justify-between p-4 rounded-2xl text-left transition-all cursor-pointer',
-                      isActive
-                        ? 'bg-[#FFDAD6] text-[#410002] font-bold shadow-xs'
-                        : 'bg-[#F7F8FA] text-[#44474E] hover:bg-[#F1F3F5]'
+                      'flex cursor-pointer items-center gap-2.5 rounded-full border px-5 py-2.5 text-xs font-medium transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]',
+                      active
+                        ? 'border-white/25 bg-white text-black'
+                        : 'border-white/10 bg-white/[0.03] text-white/60 hover:border-white/20 hover:text-white',
                     )}
                   >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={cn(
-                          'flex h-7 w-7 items-center justify-center rounded-full text-xs font-mono font-bold',
-                          isActive ? 'bg-[#C00018] text-white' : 'bg-[#EAECEF] text-[#44474E]'
-                        )}
-                      >
-                        {st.no}
-                      </span>
-                      <span className="text-xs font-bold">{st.title}</span>
-                    </div>
-                    <ChevronRight
-                      className={cn(
-                        'h-4 w-4 transition-transform',
-                        isActive ? 'text-[#C00018] translate-x-0.5' : 'text-[#74777F]'
-                      )}
-                    />
+                    <Icon className={cn('h-3.5 w-3.5', active ? 'text-black/70' : s.tone)} strokeWidth={ICON_STROKE} />
+                    <span>{s.label}</span>
+                    <span className={cn('font-mono', active ? 'text-black/50' : 'text-white/30')}>{s.amount}</span>
                   </button>
                 );
               })}
-            </div>
+            </motion.div>
 
-            {/* M3 Elevated Detail Card */}
-            <div className="lg:col-span-2 rounded-3xl border border-[#E2E5E8] bg-[#F7F8FA] p-8 shadow-sm">
-              <div className="flex items-center justify-between border-b border-[#E2E5E8] pb-5">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#C00018] text-white font-mono font-bold text-sm shadow-xs">
-                    {stagesData[activeStageIndex].no}
-                  </span>
-                  <h3 className="text-xl font-bold text-[#1B1B1F] font-poppins">
-                    Stage {stagesData[activeStageIndex].no}: {stagesData[activeStageIndex].title}
-                  </h3>
-                </div>
-                <span className="rounded-full bg-[#CCE8EE] px-3.5 py-1 text-xs font-bold text-[#006874]">
-                  Automated
-                </span>
-              </div>
-
-              <p className="mt-6 text-sm sm:text-base text-[#44474E] leading-relaxed">
-                {stagesData[activeStageIndex].desc}
-              </p>
-
-              <div className="mt-8 pt-6 border-t border-[#E2E5E8] flex items-center justify-between">
-                <span className="text-xs text-[#74777F] font-medium">Ready to screen live batch cases?</span>
-                <Button
-                  onClick={() => {
-                    if (isAuthenticated) setView('dashboard');
-                    else openAuthModal('login');
-                  }}
-                  className="h-10 rounded-full bg-[#1B1B1F] px-5 text-xs font-bold text-white hover:bg-black transition-all"
-                >
-                  <span>Launch Live Audit</span>
-                  <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 8. MATERIAL 3 "SECURITY & SIGNALS" MATRIX */}
-      <section id="security" className="py-20 px-4 sm:px-6 lg:px-8 bg-[#1B1B1F] text-white">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <span className="inline-flex items-center rounded-full bg-[#FFDAD6]/20 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#FFDAD6]">
-              Risk Intelligence
-            </span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-white font-poppins">
-              6-Dimensional Threat Scoring Matrix
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-slate-300 max-w-2xl mx-auto">
-              Deterministic, frozen algorithm scoring across 6 independent threat vectors for $0.00 - 1.00$ composite risk.
-            </p>
-          </div>
-
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="rounded-3xl border border-slate-800 bg-[#24262B] p-6 shadow-sm">
-              <span className="rounded-full bg-red-950/80 px-2.5 py-0.5 text-[11px] font-bold text-red-300 font-mono">30% Weight</span>
-              <h3 className="mt-3 text-base font-bold text-white font-poppins">Domain Lookalike Detection</h3>
-              <p className="mt-2 text-xs text-slate-300 leading-relaxed">
-                Levenshtein distance ($d \le 3$) detecting spoofed character replacements like <code className="text-red-300">acme-industria1.com</code> vs registered <code className="text-emerald-300">acmeindustrial.com</code>.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-slate-800 bg-[#24262B] p-6 shadow-sm">
-              <span className="rounded-full bg-amber-950/80 px-2.5 py-0.5 text-[11px] font-bold text-amber-300 font-mono">20% Weight</span>
-              <h3 className="mt-3 text-base font-bold text-white font-poppins">Statistical Amount Anomaly</h3>
-              <p className="mt-2 text-xs text-slate-300 leading-relaxed">
-                3-Sigma statistical Z-score thresholding ($|x - \mu| / \sigma \ge 3.0$) computed against historical vendor payments ledger.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-slate-800 bg-[#24262B] p-6 shadow-sm">
-              <span className="rounded-full bg-amber-950/80 px-2.5 py-0.5 text-[11px] font-bold text-amber-300 font-mono">20% Weight</span>
-              <h3 className="mt-3 text-base font-bold text-white font-poppins">Suspicious Timing Window</h3>
-              <p className="mt-2 text-xs text-slate-300 leading-relaxed">
-                Detects urgent bank account modification emails received within $\le 3$ days prior to the invoice due date.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-slate-800 bg-[#24262B] p-6 shadow-sm">
-              <span className="rounded-full bg-sky-950/80 px-2.5 py-0.5 text-[11px] font-bold text-sky-300 font-mono">15% Weight</span>
-              <h3 className="mt-3 text-base font-bold text-white font-poppins">Duplicate Invoice Search</h3>
-              <p className="mt-2 text-xs text-slate-300 leading-relaxed">
-                SQL payment history cross-matching to prevent double-disbursements or duplicate invoice submissions.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-slate-800 bg-[#24262B] p-6 shadow-sm">
-              <span className="rounded-full bg-purple-950/80 px-2.5 py-0.5 text-[11px] font-bold text-purple-300 font-mono">10% Weight</span>
-              <h3 className="mt-3 text-base font-bold text-white font-poppins">First-Time Vendor Trust</h3>
-              <p className="mt-2 text-xs text-slate-300 leading-relaxed">
-                Automated gating on unverified or unregistered vendor profiles requiring mandatory verification before payment.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-slate-800 bg-[#24262B] p-6 shadow-sm">
-              <span className="rounded-full bg-emerald-950/80 px-2.5 py-0.5 text-[11px] font-bold text-emerald-300 font-mono">5% Weight</span>
-              <h3 className="mt-3 text-base font-bold text-white font-poppins">SAR Threshold Skirting</h3>
-              <p className="mt-2 text-xs text-slate-300 leading-relaxed">
-                Flags structuring anomalies for payments intentionally priced between $\$9,500$ and $\$9,999$ beneath the SAR audit limit.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 9. FAQ ACCORDION SECTION */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white border-b border-[#E2E5E8]">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F3F5] px-4 py-1 text-xs font-bold uppercase tracking-wider text-[#44474E]">
-              <HelpCircle className="h-3.5 w-3.5" /> Frequently Asked Questions
-            </span>
-            <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold text-[#1B1B1F] font-poppins">
-              Frequently Asked Questions
-            </h2>
-          </div>
-
-          <div className="mt-10 space-y-4">
-            {faqs.map((faq, index) => {
-              const isOpen = openFaqIndex === index;
-              return (
-                <div
-                  key={faq.q}
-                  className="rounded-2xl border border-[#E2E5E8] bg-[#F7F8FA] overflow-hidden transition-all"
-                >
-                  <button
-                    onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                    className="w-full flex items-center justify-between p-5 text-left font-bold text-sm text-[#1B1B1F] hover:bg-[#F1F3F5] cursor-pointer"
-                  >
-                    <span>{faq.q}</span>
-                    <ChevronDown className={cn('h-4 w-4 text-[#74777F] transition-transform', isOpen && 'rotate-180 text-[#C00018]')} />
-                  </button>
-                  {isOpen && (
-                    <div className="px-5 pb-5 text-xs sm:text-sm text-[#44474E] leading-relaxed border-t border-[#E2E5E8]/60 pt-3">
-                      {faq.a}
-                    </div>
+            <motion.div {...fadeUp} className="mt-8">
+              <GlassCard innerClassName="p-6 sm:p-9">
+                <AnimatePresence mode="wait">
+                  {activeSandboxScenario === 'bec' && (
+                    <SandboxPanel
+                      key="bec"
+                      vendor="Acme Industrial Supply"
+                      facts={[
+                        ['Invoice no', 'INV-2026-4410', 'text-white'],
+                        ['Sender', 'billing@acme-industria1.com', 'text-red-300'],
+                        ['Amount', formatCurrency(48394.27, 'USD'), 'text-red-300'],
+                        ['Bank account', 'MODIFIED — rogue IBAN', 'text-amber-300'],
+                      ]}
+                      signals={[
+                        { name: 'domain_lookalike', score: '1.00', note: 'Levenshtein distance 2 from registered acmeindustrial.com', fired: true },
+                        { name: 'amount_anomaly', score: '1.00', note: 'Z-score 42.1 — amount is far outside the vendor baseline', fired: true },
+                      ]}
+                      verdictTone="HOLD"
+                      verdictLabel="RECOMMENDATION: HOLD"
+                      verdict={
+                        'Definite BEC impersonation. Character-substituted domain, bank change requested one day before due date. Out-of-band call confirmed the vendor never requested it. Disbursement frozen.'
+                      }
+                    />
                   )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* 10. MATERIAL 3 CONTACT SECTION */}
-      <section id="contact" className="py-20 px-4 sm:px-6 lg:px-8 bg-[#F7F8FA]">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-center">
-            <span className="inline-flex items-center rounded-full bg-[#FFDAD6] px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#410002]">
-              Get in Touch
-            </span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-[#1B1B1F] font-poppins">
-              Work With Sentinel Payments
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-[#44474E] max-w-xl mx-auto">
-              Speak with our enterprise AP fraud prevention specialists and begin screening payments.
-            </p>
-          </div>
-
-          <div className="mt-12 rounded-3xl border border-[#E2E5E8] bg-white p-8 sm:p-10 shadow-sm">
-            {contactSubmitted ? (
-              <div className="text-center py-8 space-y-3">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#D6E8D6] text-[#1E6827]">
-                  <CheckCircle2 className="h-8 w-8" />
-                </div>
-                <h3 className="text-xl font-bold text-[#1B1B1F] font-poppins">Thank You for Reaching Out</h3>
-                <p className="text-sm text-[#44474E] max-w-md mx-auto">
-                  Our payment security team has received your message and will contact you at <strong>{contactEmail}</strong> shortly.
-                </p>
-                <Button
-                  onClick={() => setContactSubmitted(false)}
-                  variant="outline"
-                  className="mt-4 rounded-full"
-                >
-                  Send another message
-                </Button>
-              </div>
-            ) : (
-              <form onSubmit={handleContactSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-[#44474E] mb-1.5">Full Name</label>
-                    <input
-                      type="text"
-                      placeholder="Jane Smith"
-                      value={contactName}
-                      onChange={(e) => setContactName(e.target.value)}
-                      className="w-full h-12 rounded-2xl border border-[#C4C7C5] bg-[#F7F8FA] px-4 text-sm text-[#1B1B1F] focus:outline-hidden focus:border-[#C00018]"
-                      required
+                  {activeSandboxScenario === 'amount' && (
+                    <SandboxPanel
+                      key="amount"
+                      vendor="Vertex Technology Partners"
+                      facts={[
+                        ['Invoice no', 'INV-2026-8821', 'text-white'],
+                        ['Sender', 'finance@vertextech.com', 'text-emerald-300'],
+                        ['Amount', formatCurrency(98500.0, 'USD'), 'text-amber-300'],
+                        ['Historical avg', formatCurrency(4200.0, 'USD'), 'text-white/60'],
+                      ]}
+                      signals={[
+                        { name: 'amount_anomaly', score: '0.95', note: '3-sigma violation — amount is 23x the historical baseline', fired: true },
+                        { name: 'domain_lookalike', score: '0.00', note: 'Sender domain matches the master record', fired: false },
+                      ]}
+                      verdictTone="AUDIT HOLD"
+                      verdictLabel="RECOMMENDATION: AUDIT HOLD"
+                      verdict={
+                        'Valid sender domain, but the size violates the 3-sigma statistical threshold. Routed to the controller review queue with a secondary-signature requirement.'
+                      }
                     />
+                  )}
+                  {activeSandboxScenario === 'clean' && (
+                    <SandboxPanel
+                      key="clean"
+                      vendor="Pacific Cloud Logistics"
+                      facts={[
+                        ['Invoice no', 'INV-2026-1044', 'text-white'],
+                        ['Sender', 'billing@pacificcloud.com', 'text-emerald-300'],
+                        ['Amount', formatCurrency(3450.0, 'USD'), 'text-emerald-300'],
+                        ['Status', 'VERIFIED CLEAN', 'text-emerald-300'],
+                      ]}
+                      signals={[
+                        { name: 'composite risk', score: '0.00', note: 'All six statistical checks passed cleanly', fired: false },
+                        { name: 'processing time', score: '0.8ms', note: 'Grounded and released with zero human latency', fired: false },
+                      ]}
+                      verdictTone="AUTO-RELEASE"
+                      verdictLabel="RECOMMENDATION: AUTO-RELEASE"
+                      verdict={
+                        'Facts fully grounded in the master ledger, zero signals fired. Dispatched directly to the ERP payment batch scheduler.'
+                      }
+                    />
+                  )}
+                </AnimatePresence>
+              </GlassCard>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ============ ROI CALCULATOR ============ */}
+        <section id="roi-calculator" className="border-t border-white/[0.06] px-4 py-28 sm:px-6 sm:py-36 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <SectionHead
+              eyebrow="Exposure model"
+              title="What does fraud cost you today?"
+              lede="Move the sliders to your actual volume. The model uses the industry-average 0.45% AP fraud rate against your annual disbursements."
+            />
+
+            <div className="mt-14 grid grid-cols-1 items-stretch gap-5 lg:grid-cols-2">
+              <motion.div {...fadeUp}>
+                <GlassCard innerClassName="p-8 sm:p-10 h-full">
+                  <div className="space-y-9">
+                    <div>
+                      <div className="flex items-baseline justify-between">
+                        <label htmlFor="roi-invoices" className="text-sm font-medium text-white/70">
+                          Monthly inbound invoices
+                        </label>
+                        <span className="font-mono text-sm tabular-nums text-white">
+                          {monthlyInvoices.toLocaleString()}
+                        </span>
+                      </div>
+                      <input
+                        id="roi-invoices"
+                        type="range"
+                        min="200"
+                        max="20000"
+                        step="200"
+                        value={monthlyInvoices}
+                        onChange={(e) => setMonthlyInvoices(Number(e.target.value))}
+                        className="apf-range mt-4 w-full cursor-pointer"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-baseline justify-between">
+                        <label htmlFor="roi-avg" className="text-sm font-medium text-white/70">
+                          Average invoice value
+                        </label>
+                        <span className="font-mono text-sm tabular-nums text-white">
+                          {formatCurrency(avgInvoiceAmount, 'USD')}
+                        </span>
+                      </div>
+                      <input
+                        id="roi-avg"
+                        type="range"
+                        min="1000"
+                        max="50000"
+                        step="500"
+                        value={avgInvoiceAmount}
+                        onChange={(e) => setAvgInvoiceAmount(Number(e.target.value))}
+                        className="apf-range mt-4 w-full cursor-pointer"
+                      />
+                    </div>
+
+                    <div className="space-y-2.5 border-t border-white/[0.06] pt-6 font-mono text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-white/35">Annual disbursements</span>
+                        <span className="tabular-nums text-white">{formatCurrency(annualDisbursements, 'USD')}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-white/35">Industry baseline fraud rate</span>
+                        <span className="tabular-nums text-white">0.45%</span>
+                      </div>
+                    </div>
+                  </div>
+                </GlassCard>
+              </motion.div>
+
+              <motion.div
+                {...fadeUp}
+                transition={{ ...fadeUp.transition, delay: 0.1 }}
+                className="flex"
+              >
+                <div className="relative flex w-full flex-col justify-between overflow-hidden rounded-[2rem] border border-[#C00018]/25 bg-gradient-to-br from-[#C00018]/[0.12] to-transparent p-8 sm:p-10">
+                  <div>
+                    <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-red-200/70">
+                      Estimated annual value
+                    </span>
+                    <div className="mt-3 font-mono text-5xl font-semibold tabular-nums tracking-tighter text-white sm:text-6xl">
+                      {formatCurrency(estimatedFraudPrevented, 'USD')}
+                    </div>
+                    <p className="mt-2 text-sm text-white/45">
+                      in fraudulent disbursements intercepted per year
+                    </p>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-[#44474E] mb-1.5">Corporate Email</label>
-                    <input
-                      type="email"
-                      placeholder="jane@company.com"
-                      value={contactEmail}
-                      onChange={(e) => setContactEmail(e.target.value)}
-                      className="w-full h-12 rounded-2xl border border-[#C4C7C5] bg-[#F7F8FA] px-4 text-sm text-[#1B1B1F] focus:outline-hidden focus:border-[#C00018]"
-                      required
-                    />
+                  <div className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
+                    <div>
+                      <span className="block text-[11px] text-white/35">Audit hours saved</span>
+                      <strong className="font-mono text-sm tabular-nums text-white">
+                        {manualAuditHoursSaved.toLocaleString()} hrs / yr
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="block text-[11px] text-white/35">False-alarm friction</span>
+                      <strong className="font-mono text-sm tabular-nums text-emerald-300">0.00%</strong>
+                    </div>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isAuthenticated) setView('dashboard');
+                      else openAuthModal('register');
+                    }}
+                    className="group mt-9 inline-flex cursor-pointer items-center gap-3 self-start rounded-full bg-white py-2 pl-6 pr-2 text-sm font-semibold text-black transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
+                  >
+                    Protect your AP pipeline
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/[0.06] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-1 group-hover:-translate-y-[1px]">
+                      <ArrowRight className="h-4 w-4" strokeWidth={ICON_STROKE} />
+                    </span>
+                  </button>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#44474E] mb-1.5">Company / Enterprise</label>
-                  <input
-                    type="text"
-                    placeholder="Acme Global Corporation"
-                    value={contactCompany}
-                    onChange={(e) => setContactCompany(e.target.value)}
-                    className="w-full h-12 rounded-2xl border border-[#C4C7C5] bg-[#F7F8FA] px-4 text-sm text-[#1B1B1F] focus:outline-hidden focus:border-[#C00018]"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#44474E] mb-1.5">Inquiry Details</label>
-                  <textarea
-                    rows={4}
-                    placeholder="Describe your payment volume or current accounts payable verification workflow..."
-                    value={contactMessage}
-                    onChange={(e) => setContactMessage(e.target.value)}
-                    className="w-full rounded-2xl border border-[#C4C7C5] bg-[#F7F8FA] p-4 text-sm text-[#1B1B1F] focus:outline-hidden focus:border-[#C00018]"
-                    required
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full h-12 rounded-full bg-[#C00018] font-bold uppercase tracking-wider text-white shadow-md hover:bg-[#A80015]"
-                >
-                  <span>Submit Inquiry</span>
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </form>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* 11. MATERIAL 3 FOOTER */}
-      <footer className="border-t border-[#E2E5E8] bg-[#1B1B1F] py-12 px-4 sm:px-6 lg:px-8 text-slate-400 text-xs">
-        <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[#C00018] text-white font-bold">
-              <ShieldCheck className="h-5 w-5" />
+              </motion.div>
             </div>
-            <span className="font-poppins font-extrabold text-sm text-white">
-              Sentinel Payments <span className="text-slate-400 font-normal">· AP Fraud Sentinel</span>
-            </span>
           </div>
+        </section>
 
-          <div className="flex items-center gap-6 font-medium">
-            <a href="#what-we-do" className="hover:text-white transition-colors">What We Do</a>
-            <a href="#sandbox" className="hover:text-white transition-colors">Live Sandbox</a>
-            <a href="#how-it-works" className="hover:text-white transition-colors">Architecture</a>
-            <a href="#roi-calculator" className="hover:text-white transition-colors">ROI Calculator</a>
-            <a href="#security" className="hover:text-white transition-colors">Security</a>
-            <a href="#contact" className="hover:text-white transition-colors">Contact</a>
-            <button
-              type="button"
-              onClick={() => openAuthModal('login')}
-              className="text-[#FFDAD6] hover:text-white font-bold cursor-pointer"
+        {/* ============ HOW IT WORKS — 7-stage pipeline ============ */}
+        <section id="how-it-works" className="border-t border-white/[0.06] px-4 py-28 sm:px-6 sm:py-36 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <SectionHead
+              eyebrow="Pipeline"
+              title="Seven stages between intake and authorization."
+              lede="Every invoice flows through a modular directed acyclic graph. Select a stage to see what happens inside it."
+            />
+
+            <div className="mt-14 grid grid-cols-1 gap-5 lg:grid-cols-12">
+              {/* Stage rail */}
+              <motion.div {...fadeUp} className="lg:col-span-5">
+                <div className="flex flex-col gap-1.5 lg:sticky lg:top-28">
+                  {stagesData.map((st, i) => {
+                    const Icon = st.icon;
+                    const active = activeStageIndex === i;
+                    return (
+                      <button
+                        key={st.no}
+                        type="button"
+                        onClick={() => setActiveStageIndex(i)}
+                        className={cn(
+                          'group flex cursor-pointer items-center gap-4 rounded-2xl border px-4 py-3.5 text-left transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.99]',
+                          active
+                            ? 'border-white/15 bg-white/[0.06]'
+                            : 'border-transparent hover:bg-white/[0.03]',
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border font-mono text-[11px] transition-colors duration-500',
+                            active
+                              ? 'border-[#C00018] bg-[#C00018] text-white'
+                              : 'border-white/10 text-white/40 group-hover:text-white/70',
+                          )}
+                        >
+                          {active ? <Icon className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} /> : st.no}
+                        </span>
+                        <span
+                          className={cn(
+                            'text-sm font-medium transition-colors duration-300',
+                            active ? 'text-white' : 'text-white/50 group-hover:text-white/80',
+                          )}
+                        >
+                          {st.title}
+                        </span>
+                        <ChevronDown
+                          className={cn(
+                            'ml-auto h-3.5 w-3.5 -rotate-90 transition-all duration-500',
+                            active ? 'text-white' : 'text-white/20',
+                          )}
+                          strokeWidth={ICON_STROKE}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+
+              {/* Detail card */}
+              <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.1 }} className="lg:col-span-7">
+                <GlassCard innerClassName="p-8 sm:p-10 lg:sticky lg:top-28">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeStageIndex}
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -14 }}
+                      transition={{ duration: 0.35, ease: EASE }}
+                    >
+                      <div className="flex items-center justify-between border-b border-white/[0.06] pb-6">
+                        <div className="flex items-center gap-4">
+                          {React.createElement(stagesData[activeStageIndex].icon, {
+                            className: 'h-6 w-6 text-red-400',
+                            strokeWidth: ICON_STROKE,
+                          })}
+                          <div>
+                            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/30">
+                              Stage {stagesData[activeStageIndex].no}
+                            </span>
+                            <h3 className="text-xl font-semibold tracking-tight">
+                              {stagesData[activeStageIndex].title}
+                            </h3>
+                          </div>
+                        </div>
+                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 font-mono text-[10px] text-white/50">
+                          AUTOMATED
+                        </span>
+                      </div>
+
+                      <p className="mt-7 text-sm leading-relaxed text-white/55 sm:text-base">
+                        {stagesData[activeStageIndex].desc}
+                      </p>
+
+                      <div className="mt-10 flex items-center justify-between border-t border-white/[0.06] pt-6">
+                        <span className="text-xs text-white/35">Screen a live batch yourself</span>
+                        <button
+                          type="button"
+                          onClick={enterConsole}
+                          className="group inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-white transition-colors hover:text-red-300 active:scale-[0.98]"
+                        >
+                          Launch live audit
+                          <ArrowRight
+                            className="h-4 w-4 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-1"
+                            strokeWidth={ICON_STROKE}
+                          />
+                        </button>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                </GlassCard>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============ SIGNAL MATRIX — weighted asymmetric grid ============ */}
+        <section id="security" className="border-t border-white/[0.06] px-4 py-28 sm:px-6 sm:py-36 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <SectionHead
+              eyebrow="Risk intelligence"
+              title="Six signals. One frozen score."
+              lede="Deterministic, weighted scoring across six independent threat vectors produces a composite risk from 0.00 to 1.00. Holds trigger at 0.40 — the threshold is frozen, never tuned after the fact."
+            />
+
+            <motion.div
+              {...fadeUp}
+              className="mt-16 grid grid-flow-dense grid-cols-1 gap-5 md:grid-cols-12"
             >
-              Sign In
-            </button>
+              {signalMatrix.map((sig, i) => (
+                <GlassCard
+                  key={sig.name}
+                  className={cn(
+                    ['md:col-span-5', 'md:col-span-4', 'md:col-span-3', 'md:col-span-3', 'md:col-span-4', 'md:col-span-5'][i],
+                  )}
+                  innerClassName="p-7"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className={cn('rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold', sig.badge)}>
+                      {sig.weight} weight
+                    </span>
+                    <span className="font-mono text-2xl font-semibold tabular-nums tracking-tighter text-white/15">
+                      0{i + 1}
+                    </span>
+                  </div>
+                  <h3 className="mt-5 text-base font-semibold tracking-tight text-white">{sig.name}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-white/45">{sig.desc}</p>
+                </GlassCard>
+              ))}
+            </motion.div>
           </div>
+        </section>
 
-          <div>
-            &copy; {new Date().getFullYear()} Sentinel Payments. All rights reserved.
+        {/* ============ FAQ ============ */}
+        <section className="border-t border-white/[0.06] px-4 py-28 sm:px-6 sm:py-36 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid grid-cols-1 gap-14 lg:grid-cols-12">
+              <div className="lg:col-span-5">
+                <SectionHead eyebrow="FAQ" title="Questions, answered." />
+              </div>
+              <motion.div {...fadeUp} className="lg:col-span-7">
+                <div className="divide-y divide-white/[0.08] border-y border-white/[0.08]">
+                  {faqs.map((faq, index) => {
+                    const open = openFaqIndex === index;
+                    return (
+                      <div key={faq.q}>
+                        <button
+                          type="button"
+                          onClick={() => setOpenFaqIndex(open ? null : index)}
+                          className="flex w-full cursor-pointer items-center justify-between gap-6 py-6 text-left transition-colors duration-300 hover:text-white"
+                        >
+                          <span className={cn('text-sm font-medium sm:text-base', open ? 'text-white' : 'text-white/70')}>
+                            {faq.q}
+                          </span>
+                          <span
+                            className={cn(
+                              'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
+                              open ? 'rotate-180 border-white/25 text-white' : 'border-white/10 text-white/40',
+                            )}
+                          >
+                            <ChevronDown className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
+                          </span>
+                        </button>
+                        <AnimatePresence initial={false}>
+                          {open && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.4, ease: EASE }}
+                              className="overflow-hidden"
+                            >
+                              <p className="max-w-[65ch] pb-7 text-sm leading-relaxed text-white/45">
+                                {faq.a}
+                              </p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============ CONTACT ============ */}
+        <section id="contact" className="border-t border-white/[0.06] px-4 py-28 sm:px-6 sm:py-36 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid grid-cols-1 gap-14 lg:grid-cols-12">
+              <div className="lg:col-span-5">
+                <SectionHead
+                  eyebrow="Contact"
+                  title="Talk to the payment security team."
+                  lede="Tell us about your invoice volume and current verification workflow. A specialist responds within 24 hours."
+                />
+                <motion.div {...fadeUp} className="mt-10 space-y-4">
+                  <div className="flex items-center gap-3 text-sm text-white/50">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.03]">
+                      <Lock className="h-4 w-4" strokeWidth={ICON_STROKE} />
+                    </span>
+                    SOC 2 aligned controls, encrypted at rest and in transit
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-white/50">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.03]">
+                      <Mail className="h-4 w-4" strokeWidth={ICON_STROKE} />
+                    </span>
+                    security@sentinelpayments.example
+                  </div>
+                </motion.div>
+              </div>
+
+              <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.1 }} className="lg:col-span-7">
+                <GlassCard innerClassName="p-8 sm:p-10">
+                  {contactSubmitted ? (
+                    <div className="flex flex-col items-center py-14 text-center">
+                      <motion.span
+                        initial={{ scale: 0.6, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 18 }}
+                        className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300"
+                      >
+                        <Check className="h-7 w-7" strokeWidth={ICON_STROKE} />
+                      </motion.span>
+                      <h3 className="mt-6 text-xl font-semibold tracking-tight">Message received</h3>
+                      <p className="mt-2 max-w-md text-sm leading-relaxed text-white/45">
+                        A Sentinel Payments specialist will contact you at{' '}
+                        <strong className="text-white/80">{contactEmail}</strong> within one business day.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setContactSubmitted(false)}
+                        className="mt-7 cursor-pointer text-sm font-medium text-white/60 underline-offset-4 transition-colors hover:text-white hover:underline"
+                      >
+                        Send another message
+                      </button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleContactSubmit} className="space-y-6">
+                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <label htmlFor="contact-name" className="text-xs font-medium text-white/60">
+                            Full name
+                          </label>
+                          <input
+                            id="contact-name"
+                            type="text"
+                            placeholder="Dana Whitfield"
+                            value={contactName}
+                            onChange={(e) => setContactName(e.target.value)}
+                            required
+                            className="h-12 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white placeholder:text-white/25 transition-colors duration-300 focus:border-[#C00018]/60 focus:outline-none"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label htmlFor="contact-email" className="text-xs font-medium text-white/60">
+                            Corporate email
+                          </label>
+                          <input
+                            id="contact-email"
+                            type="email"
+                            placeholder="dana@meridianlogistics.com"
+                            value={contactEmail}
+                            onChange={(e) => setContactEmail(e.target.value)}
+                            required
+                            className="h-12 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white placeholder:text-white/25 transition-colors duration-300 focus:border-[#C00018]/60 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label htmlFor="contact-company" className="text-xs font-medium text-white/60">
+                          Company
+                        </label>
+                        <input
+                          id="contact-company"
+                          type="text"
+                          placeholder="Meridian Logistics Group"
+                          value={contactCompany}
+                          onChange={(e) => setContactCompany(e.target.value)}
+                          required
+                          className="h-12 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white placeholder:text-white/25 transition-colors duration-300 focus:border-[#C00018]/60 focus:outline-none"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label htmlFor="contact-message" className="text-xs font-medium text-white/60">
+                          Inquiry details
+                        </label>
+                        <textarea
+                          id="contact-message"
+                          rows={4}
+                          placeholder="Invoice volume, ERP system, current bank-change verification process..."
+                          value={contactMessage}
+                          onChange={(e) => setContactMessage(e.target.value)}
+                          required
+                          className="w-full rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-white placeholder:text-white/25 transition-colors duration-300 focus:border-[#C00018]/60 focus:outline-none"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="group inline-flex w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-[#C00018] py-2 pl-7 pr-2 text-sm font-semibold text-white transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-[#A80015] active:scale-[0.99] sm:w-auto"
+                      >
+                        Submit inquiry
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black/25 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-1 group-hover:-translate-y-[1px]">
+                          <ArrowUpRight className="h-4 w-4" strokeWidth={ICON_STROKE} />
+                        </span>
+                      </button>
+                    </form>
+                  )}
+                </GlassCard>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============ FOOTER ============ */}
+        <footer className="border-t border-white/[0.06] px-4 py-14 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#C00018] text-white">
+                  <ShieldCheck className="h-4.5 w-4.5" strokeWidth={ICON_STROKE} />
+                </span>
+                <div className="leading-tight">
+                  <div className="text-sm font-semibold tracking-tight text-white">Sentinel Payments</div>
+                  <div className="text-xs text-white/35">AP fraud sentinel · RocketRide pipeline</div>
+                </div>
+              </div>
+
+              <nav className="flex flex-wrap items-center gap-x-7 gap-y-3 text-xs text-white/45">
+                {navLinks.map((l) => (
+                  <a key={l.href} href={l.href} className="transition-colors duration-300 hover:text-white">
+                    {l.label}
+                  </a>
+                ))}
+                <a href="#roi-calculator" className="transition-colors duration-300 hover:text-white">
+                  ROI model
+                </a>
+                <Link href="/privacy" className="transition-colors duration-300 hover:text-white">
+                  Privacy
+                </Link>
+                <Link href="/terms" className="transition-colors duration-300 hover:text-white">
+                  Terms
+                </Link>
+                {!isAuthenticated && (
+                  <button
+                    type="button"
+                    onClick={() => openAuthModal('login')}
+                    className="cursor-pointer font-semibold text-white/80 transition-colors duration-300 hover:text-white"
+                  >
+                    Sign in
+                  </button>
+                )}
+              </nav>
+            </div>
+
+            <div className="mt-10 border-t border-white/[0.06] pt-6 text-xs text-white/30">
+              &copy; {new Date().getFullYear()} Sentinel Payments. All rights reserved.
+            </div>
+          </div>
+        </footer>
+      </main>
+    </div>
+  );
+}
+
+/** Sandbox scenario panel — facts rail + fired signals + verdict terminal. */
+function SandboxPanel({
+  vendor,
+  facts,
+  signals,
+  verdictLabel,
+  verdictTone,
+  verdict,
+}: {
+  vendor: string;
+  facts: [string, string, string][];
+  signals: { name: string; score: string; note: string; fired: boolean }[];
+  verdictLabel: string;
+  verdictTone: string;
+  verdict: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -14 }}
+      transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+      className="grid grid-cols-1 gap-6 lg:grid-cols-12"
+    >
+      {/* Facts rail */}
+      <div className="lg:col-span-4">
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/30">Inbound invoice facts</span>
+        <h4 className="mt-2 text-lg font-semibold tracking-tight text-white">{vendor}</h4>
+        <div className="mt-5 space-y-3 font-mono text-xs">
+          {facts.map(([k, v, tone]) => (
+            <div key={k} className="flex items-center justify-between gap-3 border-b border-white/[0.05] pb-2.5">
+              <span className="text-white/35">{k}</span>
+              <strong className={cn('text-right', tone)}>{v}</strong>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Signals + verdict */}
+      <div className="space-y-4 lg:col-span-8">
+        <div>
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/30">
+            Fired signals
+          </span>
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {signals.map((s) => (
+              <div
+                key={s.name}
+                className={cn(
+                  'rounded-2xl border p-4',
+                  s.fired
+                    ? 'border-[#C00018]/30 bg-[#C00018]/[0.08]'
+                    : 'border-emerald-400/20 bg-emerald-400/[0.05]',
+                )}
+              >
+                <span className={cn('font-mono text-xs font-semibold', s.fired ? 'text-red-300' : 'text-emerald-300')}>
+                  {s.name}: {s.score}
+                </span>
+                <p className="mt-1 text-[11px] leading-relaxed text-white/45">{s.note}</p>
+              </div>
+            ))}
           </div>
         </div>
-      </footer>
-    </div>
+
+        <div className="rounded-2xl border border-white/[0.08] bg-black/60 p-5 font-mono text-xs">
+          <div className="flex items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
+            <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-white/50">
+              <Bot className="h-3.5 w-3.5" strokeWidth={1.5} />
+              Manager agent verdict
+            </span>
+            <span
+              className={cn(
+                'rounded-full px-3 py-0.5 text-[10px] font-bold',
+                verdictTone === 'AUTO-RELEASE'
+                  ? 'bg-emerald-400/15 text-emerald-300'
+                  : verdictTone === 'AUDIT HOLD'
+                    ? 'bg-amber-400/15 text-amber-300'
+                    : 'bg-[#C00018]/20 text-red-300',
+              )}
+            >
+              {verdictLabel}
+            </span>
+          </div>
+          <p className="mt-3 leading-relaxed text-white/55">&ldquo;{verdict}&rdquo;</p>
+        </div>
+      </div>
+    </motion.div>
   );
 }
