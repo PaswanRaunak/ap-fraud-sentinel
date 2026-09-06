@@ -61,6 +61,17 @@ Then open **http://localhost:3000** and click **Run Batch Audit** to screen the 
 
 Use your own data: **Invoice Ingestion** accepts your own PDF/EML/CSV files, and the vendor master reloads from uploaded CSVs.
 
+## Free hosting (Render)
+
+The repo ships an all-in-one container (`Dockerfile` + `docker-start.sh` + `render.yaml`) that runs all three services in a single free Render web service:
+
+1. Push this repo to your GitHub account (or fork it)
+2. Go to [render.com](https://render.com), sign in with GitHub (free, no card)
+3. **New -> Blueprint** and select the repo - Render reads `render.yaml` and deploys
+4. First build takes ~10 minutes (Node + Python deps, Next build, DB seed)
+
+Free-tier caveats: the service sleeps after ~15 minutes idle (the next request wakes it in about a minute), the SQLite database resets on redeploy (re-run the batch to repopulate), and the live trace animation is limited on the hosted URL - dashboard data still updates via polling.
+
 ## Repository layout
 
 ```

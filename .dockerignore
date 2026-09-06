@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+db/custom.db
+*.log
+.env
+.env.*
+!.env.example
+data/prerecorded
+calls
+uploads

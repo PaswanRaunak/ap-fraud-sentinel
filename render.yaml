@@ -1,0 +1,11 @@
+# Render blueprint - deploys the all-in-one container on the free plan.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: ap-fraud-sentinel
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /api/healthz
+    # Free instances sleep after ~15 min idle; the first request afterwards
+    # takes about a minute while the container wakes and reseeds if needed.
